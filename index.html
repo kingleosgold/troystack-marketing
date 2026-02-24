@@ -327,17 +327,20 @@
             margin-bottom: 64px;
         }
 
-        .screenshot-placeholder {
-            height: 400px;
-            border: 1px dashed #333;
-            border-radius: 12px;
+        .hero-screenshots {
             display: flex;
-            align-items: center;
             justify-content: center;
-            color: #666;
-            font-size: 0.95rem;
+            align-items: center;
+            gap: 24px;
             max-width: 900px;
             margin: 0 auto;
+        }
+
+        .hero-screenshots img {
+            max-height: 500px;
+            width: auto;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
         }
 
         /* ── Troy ───────────────────────────────────────── */
@@ -642,6 +645,10 @@
                 display: flex;
             }
 
+            .hero-screenshots img:nth-child(3) {
+                display: none;
+            }
+
             .features-grid {
                 grid-template-columns: 1fr 1fr;
             }
@@ -676,8 +683,9 @@
                 width: 100%;
             }
 
-            .screenshot-placeholder {
-                height: 260px;
+            .hero-screenshots img:nth-child(1),
+            .hero-screenshots img:nth-child(3) {
+                display: none;
             }
 
             .troy-grid {
@@ -742,7 +750,11 @@
                     </div>
                     <p class="hero-note">Free to start. No credit card required.</p>
                 </div>
-                <div id="hero-screenshots" class="screenshot-placeholder">App screenshots coming soon</div>
+                <div id="hero-screenshots" class="hero-screenshots">
+                    <img src="/screenshots/02_portfolio.png" alt="Stack Tracker Gold — stack overview">
+                    <img src="/screenshots/01_troys_take.png" alt="Stack Tracker Gold — Troy's daily brief">
+                    <img src="/screenshots/04_troy_chat.png" alt="Stack Tracker Gold — chatting with Troy">
+                </div>
             </div>
         </section>
 

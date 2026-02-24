@@ -4,34 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stack Tracker Gold — Track Your Gold & Silver Stack</title>
-    <meta name="description" content="The smartest portfolio tracker for precious metals investors. Live prices, AI intelligence, and real-time analytics for gold, silver, platinum & palladium.">
+    <meta name="description" content="Track your gold, silver, platinum and palladium stack with live spot prices, AI-powered intelligence from Troy, receipt scanning, COMEX vault data, and price alerts.">
     <meta property="og:title" content="Stack Tracker Gold — Track Your Gold & Silver Stack">
-    <meta property="og:description" content="The smartest portfolio tracker for precious metals investors. Live prices, AI intelligence, and real-time analytics.">
+    <meta property="og:description" content="Track your gold, silver, platinum and palladium stack with live spot prices, AI-powered intelligence from Troy, receipt scanning, COMEX vault data, and price alerts.">
     <meta property="og:image" content="/icon.png">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://stacktrackergold.com">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Stack Tracker Gold — Track Your Gold & Silver Stack">
-    <meta name="twitter:description" content="The smartest portfolio tracker for precious metals investors. Live prices, AI intelligence, and real-time analytics.">
+    <meta name="twitter:description" content="Track your gold, silver, platinum and palladium stack with live spot prices, AI-powered intelligence from Troy, receipt scanning, COMEX vault data, and price alerts.">
     <meta name="twitter:image" content="/icon.png">
-    <link rel="icon" type="image/png" href="/icon.png">
+    <link rel="icon" href="/icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-primary: #0a0a0a;
-            --bg-secondary: #111111;
-            --bg-card: #161616;
-            --gold: #D4A843;
-            --gold-dim: #b8922e;
-            --gold-glow: rgba(212, 168, 67, 0.15);
-            --text-primary: #FFFFFF;
-            --text-secondary: #9CA3AF;
-            --text-muted: #6B7280;
-            --border: #222222;
+            --bg: #0a0a0a;
+            --bg-card: #1a1a1a;
+            --gold: #C9A84C;
+            --gold-glow: rgba(201, 168, 76, 0.1);
+            --text: #f5f5f5;
+            --text-secondary: #999;
+            --text-muted: #666;
+            --border: #222;
             --border-light: #2a2a2a;
-            --green: #22C55E;
         }
 
         * {
@@ -46,8 +43,8 @@
 
         body {
             font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--text);
             line-height: 1.6;
             overflow-x: hidden;
         }
@@ -58,84 +55,112 @@
             padding: 0 24px;
         }
 
-        /* ─── Header ─── */
+        /* ── Nav ────────────────────────────────────────── */
+
         header {
-            padding: 20px 0;
-            position: fixed;
+            position: sticky;
             top: 0;
-            left: 0;
-            right: 0;
-            background: rgba(10, 10, 10, 0.85);
+            z-index: 100;
+            background: rgba(10, 10, 10, 0.92);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            z-index: 100;
             border-bottom: 1px solid var(--border);
         }
 
         .header-inner {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
+            height: 64px;
         }
 
         .logo {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 10px;
             text-decoration: none;
-            color: var(--text-primary);
+            color: var(--text);
         }
 
         .logo img {
-            width: 36px;
-            height: 36px;
+            width: 32px;
+            height: 32px;
             border-radius: 8px;
         }
 
         .logo span {
             font-weight: 700;
-            font-size: 1.05rem;
+            font-size: 1rem;
         }
 
-        .header-nav {
+        .nav-toggle {
+            display: none;
+        }
+
+        .nav-toggle-label {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px 4px;
+            z-index: 10;
+        }
+
+        .nav-toggle-label span {
+            display: block;
+            width: 22px;
+            height: 2px;
+            background: var(--text);
+            border-radius: 2px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+        }
+
+        .nav-toggle:checked ~ .nav-toggle-label span:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+
+        .nav-toggle:checked ~ .nav-toggle-label span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .nav-toggle:checked ~ .nav-toggle-label span:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+
+        .nav-links {
             display: flex;
             align-items: center;
             gap: 32px;
         }
 
-        .header-nav a {
+        .nav-links a {
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 500;
-            transition: color 0.2s ease;
+            transition: color 0.15s ease;
         }
 
-        .header-nav a:hover {
-            color: var(--text-primary);
+        .nav-links a:hover {
+            color: var(--text);
         }
 
-        .header-cta {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-        }
+        /* ── Buttons ────────────────────────────────────── */
 
-        /* ─── Buttons ─── */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
             padding: 12px 24px;
-            border-radius: 10px;
+            border-radius: 8px;
             font-weight: 600;
             font-size: 0.95rem;
             text-decoration: none;
-            transition: all 0.2s ease;
             cursor: pointer;
             border: none;
             font-family: inherit;
+            transition: opacity 0.15s ease, border-color 0.15s ease, color 0.15s ease;
         }
 
         .btn-primary {
@@ -144,13 +169,12 @@
         }
 
         .btn-primary:hover {
-            background: var(--gold-dim);
-            transform: translateY(-1px);
+            opacity: 0.88;
         }
 
         .btn-secondary {
             background: transparent;
-            color: var(--text-primary);
+            color: var(--text);
             border: 1px solid var(--border-light);
         }
 
@@ -159,43 +183,60 @@
             color: var(--gold);
         }
 
-        .btn-large {
-            padding: 16px 32px;
-            font-size: 1.05rem;
-            border-radius: 12px;
+        /* ── Section common ─────────────────────────────── */
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 64px;
         }
 
-        /* ─── Hero ─── */
+        .section-headline {
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+
+        .section-subhead {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.65;
+        }
+
+        /* ── Hero ───────────────────────────────────────── */
+
         .hero {
             padding: 140px 0 80px;
+            text-align: center;
             position: relative;
         }
 
         .hero::before {
             content: '';
             position: absolute;
-            top: 0;
+            top: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 800px;
-            height: 600px;
+            width: 700px;
+            height: 500px;
             background: radial-gradient(ellipse, var(--gold-glow) 0%, transparent 70%);
             pointer-events: none;
         }
 
         .hero-content {
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto 64px;
             position: relative;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .hero h1 {
-            font-size: clamp(2.5rem, 5.5vw, 4rem);
+            font-size: clamp(2.5rem, 5.5vw, 3.75rem);
             font-weight: 700;
             line-height: 1.1;
-            margin-bottom: 20px;
-            letter-spacing: -0.02em;
+            letter-spacing: -0.03em;
+            margin-bottom: 24px;
         }
 
         .hero h1 .gold {
@@ -203,11 +244,11 @@
         }
 
         .hero-sub {
-            font-size: clamp(1.05rem, 2vw, 1.25rem);
             color: var(--text-secondary);
-            max-width: 600px;
+            font-size: clamp(1.05rem, 2vw, 1.2rem);
+            max-width: 640px;
             margin: 0 auto 40px;
-            line-height: 1.6;
+            line-height: 1.65;
         }
 
         .hero-buttons {
@@ -215,58 +256,69 @@
             gap: 16px;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 16px;
         }
 
-        .hero-screenshots {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 32px;
-            max-width: 900px;
-            margin: 0 auto;
-            position: relative;
+        .hero-buttons .btn {
+            padding: 14px 28px;
+            font-size: 1rem;
         }
 
-        .screenshot-box {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            aspect-ratio: 16 / 10;
+        .hero-note {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            margin-bottom: 64px;
+        }
+
+        .screenshot-placeholder {
+            height: 400px;
+            border: 1px dashed #333;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--text-muted);
+            color: #666;
             font-size: 0.95rem;
-            font-weight: 500;
-            overflow: hidden;
+            max-width: 900px;
+            margin: 0 auto;
         }
 
-        .screenshot-box img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        /* ── Troy ───────────────────────────────────────── */
 
-        /* ─── Features ─── */
-        .features {
+        .troy {
             padding: 100px 0;
         }
 
-        .section-label {
-            text-align: center;
-            color: var(--gold);
-            font-weight: 600;
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            margin-bottom: 12px;
+        .troy-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
         }
 
-        .section-title {
-            text-align: center;
-            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
-            font-weight: 700;
-            margin-bottom: 64px;
-            letter-spacing: -0.01em;
+        .troy-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--gold);
+            border-radius: 12px;
+            padding: 32px;
+        }
+
+        .troy-card h3 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .troy-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        /* ── Features ───────────────────────────────────── */
+
+        .features {
+            padding: 100px 0;
         }
 
         .features-grid {
@@ -278,101 +330,49 @@
         .feature-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 16px;
-            padding: 32px 28px;
-            transition: border-color 0.2s ease, transform 0.2s ease;
-        }
-
-        .feature-card:hover {
-            border-color: var(--border-light);
-            transform: translateY(-2px);
-        }
-
-        .feature-icon {
-            width: 40px;
-            height: 40px;
-            margin-bottom: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .feature-icon svg {
-            width: 32px;
-            height: 32px;
-            color: var(--gold);
+            border-radius: 12px;
+            padding: 32px;
         }
 
         .feature-card h3 {
             font-size: 1.05rem;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
         }
 
         .feature-card p {
             color: var(--text-secondary);
             font-size: 0.9rem;
-            line-height: 1.55;
+            line-height: 1.6;
         }
 
-        /* ─── Pricing ─── */
-        .pricing {
-            padding: 100px 0;
+        /* ── More Features ──────────────────────────────── */
+
+        .more-features {
+            padding: 0 0 100px;
         }
 
-        .pricing-toggle {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 48px;
+        .more-features-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
         }
 
-        .pricing-toggle-inner {
-            display: inline-flex;
+        .more-feature-item {
             background: var(--bg-card);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 4px;
-        }
-
-        .pricing-toggle button {
-            padding: 10px 24px;
-            border: none;
-            background: transparent;
-            color: var(--text-muted);
-            font-family: inherit;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-            position: relative;
-        }
-
-        .pricing-toggle button:hover {
+            padding: 16px 20px;
+            font-size: 0.88rem;
+            font-weight: 500;
             color: var(--text-secondary);
+            text-align: center;
         }
 
-        .pricing-toggle button.active {
-            background: var(--gold);
-            color: #000;
-        }
+        /* ── Pricing ────────────────────────────────────── */
 
-        .pricing-save-badge {
-            position: absolute;
-            top: 16px;
-            right: 16px;
-            background: var(--green);
-            color: #fff;
-            font-size: 0.75rem;
-            font-weight: 700;
-            padding: 4px 12px;
-            border-radius: 6px;
-            white-space: nowrap;
-            display: none;
-        }
-
-        .pricing-save-badge.visible {
-            display: block;
+        .pricing {
+            padding: 100px 0;
         }
 
         .pricing-grid {
@@ -386,54 +386,38 @@
         .pricing-card {
             background: var(--bg-card);
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 12px;
             padding: 40px 32px;
             display: flex;
             flex-direction: column;
         }
 
-        .pricing-card.highlighted {
+        .pricing-card.gold-card {
             border-color: var(--gold);
-            position: relative;
         }
 
-        .pricing-badge {
-            position: absolute;
-            top: -13px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--gold);
-            color: #000;
-            font-weight: 700;
-            font-size: 0.8rem;
-            padding: 4px 16px;
-            border-radius: 100px;
-            white-space: nowrap;
-        }
-
-        .pricing-card h3 {
-            font-size: 1.3rem;
+        .pricing-tier {
+            font-size: 1.15rem;
             font-weight: 700;
             margin-bottom: 8px;
         }
 
-        .pricing-card .price {
+        .pricing-price {
             font-size: 2.5rem;
             font-weight: 700;
             margin-bottom: 4px;
         }
 
-        .pricing-card .price span {
+        .pricing-price span {
             font-size: 1rem;
             font-weight: 400;
             color: var(--text-secondary);
         }
 
-        .pricing-card .price-alt {
+        .pricing-note {
             color: var(--text-muted);
             font-size: 0.85rem;
-            margin-bottom: 32px;
-            min-height: 1.3em;
+            margin-bottom: 28px;
         }
 
         .pricing-features {
@@ -443,7 +427,7 @@
         }
 
         .pricing-features li {
-            padding: 8px 0;
+            padding: 6px 0;
             font-size: 0.9rem;
             color: var(--text-secondary);
             display: flex;
@@ -452,36 +436,39 @@
         }
 
         .pricing-features li::before {
-            content: '✓';
+            content: '\2713';
             color: var(--gold);
             font-weight: 700;
             flex-shrink: 0;
         }
 
-        .pricing-features li.coming-soon {
-            opacity: 0.6;
+        .pricing-features li.label {
+            color: var(--text);
+            font-weight: 500;
         }
 
-        .pricing-features li.coming-soon::after {
-            content: 'coming soon';
-            font-size: 0.7rem;
-            background: var(--border-light);
-            padding: 2px 8px;
-            border-radius: 4px;
-            margin-left: 4px;
-            white-space: nowrap;
+        .pricing-features li.label::before {
+            content: '';
+        }
+
+        .pricing-alt {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-align: center;
+            margin-top: 16px;
         }
 
         .pricing-card .btn {
             width: 100%;
         }
 
-        /* ─── Trust ─── */
+        /* ── Trust ──────────────────────────────────────── */
+
         .trust {
             padding: 100px 0;
         }
 
-        .trust-stats {
+        .trust-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 24px;
@@ -489,133 +476,31 @@
             margin: 0 auto;
         }
 
-        .trust-stat {
+        .trust-item {
             text-align: center;
-            padding: 40px 24px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 16px;
+            padding: 24px;
         }
 
-        .trust-stat .stat-icon {
-            margin-bottom: 16px;
-            display: flex;
-            justify-content: center;
-        }
-
-        .trust-stat .stat-icon svg {
-            width: 32px;
-            height: 32px;
-            color: var(--gold);
-        }
-
-        .trust-stat h3 {
-            font-size: 1.05rem;
+        .trust-item h3 {
+            font-size: 1rem;
             font-weight: 600;
             margin-bottom: 8px;
         }
 
-        .trust-stat p {
+        .trust-item p {
             color: var(--text-secondary);
-            font-size: 0.85rem;
-        }
-
-        .trust-privacy {
-            text-align: center;
-            margin-top: 48px;
-            padding: 32px;
-            background: linear-gradient(135deg, rgba(212, 168, 67, 0.05) 0%, transparent 100%);
-            border: 1px solid var(--border);
-            border-radius: 16px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .trust-privacy p {
-            color: var(--text-secondary);
-            font-size: 0.95rem;
-        }
-
-        .trust-privacy strong {
-            color: var(--text-primary);
-        }
-
-        /* ─── Download ─── */
-        .download {
-            padding: 100px 0;
-        }
-
-        .download-content {
-            text-align: center;
-        }
-
-        .download-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 48px;
-        }
-
-        .download-btn {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            padding: 18px 28px;
-            border-radius: 14px;
-            text-decoration: none;
-            color: var(--text-primary);
-            transition: all 0.2s ease;
-            width: 240px;
-            height: 68px;
-        }
-
-        .download-btn:hover {
-            border-color: var(--gold);
-            transform: translateY(-2px);
-        }
-
-        .download-btn svg {
-            width: 28px;
-            height: 28px;
-            flex-shrink: 0;
-            display: block;
-        }
-
-        .download-btn .dl-text {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .download-btn .dl-text small {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            line-height: 1.2;
-        }
-
-        .download-btn .dl-text span {
-            font-weight: 600;
-            font-size: 1.05rem;
-            line-height: 1.3;
-        }
-
-        .download-sync {
-            color: var(--text-muted);
             font-size: 0.9rem;
-            margin-top: 24px;
+            line-height: 1.55;
         }
 
-        /* ─── Footer ─── */
+        /* ── Footer ─────────────────────────────────────── */
+
         footer {
             padding: 48px 0;
             border-top: 1px solid var(--border);
         }
 
-        .footer-inner {
+        .footer-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -628,7 +513,7 @@
             align-items: center;
             gap: 10px;
             text-decoration: none;
-            color: var(--text-primary);
+            color: var(--text);
         }
 
         .footer-logo img {
@@ -644,64 +529,67 @@
 
         .footer-links {
             display: flex;
-            gap: 28px;
+            gap: 24px;
         }
 
         .footer-links a {
             color: var(--text-secondary);
             text-decoration: none;
             font-size: 0.85rem;
-            transition: color 0.2s ease;
+            transition: color 0.15s ease;
         }
 
         .footer-links a:hover {
             color: var(--gold);
         }
 
-        .footer-copy {
-            width: 100%;
+        .footer-bottom {
             text-align: center;
-            color: var(--text-muted);
-            font-size: 0.8rem;
-            margin-top: 16px;
+            margin-top: 32px;
             padding-top: 24px;
             border-top: 1px solid var(--border);
         }
 
-        .footer-copy a {
-            color: var(--text-secondary);
-            text-decoration: none;
+        .footer-bottom p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
         }
 
-        .footer-copy a:hover {
-            color: var(--gold);
+        .footer-bottom p + p {
+            margin-top: 6px;
+            font-size: 0.75rem;
         }
 
-        /* ─── Animations ─── */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
+        /* ── Responsive ─────────────────────────────────── */
 
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* ─── Responsive ─── */
         @media (max-width: 900px) {
-            .header-nav {
-                display: none;
+            .nav-toggle-label {
+                display: flex;
             }
 
-            .hero-screenshots {
-                grid-template-columns: 1fr;
-                max-width: 500px;
+            .nav-links {
+                display: none;
+                position: absolute;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: var(--bg);
+                border-bottom: 1px solid var(--border);
+                flex-direction: column;
+                padding: 20px 24px;
+                gap: 16px;
+            }
+
+            .nav-toggle:checked ~ .nav-links {
+                display: flex;
             }
 
             .features-grid {
                 grid-template-columns: 1fr 1fr;
+            }
+
+            .more-features-grid {
+                grid-template-columns: repeat(2, 1fr);
             }
 
             .pricing-grid {
@@ -709,45 +597,44 @@
                 max-width: 440px;
             }
 
-            .trust-stats {
+            .trust-grid {
                 grid-template-columns: 1fr;
-                max-width: 440px;
+                max-width: 480px;
+                margin: 0 auto;
             }
         }
 
         @media (max-width: 600px) {
-            .header-cta {
-                display: none;
-            }
-
             .hero {
                 padding: 120px 0 60px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .hero-buttons .btn {
+                width: 100%;
+            }
+
+            .screenshot-placeholder {
+                height: 260px;
+            }
+
+            .troy-grid {
+                grid-template-columns: 1fr;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
             }
 
-            .hero-buttons {
-                flex-direction: column;
-                align-items: center;
+            .more-features-grid {
+                grid-template-columns: 1fr 1fr;
             }
 
-            .hero-buttons .btn {
-                width: 100%;
-                max-width: 300px;
-            }
-
-            .download-buttons {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .download-btn {
-                width: 240px;
-            }
-
-            .footer-inner {
+            .footer-top {
                 flex-direction: column;
                 text-align: center;
             }
@@ -760,38 +647,71 @@
     </style>
 </head>
 <body>
+
+    <!-- Nav -->
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
                 <img src="/icon.png" alt="Stack Tracker Gold">
                 <span>Stack Tracker Gold</span>
             </a>
-            <nav class="header-nav">
+            <input type="checkbox" id="nav-toggle" class="nav-toggle">
+            <label for="nav-toggle" class="nav-toggle-label" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </label>
+            <nav class="nav-links">
                 <a href="#features">Features</a>
+                <a href="#troy">Troy</a>
                 <a href="#pricing">Pricing</a>
-                <a href="#download">Download</a>
+                <a href="https://apps.apple.com/us/app/stack-tracker-gold/id6738029817" target="_blank" rel="noopener">Download</a>
             </nav>
-            <div class="header-cta">
-                <a href="https://app.stacktrackergold.com/auth" class="btn btn-primary">Start Tracking Free</a>
-            </div>
         </div>
     </header>
 
     <main>
+
         <!-- Hero -->
         <section class="hero">
             <div class="container">
                 <div class="hero-content">
-                    <h1>Track Your <span class="gold">Gold & Silver</span> Stack</h1>
-                    <p class="hero-sub">The smartest portfolio tracker for precious metals investors. Live prices, AI intelligence, and real-time analytics.</p>
+                    <h1>Track Your Stack.<br><span class="gold">Ask Troy Anything.</span></h1>
+                    <p class="hero-sub">The AI-powered precious metals tracker. Live spot prices, receipt scanning, portfolio intelligence, and Troy — your personal stack analyst.</p>
                     <div class="hero-buttons">
-                        <a href="https://app.stacktrackergold.com/auth" class="btn btn-primary btn-large">Start Tracking Free</a>
-                        <a href="https://apps.apple.com/us/app/stack-tracker-gold/id6757343766" class="btn btn-secondary btn-large" target="_blank" rel="noopener">Download on iOS</a>
+                        <a href="https://apps.apple.com/us/app/stack-tracker-gold/id6738029817" class="btn btn-primary" target="_blank" rel="noopener">Download on iOS</a>
+                        <a href="https://app.stacktrackergold.com" class="btn btn-secondary">Open Web App</a>
                     </div>
+                    <p class="hero-note">Free to start. No credit card required.</p>
                 </div>
-                <div class="hero-screenshots">
-                    <div class="screenshot-box">Web App Screenshot</div>
-                    <div class="screenshot-box">Mobile App Screenshot</div>
+                <div id="hero-screenshots" class="screenshot-placeholder">App screenshots coming soon</div>
+            </div>
+        </section>
+
+        <!-- Meet Troy -->
+        <section class="troy" id="troy">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-headline">Meet Troy</h2>
+                    <p class="section-subhead">Your AI stack analyst. Named for the troy ounce — the universal unit of precious metals.</p>
+                </div>
+                <div class="troy-grid">
+                    <div class="troy-card">
+                        <h3>Troy's Take</h3>
+                        <p>A personalized market briefing every morning. What moved overnight, what it means for your stack, and what to watch today.</p>
+                    </div>
+                    <div class="troy-card">
+                        <h3>Ask Troy Anything</h3>
+                        <p>Chat with Troy about your stack, the market, COMEX data, or any metals question. He knows your holdings and gives you straight answers.</p>
+                    </div>
+                    <div class="troy-card">
+                        <h3>Portfolio Intelligence</h3>
+                        <p>Troy analyzes your entire stack — cost basis, allocation, timing patterns — and tells you what he sees. No corporate speak.</p>
+                    </div>
+                    <div class="troy-card">
+                        <h3>Market Intelligence</h3>
+                        <p>AI-curated articles and COMEX alerts. Troy filters the noise so you don't have to.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -799,39 +719,50 @@
         <!-- Features -->
         <section class="features" id="features">
             <div class="container">
-                <p class="section-label">Features</p>
-                <h2 class="section-title">Everything You Need to Track Your Stack</h2>
+                <div class="section-header">
+                    <h2 class="section-headline">Everything You Need</h2>
+                </div>
                 <div class="features-grid">
-                    <div class="feature-card fade-in">
-                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div>
+                    <div class="feature-card">
                         <h3>Live Spot Prices</h3>
-                        <p>Real-time gold, silver, platinum & palladium prices updated every minute.</p>
+                        <p>Gold, silver, platinum, and palladium updated every minute. Weekend market freeze preserves Friday close.</p>
                     </div>
-                    <div class="feature-card fade-in">
-                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M12 4v16"/><path d="M2 12h20"/><circle cx="7" cy="8" r="1" fill="currentColor" stroke="none"/><circle cx="17" cy="16" r="1" fill="currentColor" stroke="none"/></svg></div>
-                        <h3>Portfolio Tracking</h3>
-                        <p>Track every coin, bar, and round. See your total value at a glance.</p>
+                    <div class="feature-card">
+                        <h3>AI Receipt Scanner</h3>
+                        <p>Snap a photo of any dealer receipt. AI extracts every line item and adds it to your stack automatically.</p>
                     </div>
-                    <div class="feature-card fade-in">
-                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8"/><path d="M10 10h8"/></svg></div>
-                        <h3>AI Intelligence Feed</h3>
-                        <p>AI-curated market briefs delivered daily. Stay informed without the noise.</p>
+                    <div class="feature-card">
+                        <h3>iOS Widgets</h3>
+                        <p>Small, medium, large, and lock screen. Your stack value and spot prices on your home screen.</p>
                     </div>
-                    <div class="feature-card fade-in">
-                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg></div>
-                        <h3>AI Stack Advisor</h3>
-                        <p>Ask questions about your portfolio. Get personalized analysis powered by AI.</p>
+                    <div class="feature-card">
+                        <h3>Price Alerts</h3>
+                        <p>Set alerts for any metal at any price. Get notified when spot hits your target, including all-time highs.</p>
                     </div>
-                    <div class="feature-card fade-in">
-                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="8" width="18" height="14" rx="2"/><path d="M7 8V6a5 5 0 0 1 10 0v2"/><path d="M12 15v2"/><circle cx="12" cy="15" r="1"/></svg></div>
+                    <div class="feature-card">
                         <h3>COMEX Vault Watch</h3>
-                        <p>Monitor warehouse inventory levels and delivery demand in real time.</p>
+                        <p>Monitor registered and eligible inventory across all COMEX warehouses. Track physical delivery demand in real time.</p>
                     </div>
-                    <div class="feature-card fade-in">
-                        <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="12" width="4" height="8" rx="1"/><rect x="10" y="8" width="4" height="12" rx="1"/><rect x="17" y="4" width="4" height="16" rx="1"/></svg></div>
-                        <h3>Advanced Analytics</h3>
-                        <p>Cost basis, gain/loss, allocation breakdown, historical charts.</p>
+                    <div class="feature-card">
+                        <h3>Historical Charts</h3>
+                        <p>Spot price history from 1M to all-time. Four metals, interactive charts, monthly data back to 1915.</p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- More Features -->
+        <section class="more-features">
+            <div class="container">
+                <div class="more-features-grid">
+                    <div class="more-feature-item">Multiple stacks</div>
+                    <div class="more-feature-item">CSV import</div>
+                    <div class="more-feature-item">Speculation calculator</div>
+                    <div class="more-feature-item">Junk silver melt calculator</div>
+                    <div class="more-feature-item">Stack milestones</div>
+                    <div class="more-feature-item">Share My Stack</div>
+                    <div class="more-feature-item">Hide values toggle</div>
+                    <div class="more-feature-item">Push notifications</div>
                 </div>
             </div>
         </section>
@@ -839,43 +770,39 @@
         <!-- Pricing -->
         <section class="pricing" id="pricing">
             <div class="container">
-                <p class="section-label">Pricing</p>
-                <h2 class="section-title">Simple, Transparent Pricing</h2>
-                <div class="pricing-toggle">
-                    <div class="pricing-toggle-inner">
-                        <button class="active" data-plan="monthly">Monthly</button>
-                        <button data-plan="yearly">Yearly</button>
-                        <button data-plan="lifetime">Lifetime</button>
-                    </div>
+                <div class="section-header">
+                    <h2 class="section-headline">Simple Pricing</h2>
                 </div>
                 <div class="pricing-grid">
-                    <div class="pricing-card fade-in">
-                        <h3>Free</h3>
-                        <div class="price">$0<span>/forever</span></div>
-                        <p class="price-alt">No credit card required</p>
+                    <div class="pricing-card">
+                        <p class="pricing-tier">Free</p>
+                        <div class="pricing-price">$0 <span>/forever</span></div>
+                        <p class="pricing-note">No credit card required</p>
                         <ul class="pricing-features">
-                            <li>Portfolio tracking</li>
                             <li>Live spot prices</li>
+                            <li>Stack tracking</li>
                             <li>Basic analytics</li>
+                            <li>3 Troy questions/day</li>
                         </ul>
                         <a href="https://app.stacktrackergold.com/auth" class="btn btn-secondary">Start Free</a>
                     </div>
-                    <div class="pricing-card highlighted fade-in">
-                        <div class="pricing-badge" id="goldBadge">7 days free</div>
-                        <div class="pricing-save-badge" id="goldSaveBadge">Save 33%</div>
-                        <h3>Gold</h3>
-                        <div class="price" id="goldPrice">$9.99<span>/mo</span></div>
-                        <p class="price-alt" id="goldPriceAlt">Billed monthly</p>
+                    <div class="pricing-card gold-card">
+                        <p class="pricing-tier">Gold</p>
+                        <div class="pricing-price">$9.99 <span>/mo</span></div>
+                        <p class="pricing-note">7-day free trial included</p>
                         <ul class="pricing-features">
-                            <li>Everything in Free, plus:</li>
-                            <li>AI Intelligence Feed</li>
-                            <li>AI Stack Advisor</li>
+                            <li class="label">Everything in Free, plus:</li>
+                            <li>Full Troy access (30 questions/day)</li>
+                            <li>Troy's Take (daily brief)</li>
+                            <li>Portfolio Intelligence</li>
+                            <li>Market Intelligence</li>
                             <li>COMEX Vault Watch</li>
-                            <li>Spot Price History</li>
-                            <li>Advanced Analytics</li>
-                            <li class="coming-soon">AI Daily Brief</li>
+                            <li>Historical charts</li>
+                            <li>AI receipt scanner</li>
+                            <li>Price alerts</li>
                         </ul>
-                        <a href="https://app.stacktrackergold.com/auth" class="btn btn-primary" id="goldCta">Start Free Trial</a>
+                        <a href="https://app.stacktrackergold.com/auth" class="btn btn-primary">Start 7-Day Free Trial</a>
+                        <p class="pricing-alt">Also available: $79.99/year (save 33%) &middot; $199.99 lifetime</p>
                     </div>
                 </div>
             </div>
@@ -884,62 +811,32 @@
         <!-- Trust -->
         <section class="trust">
             <div class="container">
-                <p class="section-label">Trust</p>
-                <h2 class="section-title">Built for Serious Stackers</h2>
-                <div class="trust-stats">
-                    <div class="trust-stat fade-in">
-                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5"/><circle cx="16" cy="8" r="5"/><circle cx="8" cy="16" r="5"/><circle cx="16" cy="16" r="5"/></svg></div>
-                        <h3>Gold, Silver, Platinum & Palladium</h3>
-                        <p>Track all four major precious metals in one place.</p>
-                    </div>
-                    <div class="trust-stat fade-in">
-                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg></div>
-                        <h3>Live Global Market Prices</h3>
-                        <p>Spot prices sourced from global markets, updated every minute.</p>
-                    </div>
-                    <div class="trust-stat fade-in">
-                        <div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
-                        <h3>Bank-Level Encryption</h3>
-                        <p>Your data is encrypted in transit and at rest. Always.</p>
-                    </div>
+                <div class="section-header">
+                    <h2 class="section-headline">Built for Stackers</h2>
                 </div>
-                <div class="trust-privacy fade-in">
-                    <p><strong>Your data stays on your device.</strong> No accounts required to start tracking. Create an account only when you want to sync across devices.</p>
+                <div class="trust-grid">
+                    <div class="trust-item">
+                        <h3>Privacy first</h3>
+                        <p>No tracking, no ads, no data selling.</p>
+                    </div>
+                    <div class="trust-item">
+                        <h3>Bank-level encryption</h3>
+                        <p>Your data is encrypted in transit and at rest.</p>
+                    </div>
+                    <div class="trust-item">
+                        <h3>Your stack, your business</h3>
+                        <p>We never see your holdings.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- Download -->
-        <section class="download" id="download">
-            <div class="container">
-                <div class="download-content">
-                    <p class="section-label">Get Started</p>
-                    <h2 class="section-title">Available Everywhere</h2>
-                    <div class="download-buttons">
-                        <a href="https://apps.apple.com/us/app/stack-tracker-gold/id6757343766" class="download-btn" target="_blank" rel="noopener">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
-                            <div class="dl-text">
-                                <small>Download on the</small>
-                                <span>App Store</span>
-                            </div>
-                        </a>
-                        <a href="https://app.stacktrackergold.com" class="download-btn" target="_blank" rel="noopener">
-                            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M16.36 14c.08-.66.14-1.32.14-2 0-.68-.06-1.34-.14-2h3.38c.16.64.26 1.31.26 2s-.1 1.36-.26 2m-5.15 5.56c.6-1.11 1.06-2.31 1.38-3.56h2.95a8.03 8.03 0 0 1-4.33 3.56M14.34 14H9.66c-.1-.66-.16-1.32-.16-2 0-.68.06-1.35.16-2h4.68c.09.65.16 1.32.16 2 0 .68-.07 1.34-.16 2M12 19.96c-.83-1.2-1.48-2.53-1.91-3.96h3.82c-.43 1.43-1.08 2.76-1.91 3.96M8 8H5.08A7.923 7.923 0 0 1 9.4 4.44C8.8 5.55 8.35 6.75 8 8m-2.92 8H8c.35 1.25.8 2.45 1.4 3.56A8.008 8.008 0 0 1 5.08 16m-.82-2C4.1 13.36 4 12.69 4 12s.1-1.36.26-2h3.38c-.08.66-.14 1.32-.14 2 0 .68.06 1.34.14 2M12 4.03c.83 1.2 1.48 2.54 1.91 3.97H10.09c.43-1.43 1.08-2.77 1.91-3.97M18.92 8h-2.95a15.65 15.65 0 0 0-1.38-3.56c1.84.63 3.37 1.9 4.33 3.56M12 2C6.47 2 2 6.5 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/></svg>
-                            <div class="dl-text">
-                                <small>Open in browser</small>
-                                <span>Web App</span>
-                            </div>
-                        </a>
-                    </div>
-                    <p class="download-sync">Sync your portfolio across all devices</p>
-                </div>
-            </div>
-        </section>
     </main>
 
+    <!-- Footer -->
     <footer>
         <div class="container">
-            <div class="footer-inner">
+            <div class="footer-top">
                 <a href="/" class="footer-logo">
                     <img src="/icon.png" alt="Stack Tracker Gold">
                     <span>Stack Tracker Gold</span>
@@ -950,55 +847,21 @@
                     <a href="mailto:support@stacktrackergold.com">Contact</a>
                 </div>
             </div>
-            <p class="footer-copy">&copy; 2026 <a href="https://mancinitechsolutions.com">Mancini Tech Solutions</a>. All rights reserved.</p>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Mancini Tech Solutions</p>
+                <p>Developer API coming soon</p>
+            </div>
         </div>
     </footer>
 
     <script>
-        // Fade-in on scroll
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, { threshold: 0.1 });
-
-        document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
-
-        // Smooth scroll for nav links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-            });
-        });
-
-        // Pricing toggle
-        const plans = {
-            monthly:  { price: '$9.99<span>/mo</span>',           alt: 'Billed monthly',                     badge: '7 days free',  cta: 'Start Free Trial',    showSave: false },
-            yearly:   { price: '$79.99<span>/yr</span>',          alt: 'Billed annually \u2014 7 days free',  badge: '7 days free',  cta: 'Start Free Trial',    showSave: true },
-            lifetime: { price: '$199.99<span> one-time</span>',   alt: 'No recurring fees ever',              badge: 'Best value',   cta: 'Get Lifetime Access', showSave: false }
-        };
-
-        const saveBadge = document.getElementById('goldSaveBadge');
-
-        document.querySelectorAll('.pricing-toggle button').forEach(btn => {
-            btn.addEventListener('click', function() {
-                document.querySelectorAll('.pricing-toggle button').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                const plan = plans[this.dataset.plan];
-                document.getElementById('goldPrice').innerHTML = plan.price;
-                document.getElementById('goldPriceAlt').textContent = plan.alt;
-                document.getElementById('goldBadge').textContent = plan.badge;
-                document.getElementById('goldCta').textContent = plan.cta;
-                saveBadge.classList.toggle('visible', plan.showSave);
+        // Close mobile nav when a link is tapped
+        document.querySelectorAll('.nav-links a').forEach(function(link) {
+            link.addEventListener('click', function() {
+                document.getElementById('nav-toggle').checked = false;
             });
         });
     </script>
+
 </body>
 </html>

@@ -1,0 +1,44 @@
+# Stack Tracker Gold
+
+## What is Stack Tracker Gold?
+Stack Tracker Gold is an AI-powered precious metals portfolio tracker for gold, silver, platinum, and palladium investors. Available on iOS and web.
+
+## Troy — AI Stack Analyst
+Troy is the app's built-in AI analyst, named for the troy ounce. Troy provides:
+- Personalized daily market briefings (Troy's Take)
+- Chat-based Q&A about your stack, the metals market, and COMEX data
+- Stack intelligence — AI analysis of your holdings, cost basis, allocation, and timing
+- Market intelligence — AI-curated articles and COMEX vault alerts
+
+## Key Features
+- Live spot prices for gold, silver, platinum, palladium (updated every minute)
+- AI receipt scanner (snap a dealer receipt, AI extracts line items)
+- iOS widgets (small, medium, large, lock screen)
+- Price alerts including all-time high notifications
+- COMEX Vault Watch (registered and eligible inventory tracking)
+- Historical spot price charts (1M to all-time, monthly data back to 1915)
+- Multiple stacks, CSV import, speculation calculator
+- Junk silver melt calculator, stack milestones, share my stack
+
+## Pricing
+- Free: Live spot prices, stack tracking, basic analytics, 3 Troy questions/day
+- Gold Monthly: $9.99/mo (7-day free trial)
+- Gold Yearly: $79.99/yr
+- Gold Lifetime: $199.99
+
+## Links
+- iOS App: https://apps.apple.com/us/app/stack-tracker-gold/id6738029817
+- Web App: https://app.stacktrackergold.com
+- API: https://api.stacktrackergold.com
+- Marketing Site: https://www.stacktrackergold.com
+- Privacy Policy: https://api.stacktrackergold.com/privacy
+- Terms of Service: https://api.stacktrackergold.com/terms
+- Contact: support@stacktrackergold.com
+
+## API
+Stack Tracker Gold offers a REST API at api.stacktrackergold.com with endpoints for live spot prices, historical prices, COMEX vault data, and market intelligence. Developer API keys coming soon.
+
+## Technical
+- MCP server: https://api.stacktrackergold.com/.well-known/mcp.json
+- OpenAPI spec: https://api.stacktrackergold.com/openapi.json
+- AI plugin: https://api.stacktrackergold.com/.well-known/ai-plugin.json

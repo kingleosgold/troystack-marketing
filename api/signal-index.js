@@ -9,6 +9,10 @@ module.exports = async (req, res) => {
     const data = await response.json();
     const articles = data.articles || [];
 
+    const ogImage = articles.length > 0 && articles[0].image_url
+      ? articles[0].image_url
+      : `${SITE_URL}/icon.png`;
+
     const articleCards = articles.map(renderArticleCard).join('\n');
 
     const body = `
@@ -45,13 +49,15 @@ module.exports = async (req, res) => {
     <link rel="canonical" href="${SITE_URL}/signal">
     <meta property="og:title" content="The Stack Signal — AI Precious Metals Intelligence">
     <meta property="og:description" content="Daily AI-powered precious metals market intelligence. Gold, silver, platinum, and palladium analysis by Troy, your personal stack analyst.">
-    <meta property="og:image" content="${SITE_URL}/icon.png">
+    <meta property="og:image" content="${escapeHtml(ogImage)}">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
     <meta property="og:url" content="${SITE_URL}/signal">
     <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary">
+    <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="The Stack Signal — AI Precious Metals Intelligence">
     <meta name="twitter:description" content="Daily AI-powered precious metals market intelligence by Troy, your personal stack analyst.">
-    <meta name="twitter:image" content="${SITE_URL}/icon.png">
+    <meta name="twitter:image" content="${escapeHtml(ogImage)}">
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",

@@ -363,58 +363,15 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
             padding-left: 12px;
         }
 
-        .commentary-public p {
+        .commentary-full p {
             font-size: 1.05rem;
             line-height: 1.8;
             color: var(--text);
+            margin-bottom: 16px;
         }
 
-        .commentary-paywall {
-            position: relative;
-            margin-top: 16px;
-            min-height: 180px;
-        }
-
-        .commentary-blurred {
-            filter: blur(6px);
-            user-select: none;
-            -webkit-user-select: none;
-            pointer-events: none;
-        }
-
-        .commentary-blurred p {
-            font-size: 1.05rem;
-            line-height: 1.8;
-            color: var(--text);
-            margin-bottom: 12px;
-        }
-
-        .commentary-cta-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(to bottom, rgba(10,10,10,0.1), rgba(10,10,10,0.97) 75%);
-        }
-
-        .cta-box {
-            text-align: center;
-            padding: 32px;
-        }
-
-        .cta-box p {
-            font-size: 1.05rem;
-            font-weight: 500;
-            margin-bottom: 20px;
-            color: var(--text);
-        }
-
-        .cta-box .cta-sub {
-            font-size: 0.85rem;
-            color: var(--text-muted);
-            margin-top: 12px;
-            font-weight: 400;
+        .commentary-full p:last-child {
+            margin-bottom: 0;
         }
 
         /* ── Source Link ──────────────────────────────── */

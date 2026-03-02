@@ -621,6 +621,81 @@
             font-size: 0.75rem;
         }
 
+        /* ── Signal Preview ─────────────────────────────── */
+
+        .signal-preview {
+            padding: 100px 0;
+        }
+
+        .signal-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .signal-preview-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            text-decoration: none;
+            color: inherit;
+            transition: border-color 0.2s ease, transform 0.2s ease;
+        }
+
+        .signal-preview-card:hover {
+            border-color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .signal-preview-card img {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            object-fit: cover;
+        }
+
+        .signal-preview-card-body {
+            padding: 20px;
+        }
+
+        .signal-preview-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .signal-preview-badge {
+            text-transform: uppercase;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--gold);
+            background: rgba(201, 168, 76, 0.1);
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .signal-preview-score {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--gold);
+        }
+
+        .signal-preview-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            line-height: 1.35;
+            margin-bottom: 8px;
+        }
+
+        .signal-preview-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            font-style: italic;
+        }
+
         /* ── Responsive ─────────────────────────────────── */
 
         @media (max-width: 900px) {
@@ -646,6 +721,14 @@
             }
 
             .hero-screenshots img:nth-child(3) {
+                display: none;
+            }
+
+            .signal-preview-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .signal-preview-card:nth-child(3) {
                 display: none;
             }
 
@@ -688,6 +771,14 @@
                 display: none;
             }
 
+            .signal-preview-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .signal-preview-card:nth-child(3) {
+                display: block;
+            }
+
             .troy-grid {
                 grid-template-columns: 1fr;
             }
@@ -728,6 +819,7 @@
                 <span></span>
             </label>
             <nav class="nav-links">
+                <a href="/signal">Stack Signal</a>
                 <a href="#features">Features</a>
                 <a href="#troy">Troy</a>
                 <a href="#pricing">Pricing</a>
@@ -782,6 +874,20 @@
                         <h3>Market Intelligence</h3>
                         <p>AI-curated articles and COMEX alerts. Troy filters the noise so you don't have to.</p>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stack Signal Preview -->
+        <section class="signal-preview" id="signal">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-headline">The Stack Signal</h2>
+                    <p class="section-subhead">AI-powered precious metals intelligence. Troy monitors 140+ sources daily, scoring the stories that matter.</p>
+                </div>
+                <div class="signal-preview-grid" id="signal-preview-cards"></div>
+                <div style="text-align: center; margin-top: 32px;">
+                    <a href="/signal" class="btn btn-secondary">Read more on The Stack Signal &rarr;</a>
                 </div>
             </div>
         </section>
@@ -912,6 +1018,7 @@
                     <span>Stack Tracker Gold</span>
                 </a>
                 <div class="footer-links">
+                    <a href="/signal">Stack Signal</a>
                     <a href="/privacy">Privacy Policy</a>
                     <a href="/terms">Terms of Service</a>
                     <a href="mailto:support@stacktrackergold.com">Contact</a>
@@ -931,6 +1038,31 @@
                 document.getElementById('nav-toggle').checked = false;
             });
         });
+
+        // Load Stack Signal preview cards
+        (function() {
+            var container = document.getElementById('signal-preview-cards');
+            if (!container) return;
+
+            fetch('https://api.stacktrackergold.com/v1/stack-signal')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var articles = (data.articles || []).slice(0, 3);
+                    container.innerHTML = articles.map(function(a) {
+                        return '<a href="/signal/' + a.slug + '" class="signal-preview-card">'
+                            + '<img src="' + a.image_url + '" alt="' + a.title.replace(/"/g, '&quot;') + '" loading="lazy">'
+                            + '<div class="signal-preview-card-body">'
+                            + '<div class="signal-preview-card-meta">'
+                            + '<span class="signal-preview-badge">' + a.category + '</span>'
+                            + '<span class="signal-preview-score">Troy Score: ' + a.relevance_score + '</span>'
+                            + '</div>'
+                            + '<h3>' + a.title + '</h3>'
+                            + '<p>&ldquo;' + a.troy_one_liner + '&rdquo;</p>'
+                            + '</div></a>';
+                    }).join('');
+                })
+                .catch(function() {});
+        })();
     </script>
 
 </body>

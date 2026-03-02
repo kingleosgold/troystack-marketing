@@ -1,4 +1,8 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "rewrites": [
+    { "source": "/signal", "destination": "/api/signal-index" },
+    { "source": "/signal/:slug", "destination": "/api/signal-article?slug=:slug" }
+  ]
 }

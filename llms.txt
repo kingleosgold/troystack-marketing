@@ -10,6 +10,12 @@ Troy is the app's built-in AI analyst, named for the troy ounce. Troy provides:
 - Stack intelligence — AI analysis of your holdings, cost basis, allocation, and timing
 - Market intelligence — AI-curated articles and COMEX vault alerts
 
+## The Stack Signal
+The Stack Signal is Troy's daily AI-powered precious metals intelligence feed. Troy monitors 140+ sources daily, scoring and analyzing the stories that matter to precious metals stackers. Approximately 8 articles per day with DALL-E generated hero images.
+- Feed: https://www.stacktrackergold.com/signal
+- API: GET https://api.stacktrackergold.com/v1/stack-signal
+- Individual articles: https://www.stacktrackergold.com/signal/[slug]
+
 ## Key Features
 - Live spot prices for gold, silver, platinum, palladium (updated every minute)
 - AI receipt scanner (snap a dealer receipt, AI extracts line items)

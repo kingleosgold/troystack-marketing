@@ -1,6 +1,6 @@
 const APP_STORE_URL = 'https://apps.apple.com/us/app/stack-tracker-gold/id6738029817';
 const WEB_APP_URL = 'https://app.stacktrackergold.com';
-const SITE_URL = 'https://www.stacktrackergold.com';
+const SITE_URL = 'https://troystack.com';
 
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -570,8 +570,8 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
     <header>
         <div class="container header-inner">
             <a href="/" class="logo">
-                <img src="/icon.png" alt="Stack Tracker Gold">
-                <span>Stack Tracker Gold</span>
+                <img src="/icon.png" alt="TroyStack">
+                <span>TroyStack</span>
             </a>
             <input type="checkbox" id="nav-toggle" class="nav-toggle">
             <label for="nav-toggle" class="nav-toggle-label" aria-label="Toggle menu">
@@ -595,14 +595,14 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
         <div class="container">
             <div class="footer-top">
                 <a href="/" class="footer-logo">
-                    <img src="/icon.png" alt="Stack Tracker Gold">
-                    <span>Stack Tracker Gold</span>
+                    <img src="/icon.png" alt="TroyStack">
+                    <span>TroyStack</span>
                 </a>
                 <div class="footer-links">
                     <a href="/signal">Stack Signal</a>
                     <a href="/privacy">Privacy Policy</a>
                     <a href="/terms">Terms of Service</a>
-                    <a href="mailto:support@stacktrackergold.com">Contact</a>
+                    <a href="mailto:support@troystack.com">Contact</a>
                 </div>
             </div>
             <div class="footer-bottom">

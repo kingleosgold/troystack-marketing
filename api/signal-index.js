@@ -36,7 +36,7 @@ module.exports = async (req, res) => {
         <section class="signal-cta-bottom">
             <div class="container">
                 <h2>Get Troy's Full Analysis</h2>
-                <p>Download Stack Tracker Gold for complete AI commentary, Troy Chat, portfolio tracking, and price alerts.</p>
+                <p>Download TroyStack for complete AI commentary, Troy Chat, portfolio tracking, and price alerts.</p>
                 <div class="signal-cta-buttons">
                     <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download on iOS</a>
                     <a href="${WEB_APP_URL}" class="btn btn-secondary">Open Web App</a>
@@ -67,7 +67,7 @@ module.exports = async (req, res) => {
       "url": "${SITE_URL}/signal",
       "publisher": {
         "@type": "Organization",
-        "name": "Stack Tracker Gold",
+        "name": "TroyStack",
         "logo": {
           "@type": "ImageObject",
           "url": "${SITE_URL}/icon.png"
@@ -77,7 +77,7 @@ module.exports = async (req, res) => {
     </script>`;
 
     const html = renderPage({
-      title: 'The Stack Signal — AI Precious Metals Intelligence | Stack Tracker Gold',
+      title: 'The Stack Signal — AI Precious Metals Intelligence | TroyStack',
       head,
       body,
       activeNav: 'signal',
@@ -97,7 +97,7 @@ module.exports = async (req, res) => {
         </section>`;
 
     const html = renderPage({
-      title: 'The Stack Signal | Stack Tracker Gold',
+      title: 'The Stack Signal | TroyStack',
       body,
       activeNav: 'signal',
     });

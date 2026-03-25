@@ -1,7 +1,7 @@
-# Stack Tracker Gold
+# TroyStack
 
-## What is Stack Tracker Gold?
-Stack Tracker Gold is an AI-powered precious metals portfolio tracker for gold, silver, platinum, and palladium investors. Available on iOS and web.
+## What is TroyStack?
+TroyStack is an AI-powered precious metals portfolio tracker for gold, silver, platinum, and palladium investors. Available on iOS and web.
 
 ## Troy — AI Stack Analyst
 Troy is the app's built-in AI analyst, named for the troy ounce. Troy provides:
@@ -12,9 +12,9 @@ Troy is the app's built-in AI analyst, named for the troy ounce. Troy provides:
 
 ## The Stack Signal
 The Stack Signal is Troy's daily AI-powered precious metals intelligence feed. Troy monitors 140+ sources daily, scoring and analyzing the stories that matter to precious metals stackers. Approximately 8 articles per day with DALL-E generated hero images.
-- Feed: https://www.stacktrackergold.com/signal
+- Feed: https://troystack.com/signal
 - API: GET https://api.stacktrackergold.com/v1/stack-signal
-- Individual articles: https://www.stacktrackergold.com/signal/[slug]
+- Individual articles: https://troystack.com/signal/[slug]
 
 ## Key Features
 - Live spot prices for gold, silver, platinum, palladium (updated every minute)
@@ -36,13 +36,13 @@ The Stack Signal is Troy's daily AI-powered precious metals intelligence feed. T
 - iOS App: https://apps.apple.com/us/app/stack-tracker-gold/id6738029817
 - Web App: https://app.stacktrackergold.com
 - API: https://api.stacktrackergold.com
-- Marketing Site: https://www.stacktrackergold.com
+- Marketing Site: https://troystack.com
 - Privacy Policy: https://api.stacktrackergold.com/privacy
 - Terms of Service: https://api.stacktrackergold.com/terms
-- Contact: support@stacktrackergold.com
+- Contact: support@troystack.com
 
 ## API
-Stack Tracker Gold offers a REST API at api.stacktrackergold.com with endpoints for live spot prices, historical prices, COMEX vault data, and market intelligence. Developer API keys coming soon.
+TroyStack offers a REST API at api.stacktrackergold.com with endpoints for live spot prices, historical prices, COMEX vault data, and market intelligence. Developer API keys coming soon.
 
 ## Technical
 - MCP server: https://api.stacktrackergold.com/.well-known/mcp.json

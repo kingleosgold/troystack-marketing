@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
             </section>`;
 
         const html = renderPage({
-          title: 'Article Not Found | Stack Tracker Gold',
+          title: 'Article Not Found | TroyStack',
           body,
           activeNav: 'signal',
         });
@@ -129,7 +129,7 @@ module.exports = async (req, res) => {
         <section class="signal-cta-bottom">
             <div class="container">
                 <h2>Want Troy's analysis on YOUR stack?</h2>
-                <p>Download Stack Tracker Gold for personalized AI commentary, Troy Chat, portfolio tracking, price alerts, and daily briefs.</p>
+                <p>Download TroyStack for personalized AI commentary, Troy Chat, portfolio tracking, price alerts, and daily briefs.</p>
                 <div class="signal-cta-buttons">
                     <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download on iOS</a>
                     <a href="${WEB_APP_URL}" class="btn btn-secondary">Open Web App</a>
@@ -165,11 +165,11 @@ module.exports = async (req, res) => {
       "articleBody": ${JSON.stringify(commentary)},
       "author": {
         "@type": "Organization",
-        "name": "Stack Tracker Gold"
+        "name": "TroyStack"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Stack Tracker Gold",
+        "name": "TroyStack",
         "logo": {
           "@type": "ImageObject",
           "url": "${SITE_URL}/icon.png"
@@ -183,7 +183,7 @@ module.exports = async (req, res) => {
     </script>`;
 
     const html = renderPage({
-      title: `${article.title} — Troy's Analysis | Stack Tracker Gold`,
+      title: `${article.title} — Troy's Analysis | TroyStack`,
       head,
       body,
       activeNav: 'signal',
@@ -203,7 +203,7 @@ module.exports = async (req, res) => {
         </section>`;
 
     const html = renderPage({
-      title: 'Article | Stack Tracker Gold',
+      title: 'Article | TroyStack',
       body,
       activeNav: 'signal',
     });

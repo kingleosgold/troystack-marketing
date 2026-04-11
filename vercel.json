@@ -4,6 +4,7 @@
   "rewrites": [
     { "source": "/signal", "destination": "/api/signal-index" },
     { "source": "/signal/:slug", "destination": "/api/signal-article?slug=:slug" },
-    { "source": "/signal-sitemap.xml", "destination": "/api/signal-sitemap" }
+    { "source": "/signal-sitemap.xml", "destination": "/api/signal-sitemap" },
+    { "source": "/api/signal/:slug", "destination": "/api/signal-slug?slug=:slug" }
   ]
 }

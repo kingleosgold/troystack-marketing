@@ -106,6 +106,22 @@
             border: 1px solid var(--gold-border);
             border-radius: 6px;
         }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        .nav-links a {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            transition: color 0.15s ease;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-links a.active { color: var(--gold); }
+        @media (max-width: 700px) {
+            .nav-links a:not(.header-cta) { display: none; }
+        }
 
         /* ── Hero ───────────────────────────────── */
         .hero {
@@ -389,7 +405,13 @@
                 <img src="/icon.png" alt="TroyStack">
                 <span>TroyStack</span>
             </a>
-            <a href="https://apps.apple.com/us/app/troystack/id6738029817" target="_blank" rel="noopener" class="header-cta">Get the App</a>
+            <nav class="nav-links">
+                <a href="/signal">Signal</a>
+                <a href="/calculator" class="active">Calculator</a>
+                <a href="/speculation">What If?</a>
+                <a href="/junk-silver">Junk Silver</a>
+                <a href="https://apps.apple.com/us/app/troystack/id6738029817" target="_blank" rel="noopener" class="header-cta">Get the App</a>
+            </nav>
         </div>
     </header>
 

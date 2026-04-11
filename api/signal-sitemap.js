@@ -1,17 +1,22 @@
-const { listArticles } = require('./_shared/supabase');
+const { fetchList } = require('./_shared/signal-lib');
 
 const SITE_URL = 'https://troystack.com';
 
 function escapeXml(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  return String(s)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
 }
 
 module.exports = async (req, res) => {
   try {
-    const articles = await listArticles({ limit: 500 });
+    const articles = await fetchList({ limit: 50, offset: 0 });
 
     const urls = articles.map(a => {
-      const lastmod = (a.created_at || '').slice(0, 10);
+      const lastmod = (a.published_at || a.created_at || '').slice(0, 10);
       return `  <url>
     <loc>${SITE_URL}/signal/${escapeXml(a.slug)}</loc>
     <lastmod>${lastmod}</lastmod>

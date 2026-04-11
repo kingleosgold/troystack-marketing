@@ -1,4 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /signal
+Allow: /signal/
 
 Sitemap: https://troystack.com/sitemap.xml
+Sitemap: https://troystack.com/signal-sitemap.xml

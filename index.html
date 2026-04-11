@@ -821,7 +821,7 @@
                 <span></span>
             </label>
             <nav class="nav-links">
-                <a href="/signal">Stack Signal</a>
+                <a href="/signal">Signal</a>
                 <a href="#features">Features</a>
                 <a href="#troy">Troy</a>
                 <a href="#pricing">Pricing</a>
@@ -1046,20 +1046,54 @@
             var container = document.getElementById('signal-preview-cards');
             if (!container) return;
 
-            fetch('https://api.stacktrackergold.com/v1/stack-signal')
+            var SUPA = 'https://sixwgsqfutnvdxhrvkzd.supabase.co';
+            var KEY = 'sb_publishable_0r33KI_abURhBHAd2wlcTw_tUiOMt_2';
+            var url = SUPA + '/rest/v1/stack_signal_articles'
+                + '?select=slug,title,troy_commentary,image_url,created_at,sources,relevance_score'
+                + '&order=created_at.desc&limit=20';
+
+            function escapeHtml(s) {
+                return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+            }
+            function stripMd(s) {
+                return String(s || '')
+                    .replace(/`([^`]+)`/g, '$1')
+                    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+                    .replace(/^#{1,6}\s+/gm, '')
+                    .replace(/\*\*([^*]+)\*\*/g, '$1')
+                    .replace(/\*([^*]+)\*/g, '$1')
+                    .replace(/\s+/g, ' ').trim();
+            }
+            function excerpt(s, n) {
+                var c = stripMd(s);
+                if (c.length <= n) return c;
+                var slice = c.slice(0, n);
+                var sp = slice.lastIndexOf(' ');
+                return (sp > 80 ? slice.slice(0, sp) : slice) + '…';
+            }
+            function fmtDate(iso) {
+                var d = new Date(iso);
+                var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+                return months[d.getUTCMonth()] + ' ' + d.getUTCDate() + ', ' + d.getUTCFullYear();
+            }
+
+            fetch(url, { headers: { apikey: KEY, Authorization: 'Bearer ' + KEY } })
                 .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    var articles = (data.articles || []).slice(0, 3);
+                .then(function(rows) {
+                    var articles = (rows || [])
+                        .filter(function(a) { return a.troy_commentary && a.troy_commentary.length > 500; })
+                        .slice(0, 3);
                     container.innerHTML = articles.map(function(a) {
-                        return '<a href="/signal/' + a.slug + '" class="signal-preview-card">'
-                            + '<img src="' + a.image_url + '" alt="' + a.title.replace(/"/g, '&quot;') + '" loading="lazy">'
+                        var score = a.relevance_score != null ? Math.round(a.relevance_score) : '';
+                        return '<a href="/signal/' + encodeURIComponent(a.slug) + '" class="signal-preview-card">'
+                            + (a.image_url ? '<img src="' + escapeHtml(a.image_url) + '" alt="' + escapeHtml(a.title) + '" loading="lazy">' : '')
                             + '<div class="signal-preview-card-body">'
                             + '<div class="signal-preview-card-meta">'
-                            + '<span class="signal-preview-badge">' + a.category + '</span>'
-                            + '<span class="signal-preview-score">Troy Score: ' + a.relevance_score + '</span>'
+                            + '<span class="signal-preview-badge">' + escapeHtml(fmtDate(a.created_at)) + '</span>'
+                            + (score !== '' ? '<span class="signal-preview-score">Signal ' + score + '</span>' : '')
                             + '</div>'
-                            + '<h3>' + a.title + '</h3>'
-                            + '<p>&ldquo;' + a.troy_one_liner + '&rdquo;</p>'
+                            + '<h3>' + escapeHtml(a.title) + '</h3>'
+                            + '<p>' + escapeHtml(excerpt(a.troy_commentary, 140)) + '</p>'
                             + '</div></a>';
                     }).join('');
                 })

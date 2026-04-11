@@ -19,6 +19,85 @@ function formatPrice(price) {
   return '$' + price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
+function stripMarkdown(md) {
+  if (!md) return '';
+  return md
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/^#{1,6}\s+/gm, '')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/(^|[^*])\*([^*\n]+)\*/g, '$1$2')
+    .replace(/^>\s?/gm, '')
+    .replace(/^[-*+]\s+/gm, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function excerpt(body, maxLen = 180) {
+  const clean = stripMarkdown(body);
+  if (clean.length <= maxLen) return clean;
+  const slice = clean.slice(0, maxLen);
+  const lastSpace = slice.lastIndexOf(' ');
+  return (lastSpace > 100 ? slice.slice(0, lastSpace) : slice) + '…';
+}
+
+function readingTime(body) {
+  const words = stripMarkdown(body).split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 220));
+}
+
+function renderInline(text) {
+  let t = escapeHtml(text);
+  t = t.replace(/`([^`]+)`/g, '<code>$1</code>');
+  t = t.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g, (_, txt, url) => {
+    if (!/^https?:\/\//i.test(url) && !url.startsWith('/')) return txt;
+    const safe = url.replace(/"/g, '');
+    return `<a href="${safe}" target="_blank" rel="noopener nofollow">${txt}</a>`;
+  });
+  t = t.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+  t = t.replace(/(^|[^*])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+  return t;
+}
+
+function renderMarkdown(md) {
+  if (!md) return '';
+  const blocks = md.replace(/\r\n/g, '\n').split(/\n{2,}/);
+  const out = [];
+  for (let raw of blocks) {
+    const block = raw.trim();
+    if (!block) continue;
+
+    const h = block.match(/^(#{1,6})\s+(.+)$/);
+    if (h && !block.includes('\n')) {
+      const level = Math.min(h[1].length + 1, 6); // shift so # becomes h2
+      out.push(`<h${level}>${renderInline(h[2])}</h${level}>`);
+      continue;
+    }
+
+    const lines = block.split('\n');
+    if (lines.every(l => /^[-*+]\s+/.test(l))) {
+      const items = lines.map(l => `<li>${renderInline(l.replace(/^[-*+]\s+/, ''))}</li>`).join('');
+      out.push(`<ul>${items}</ul>`);
+      continue;
+    }
+    if (lines.every(l => /^\d+\.\s+/.test(l))) {
+      const items = lines.map(l => `<li>${renderInline(l.replace(/^\d+\.\s+/, ''))}</li>`).join('');
+      out.push(`<ol>${items}</ol>`);
+      continue;
+    }
+    if (lines.every(l => /^>\s?/.test(l))) {
+      const inner = lines.map(l => l.replace(/^>\s?/, '')).join(' ');
+      out.push(`<blockquote>${renderInline(inner)}</blockquote>`);
+      continue;
+    }
+
+    out.push(`<p>${lines.map(renderInline).join('<br>')}</p>`);
+  }
+  return out.join('\n');
+}
+
 function renderPage({ title, head = '', body = '', activeNav = '' }) {
   return `<!DOCTYPE html>
 <html lang="en">
@@ -290,6 +369,115 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
             font-style: italic;
             margin-top: auto;
         }
+
+        .signal-card-excerpt {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            line-height: 1.55;
+            margin-top: 4px;
+        }
+
+        .signal-card-footer {
+            margin-top: 14px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-light);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .signal-card-sources { color: var(--text-muted); }
+
+        /* ── Pagination ──────────────────────────────── */
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 16px;
+            margin-top: 48px;
+        }
+
+        .pagination a, .pagination span {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-light);
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: border-color 0.15s ease, color 0.15s ease;
+        }
+
+        .pagination a:hover { border-color: var(--gold); color: var(--gold); }
+        .pagination .disabled { opacity: 0.4; pointer-events: none; }
+        .pagination .page-num { color: var(--text-muted); border: none; padding: 10px 4px; }
+
+        /* ── Prose (Markdown Body) ───────────────────── */
+
+        .prose {
+            font-size: 1.06rem;
+            line-height: 1.8;
+            color: var(--text);
+        }
+
+        .prose p { margin-bottom: 1.2em; }
+        .prose h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 2em 0 0.6em;
+            letter-spacing: -0.01em;
+        }
+        .prose h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin: 1.8em 0 0.5em;
+            color: var(--gold);
+        }
+        .prose h4, .prose h5, .prose h6 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin: 1.4em 0 0.4em;
+        }
+        .prose a {
+            color: var(--gold);
+            text-decoration: underline;
+            text-decoration-color: rgba(201, 168, 76, 0.4);
+            text-underline-offset: 3px;
+        }
+        .prose a:hover { text-decoration-color: var(--gold); }
+        .prose strong { color: #fff; font-weight: 600; }
+        .prose em { color: var(--text); }
+        .prose ul, .prose ol {
+            margin: 0 0 1.2em 1.4em;
+            padding: 0;
+        }
+        .prose li { margin-bottom: 0.5em; }
+        .prose blockquote {
+            border-left: 3px solid var(--gold);
+            padding: 4px 0 4px 18px;
+            margin: 1.2em 0;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+        .prose code {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+
+        .article-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            padding-bottom: 28px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .article-stats .sep { color: var(--border-light); }
 
         /* ── Individual Article ───────────────────────── */
 
@@ -580,7 +768,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
                 <span></span>
             </label>
             <nav class="nav-links">
-                <a href="/signal"${activeNav === 'signal' ? ' class="active"' : ''}>Stack Signal</a>
+                <a href="/signal"${activeNav === 'signal' ? ' class="active"' : ''}>Signal</a>
                 <a href="/#features">Features</a>
                 <a href="/#troy">Troy</a>
                 <a href="/#pricing">Pricing</a>
@@ -624,17 +812,20 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
 }
 
 function renderArticleCard(article) {
-  const { slug, title, troy_one_liner, category, image_url, relevance_score, published_at } = article;
+  const { slug, title, body, image_url, created_at, source_count, importance_score } = article;
+  const exc = excerpt(body, 160);
+  const sources = source_count != null ? `<span class="signal-card-sources">${source_count} source${source_count === 1 ? '' : 's'}</span>` : '';
+  const score = importance_score != null ? `<span class="troy-score">Signal ${Math.round(importance_score)}</span>` : '';
   return `<a href="/signal/${escapeHtml(slug)}" class="signal-card">
-    <img class="signal-card-image" src="${escapeHtml(image_url)}" alt="${escapeHtml(title)}" loading="lazy">
+    ${image_url ? `<img class="signal-card-image" src="${escapeHtml(image_url)}" alt="${escapeHtml(title)}" loading="lazy">` : ''}
     <div class="signal-card-body">
         <div class="signal-card-meta">
-            <span class="category-badge">${escapeHtml(category)}</span>
-            <span class="troy-score">Troy Score: ${relevance_score}</span>
+            <span class="signal-card-date">${formatDate(created_at)}</span>
+            ${score}
         </div>
         <h3 class="signal-card-title">${escapeHtml(title)}</h3>
-        <p class="signal-card-date">${formatDate(published_at)}</p>
-        <p class="signal-card-oneliner">"${escapeHtml(troy_one_liner)}"</p>
+        <p class="signal-card-excerpt">${escapeHtml(exc)}</p>
+        ${sources ? `<div class="signal-card-footer">${sources}</div>` : ''}
     </div>
 </a>`;
 }
@@ -645,6 +836,10 @@ module.exports = {
   escapeHtml,
   formatDate,
   formatPrice,
+  stripMarkdown,
+  excerpt,
+  readingTime,
+  renderMarkdown,
   APP_STORE_URL,
   WEB_APP_URL,
   SITE_URL,

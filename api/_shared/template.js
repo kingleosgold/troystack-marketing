@@ -2,8 +2,6 @@ const APP_STORE_URL = 'https://apps.apple.com/us/app/troystack/id6738029817';
 const WEB_APP_URL = 'https://app.stacktrackergold.com';
 const SITE_URL = 'https://troystack.com';
 
-const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -11,7 +9,12 @@ function escapeHtml(str) {
 
 function formatDate(isoDate) {
   const d = new Date(isoDate);
-  return `${MONTHS[d.getUTCMonth()]} ${d.getUTCDate()}, ${d.getUTCFullYear()}`;
+  return d.toLocaleDateString('en-US', {
+    timeZone: 'America/New_York',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
 }
 
 function formatPrice(price) {

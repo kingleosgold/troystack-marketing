@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Stack Purchasing Power Calculator — What Does Your Gold &amp; Silver Actually Buy? | TroyStack</title>
+    <meta name="description" content="Enter your gold and silver holdings. See what your stack buys in barrels of oil, months of rent, and hours of labor — and how it compares to 1971. Free tool by TroyStack.">
+
+    <meta property="og:title" content="What Does Your Stack Actually Buy? — TroyStack">
+    <meta property="og:description" content="See what your gold and silver buys in barrels of oil, months of rent, and hours of labor. Compare to 1971. Free tool by TroyStack.">
+    <meta property="og:image" content="https://troystack.com/og-calculator.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:url" content="https://troystack.com/calculator">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="TroyStack">
+    <link rel="canonical" href="https://troystack.com/calculator">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="What Does Your Stack Actually Buy? — TroyStack">
+    <meta name="twitter:description" content="See what your gold and silver buys today vs 1971. Free tool by TroyStack.">
+    <meta name="twitter:image" content="https://troystack.com/og-calculator.png">
+    <meta name="twitter:site" content="@troystack_">
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Stack Purchasing Power Calculator",
+      "applicationCategory": "FinanceApplication",
+      "operatingSystem": "Any",
+      "url": "https://troystack.com/calculator",
+      "description": "Free calculator that converts your gold and silver holdings into real-world purchasing power and compares against 1971.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "TroyStack",
+        "logo": { "@type": "ImageObject", "url": "https://troystack.com/icon.png" }
+      }
+    }
+    </script>
+
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <style>
+        :root {
+            --bg: #0B1120;
+            --bg-card: #141B2D;
+            --bg-card-2: #1a2236;
+            --gold: #C9A84C;
+            --gold-soft: rgba(201, 168, 76, 0.18);
+            --gold-border: rgba(201, 168, 76, 0.32);
+            --text: #FFFFFF;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
+            --border: #1f2740;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.55;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; cursor: pointer; }
+        input { font-family: inherit; }
+
+        .container { max-width: 760px; margin: 0 auto; padding: 0 20px; }
+
+        /* ── Header ────────────────────────────── */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(11, 17, 32, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border-bottom: 1px solid var(--border);
+        }
+        .header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .logo { display: flex; align-items: center; gap: 10px; }
+        .logo img { width: 30px; height: 30px; border-radius: 6px; }
+        .logo span { font-weight: 700; font-size: 1rem; letter-spacing: -0.01em; }
+        .header-cta {
+            color: var(--gold);
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border: 1px solid var(--gold-border);
+            border-radius: 6px;
+        }
+
+        /* ── Hero ───────────────────────────────── */
+        .hero {
+            padding: 56px 0 28px;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(8px) scale(0.99);
+            animation: fadeUp 0.7s ease forwards;
+        }
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .hero h1 {
+            font-size: clamp(1.85rem, 5.2vw, 2.65rem);
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+            margin-bottom: 16px;
+        }
+        .hero h1 .accent { color: var(--gold); }
+        .hero p {
+            color: var(--text-secondary);
+            font-size: clamp(0.95rem, 2.4vw, 1.05rem);
+            max-width: 560px;
+            margin: 0 auto;
+        }
+
+        /* ── Calculator ─────────────────────────── */
+        .calculator {
+            margin-top: 36px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 14px;
+        }
+        .input-card {
+            background: var(--bg-card);
+            border: 1px solid var(--gold-border);
+            border-radius: 14px;
+            padding: 18px;
+            transition: border-color 0.18s ease, transform 0.18s ease;
+        }
+        .input-card:focus-within {
+            border-color: var(--gold);
+            transform: translateY(-1px);
+        }
+        .input-card label {
+            display: block;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .input-card input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--text);
+            padding: 0;
+        }
+        .input-card input::placeholder { color: var(--text-muted); font-weight: 600; }
+        .input-card .unit {
+            display: block;
+            margin-top: 6px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .calc-btn {
+            margin-top: 18px;
+            width: 100%;
+            padding: 16px 24px;
+            background: var(--gold);
+            color: #0B1120;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            letter-spacing: 0.02em;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .calc-btn:hover { opacity: 0.92; }
+        .calc-btn:active { transform: scale(0.985); }
+
+        .price-status {
+            margin-top: 12px;
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+        .price-status strong { color: var(--text-secondary); font-weight: 600; }
+
+        /* ── Results ───────────────────────────── */
+        .results { display: none; margin-top: 36px; }
+        .results.visible { display: block; animation: fadeUp 0.5s ease forwards; }
+
+        .result-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 22px;
+            margin-bottom: 14px;
+        }
+        .result-card.gold-border { border-color: var(--gold-border); }
+
+        .result-card h2 {
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--gold);
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .total-value {
+            font-size: clamp(2rem, 7vw, 2.85rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+        }
+        .total-breakdown {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .buys-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 14px;
+        }
+        .buys-item {
+            background: var(--bg-card-2);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+        }
+        .buys-item .num {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1.1;
+        }
+        .buys-item .label {
+            margin-top: 4px;
+            font-size: 0.78rem;
+            color: var(--text-secondary);
+        }
+
+        .insight {
+            margin-top: 16px;
+            padding: 16px;
+            border-left: 3px solid var(--gold);
+            background: var(--gold-soft);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            line-height: 1.55;
+        }
+        .insight strong { color: var(--gold); }
+
+        .ratio-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 8px;
+        }
+        .ratio-num {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: var(--gold);
+            line-height: 1;
+        }
+        .ratio-label { font-size: 0.85rem; color: var(--text-secondary); }
+        .ratio-context { font-size: 0.85rem; color: var(--text-secondary); }
+
+        /* ── Share Section ─────────────────────── */
+        .share-section { margin-top: 28px; }
+        .share-section h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        .share-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+        }
+        .share-btn {
+            padding: 13px 10px;
+            background: var(--bg-card);
+            border: 1px solid var(--gold-border);
+            border-radius: 10px;
+            color: var(--text);
+            font-size: 0.85rem;
+            font-weight: 600;
+            transition: background 0.15s ease, transform 0.15s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .share-btn:hover { background: var(--gold-soft); }
+        .share-btn:active { transform: scale(0.97); }
+        .share-btn.copied { background: var(--gold); color: #0B1120; border-color: var(--gold); }
+
+        /* ── CTA ───────────────────────────────── */
+        .cta {
+            margin: 56px 0 28px;
+            padding: 28px 22px;
+            background: linear-gradient(180deg, var(--bg-card) 0%, var(--bg-card-2) 100%);
+            border: 1px solid var(--gold-border);
+            border-radius: 18px;
+            text-align: center;
+        }
+        .cta h2 {
+            font-size: clamp(1.25rem, 4vw, 1.55rem);
+            font-weight: 800;
+            line-height: 1.25;
+            margin-bottom: 8px;
+            letter-spacing: -0.01em;
+        }
+        .cta h2 .accent { color: var(--gold); }
+        .cta p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            max-width: 480px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 28px;
+            background: var(--gold);
+            color: #0B1120;
+            font-weight: 800;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: opacity 0.15s ease, transform 0.15s ease;
+        }
+        .cta-btn:hover { opacity: 0.92; }
+        .cta-btn:active { transform: scale(0.985); }
+
+        /* ── Footer ────────────────────────────── */
+        footer {
+            padding: 28px 0 36px;
+            text-align: center;
+            border-top: 1px solid var(--border);
+            margin-top: 40px;
+        }
+        footer p {
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+        footer a { color: var(--text-secondary); }
+        footer a:hover { color: var(--gold); }
+
+        @media (max-width: 480px) {
+            .calculator { grid-template-columns: 1fr; }
+            .buys-grid { grid-template-columns: 1fr 1fr; }
+            .share-buttons { grid-template-columns: 1fr; }
+        }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-inner">
+            <a href="/" class="logo">
+                <img src="/icon.png" alt="TroyStack">
+                <span>TroyStack</span>
+            </a>
+            <a href="https://apps.apple.com/us/app/troystack/id6738029817" target="_blank" rel="noopener" class="header-cta">Get the App</a>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="hero">
+            <h1>What Does Your<br><span class="accent">Stack Actually Buy?</span></h1>
+            <p>Enter your gold and silver holdings. See their real purchasing power — in barrels of oil, months of rent, hours of labor, and how it compares to 1971.</p>
+        </section>
+
+        <section>
+            <div class="calculator">
+                <div class="input-card">
+                    <label for="gold-input">Gold</label>
+                    <input id="gold-input" type="number" inputmode="decimal" placeholder="0" min="0" step="0.01" autocomplete="off">
+                    <span class="unit">troy ounces</span>
+                </div>
+                <div class="input-card">
+                    <label for="silver-input">Silver</label>
+                    <input id="silver-input" type="number" inputmode="decimal" placeholder="0" min="0" step="0.01" autocomplete="off">
+                    <span class="unit">troy ounces</span>
+                </div>
+            </div>
+            <button id="calc-btn" class="calc-btn">Calculate My Stack</button>
+            <div class="price-status" id="price-status">Loading live spot prices…</div>
+        </section>
+
+        <section id="results" class="results">
+            <div class="result-card gold-border">
+                <h2>Total Stack Value</h2>
+                <div class="total-value" id="total-value">$0.00</div>
+                <div class="total-breakdown" id="total-breakdown"></div>
+            </div>
+
+            <div class="result-card">
+                <h2>What Your Stack Buys Today</h2>
+                <div class="buys-grid" id="buys-grid"></div>
+            </div>
+
+            <div class="result-card gold-border">
+                <h2>The 1971 Comparison</h2>
+                <div class="insight" id="insight-1971"></div>
+            </div>
+
+            <div class="result-card">
+                <h2>Gold / Silver Ratio</h2>
+                <div class="ratio-row">
+                    <span class="ratio-num" id="ratio-num">—</span>
+                    <span class="ratio-label">gold &divide; silver</span>
+                </div>
+                <p class="ratio-context" id="ratio-context"></p>
+            </div>
+
+            <div class="share-section">
+                <h3>Share Your Stack</h3>
+                <div class="share-buttons">
+                    <button class="share-btn" id="share-x">𝕏 Share</button>
+                    <button class="share-btn" id="share-copy">Copy Link</button>
+                    <button class="share-btn" id="share-native">Share…</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="cta">
+            <h2>Want Troy to <span class="accent">track your stack</span>, scan your receipts, and talk to you about the market?</h2>
+            <p>Meet Troy — your AI precious metals advisor. Live prices, daily briefings, Troy Chat, COMEX vault data, and price alerts.</p>
+            <a href="https://apps.apple.com/us/app/troystack/id6738029817" target="_blank" rel="noopener" class="cta-btn">Download TroyStack</a>
+        </section>
+
+    </main>
+
+    <footer>
+        <p>Built by <a href="https://mancinitechsolutions.com" target="_blank" rel="noopener">Mancini Tech Solutions</a></p>
+        <p>
+            <a href="https://apps.apple.com/us/app/troystack/id6738029817" target="_blank" rel="noopener">App Store</a>
+            &nbsp;·&nbsp;
+            <a href="/">troystack.com</a>
+            &nbsp;·&nbsp;
+            <a href="https://x.com/troystack_" target="_blank" rel="noopener">@troystack_</a>
+        </p>
+        <p style="margin-top: 10px;">Prices via <a href="/">api.troystack.com</a>. Not financial advice.</p>
+    </footer>
+
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <script>
+        (function() {
+            const GOLD_1971 = 35.00;
+            const SILVER_1971 = 1.29;
+            const OIL_TODAY = 70.00;
+            const OIL_1971 = 3.60;
+            const RENT = 1800;
+            const WAGE = 30;
+            const GAS = 3.50;
+
+            const FALLBACK = { gold: 4748.49, silver: 75.93, ts: '2026-04-11', fallback: true };
+
+            const els = {
+                goldInput: document.getElementById('gold-input'),
+                silverInput: document.getElementById('silver-input'),
+                calcBtn: document.getElementById('calc-btn'),
+                priceStatus: document.getElementById('price-status'),
+                results: document.getElementById('results'),
+                totalValue: document.getElementById('total-value'),
+                totalBreakdown: document.getElementById('total-breakdown'),
+                buysGrid: document.getElementById('buys-grid'),
+                insight1971: document.getElementById('insight-1971'),
+                ratioNum: document.getElementById('ratio-num'),
+                ratioContext: document.getElementById('ratio-context'),
+                shareX: document.getElementById('share-x'),
+                shareCopy: document.getElementById('share-copy'),
+                shareNative: document.getElementById('share-native'),
+            };
+
+            let prices = null;
+            let lastResult = null;
+
+            function fmtMoney(n) {
+                if (!isFinite(n)) return '$0';
+                return '$' + n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            }
+            function fmtMoneyShort(n) {
+                if (!isFinite(n)) return '$0';
+                return '$' + Math.round(n).toLocaleString('en-US');
+            }
+            function fmtNum(n, digits = 1) {
+                if (!isFinite(n)) return '0';
+                if (n >= 100) return Math.round(n).toLocaleString('en-US');
+                return n.toLocaleString('en-US', { minimumFractionDigits: digits, maximumFractionDigits: digits });
+            }
+            function fmtOz(n) {
+                if (n === 0) return '0 oz';
+                if (n >= 10) return Math.round(n).toLocaleString('en-US') + ' oz';
+                return n.toFixed(2) + ' oz';
+            }
+            function readNum(el) {
+                const v = parseFloat(el.value);
+                return isFinite(v) && v > 0 ? v : 0;
+            }
+
+            async function fetchPrices() {
+                try {
+                    const r = await fetch('/api/prices', { cache: 'no-store' });
+                    if (!r.ok) throw new Error('http ' + r.status);
+                    const data = await r.json();
+                    const g = data?.prices?.gold?.price;
+                    const s = data?.prices?.silver?.price;
+                    if (typeof g === 'number' && typeof s === 'number') {
+                        prices = { gold: g, silver: s, ts: data.timestamp, fallback: !!data.fallback };
+                        try { localStorage.setItem('ts_prices', JSON.stringify(prices)); } catch (_) {}
+                        return;
+                    }
+                    throw new Error('bad shape');
+                } catch (e) {
+                    try {
+                        const cached = JSON.parse(localStorage.getItem('ts_prices') || 'null');
+                        if (cached && cached.gold && cached.silver) {
+                            prices = Object.assign({}, cached, { fallback: true });
+                            return;
+                        }
+                    } catch (_) {}
+                    prices = FALLBACK;
+                }
+            }
+
+            function renderPriceStatus() {
+                if (!prices) return;
+                const date = prices.ts ? new Date(prices.ts) : new Date();
+                const dateStr = date.toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' });
+                const flag = prices.fallback ? 'Prices as of' : 'Live spot prices —';
+                els.priceStatus.innerHTML = `${flag} <strong>${dateStr}</strong> &nbsp;·&nbsp; Gold ${fmtMoneyShort(prices.gold)}/oz &nbsp;·&nbsp; Silver ${fmtMoneyShort(prices.silver)}/oz`;
+            }
+
+            function calculate() {
+                if (!prices) return;
+                const gOz = readNum(els.goldInput);
+                const sOz = readNum(els.silverInput);
+                if (gOz === 0 && sOz === 0) {
+                    els.priceStatus.innerHTML = '<strong style="color:#C9A84C">Enter at least one amount above to see your stack&rsquo;s buying power.</strong>';
+                    setTimeout(renderPriceStatus, 3500);
+                    return;
+                }
+
+                const goldValue = gOz * prices.gold;
+                const silverValue = sOz * prices.silver;
+                const total = goldValue + silverValue;
+
+                const value1971 = (gOz * GOLD_1971) + (sOz * SILVER_1971);
+                const barrels1971 = value1971 / OIL_1971;
+                const barrelsToday = total / OIL_TODAY;
+
+                const ratio = prices.gold / prices.silver;
+
+                lastResult = {
+                    gOz, sOz, goldValue, silverValue, total,
+                    value1971, barrels1971, barrelsToday, ratio,
+                };
+
+                renderResults(lastResult);
+                els.results.classList.add('visible');
+                requestAnimationFrame(() => {
+                    els.results.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                });
+
+                updateUrl(gOz, sOz);
+
+                if (window.va) window.va('event', { name: 'calculator_calculated' });
+            }
+
+            function renderResults(r) {
+                els.totalValue.textContent = fmtMoney(r.total);
+                const parts = [];
+                if (r.gOz > 0) parts.push(`${fmtOz(r.gOz)} gold = ${fmtMoney(r.goldValue)}`);
+                if (r.sOz > 0) parts.push(`${fmtOz(r.sOz)} silver = ${fmtMoney(r.silverValue)}`);
+                els.totalBreakdown.textContent = parts.join(' · ');
+
+                const buys = [
+                    { num: fmtNum(r.total / OIL_TODAY, 1), label: 'barrels of oil' },
+                    { num: fmtNum(r.total / RENT, 1), label: 'months of US rent' },
+                    { num: fmtNum(r.total / WAGE, 0), label: 'hours of US labor' },
+                    { num: fmtNum(r.total / GAS, 0), label: 'gallons of gasoline' },
+                ];
+                if (r.sOz > 0 && r.gOz === 0) {
+                    buys.push({ num: fmtNum(r.silverValue / prices.gold, 2), label: 'oz of gold (if swapped)' });
+                }
+                if (r.gOz > 0 && r.sOz === 0) {
+                    buys.push({ num: fmtNum(r.goldValue / prices.silver, 0), label: 'oz of silver (if swapped)' });
+                }
+                els.buysGrid.innerHTML = buys.map(b =>
+                    `<div class="buys-item"><div class="num">${b.num}</div><div class="label">${b.label}</div></div>`
+                ).join('');
+
+                const oilRatio = r.barrelsToday / r.barrels1971;
+                const moreOrFewer = oilRatio >= 1 ? 'MORE' : 'FEWER';
+                const factor = oilRatio >= 1 ? oilRatio : (1 / oilRatio);
+                const stackDesc = r.gOz > 0 && r.sOz > 0
+                    ? `${fmtOz(r.gOz)} gold + ${fmtOz(r.sOz)} silver`
+                    : (r.gOz > 0 ? `${fmtOz(r.gOz)} gold` : `${fmtOz(r.sOz)} silver`);
+
+                els.insight1971.innerHTML = `
+                    In <strong>1971</strong>, your ${stackDesc} stack was worth <strong>${fmtMoney(r.value1971)}</strong>.
+                    Today it's worth <strong>${fmtMoney(r.total)}</strong>.<br><br>
+                    But here's what matters &mdash; what does it <em>buy</em>?
+                    In 1971, oil was <strong>$3.60/barrel</strong>, so your stack bought <strong>${fmtNum(r.barrels1971, 1)}</strong> barrels.
+                    Today at <strong>$${OIL_TODAY}/barrel</strong>, the same stack buys <strong>${fmtNum(r.barrelsToday, 1)}</strong> barrels.<br><br>
+                    Your stack buys <strong>${fmtNum(factor, 1)}x ${moreOrFewer}</strong> oil today than in 1971.
+                    <em>Real money holds real value.</em>
+                `;
+
+                els.ratioNum.textContent = fmtNum(r.ratio, 1);
+                let ctx;
+                if (r.ratio >= 80) ctx = 'Above 80, silver is historically undervalued relative to gold.';
+                else if (r.ratio >= 65) ctx = 'Above the long-term average of ~60:1. Silver leaning cheap.';
+                else if (r.ratio >= 50) ctx = 'Near the long-term average of ~60:1.';
+                else ctx = 'Below 50, silver is historically rich relative to gold.';
+                els.ratioContext.textContent = `The ratio is ${fmtNum(r.ratio, 1)}:1. Historical average is ~60:1. ${ctx}`;
+            }
+
+            function updateUrl(g, s) {
+                const params = new URLSearchParams();
+                if (g > 0) params.set('gold', String(g));
+                if (s > 0) params.set('silver', String(s));
+                const newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+                window.history.replaceState({}, '', newUrl);
+            }
+
+            function buildShareText(r) {
+                const focus = r.sOz > 0 ? `${fmtOz(r.sOz)} silver` : `${fmtOz(r.gOz)} gold`;
+                return `My ${focus} stack buys ${fmtNum(r.barrelsToday, 1)} barrels of oil today. In 1971, the same stack bought ${fmtNum(r.barrels1971, 1)} barrels. Real money holds real value. 🪙 Check yours → troystack.com/calculator @troystack_`;
+            }
+
+            function shareUrlForCurrent() {
+                if (!lastResult) return 'https://troystack.com/calculator';
+                const params = new URLSearchParams();
+                if (lastResult.gOz > 0) params.set('gold', String(lastResult.gOz));
+                if (lastResult.sOz > 0) params.set('silver', String(lastResult.sOz));
+                return `https://troystack.com/calculator${params.toString() ? '?' + params.toString() : ''}`;
+            }
+
+            els.shareX.addEventListener('click', () => {
+                if (!lastResult) return;
+                const text = buildShareText(lastResult);
+                const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`;
+                window.open(url, '_blank', 'noopener');
+                if (window.va) window.va('event', { name: 'share_x' });
+            });
+
+            els.shareCopy.addEventListener('click', async () => {
+                if (!lastResult) return;
+                const url = shareUrlForCurrent();
+                try {
+                    await navigator.clipboard.writeText(url);
+                    els.shareCopy.textContent = '✓ Copied!';
+                    els.shareCopy.classList.add('copied');
+                    setTimeout(() => {
+                        els.shareCopy.textContent = 'Copy Link';
+                        els.shareCopy.classList.remove('copied');
+                    }, 2000);
+                } catch (_) {
+                    prompt('Copy this link:', url);
+                }
+                if (window.va) window.va('event', { name: 'share_copy' });
+            });
+
+            els.shareNative.addEventListener('click', async () => {
+                if (!lastResult) return;
+                const text = buildShareText(lastResult);
+                const url = shareUrlForCurrent();
+                if (navigator.share) {
+                    try {
+                        await navigator.share({ title: 'TroyStack — Stack Calculator', text, url });
+                    } catch (_) {}
+                } else {
+                    try {
+                        await navigator.clipboard.writeText(`${text}\n${url}`);
+                        els.shareNative.textContent = '✓ Copied';
+                        setTimeout(() => { els.shareNative.textContent = 'Share…'; }, 2000);
+                    } catch (_) {
+                        prompt('Share this:', `${text}\n${url}`);
+                    }
+                }
+                if (window.va) window.va('event', { name: 'share_native' });
+            });
+
+            els.calcBtn.addEventListener('click', calculate);
+            els.goldInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+            els.silverInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') calculate(); });
+
+            (async function init() {
+                const params = new URLSearchParams(window.location.search);
+                const g = parseFloat(params.get('gold'));
+                const s = parseFloat(params.get('silver'));
+                if (isFinite(g) && g > 0) els.goldInput.value = g;
+                if (isFinite(s) && s > 0) els.silverInput.value = s;
+
+                await fetchPrices();
+                renderPriceStatus();
+
+                if ((isFinite(g) && g > 0) || (isFinite(s) && s > 0)) {
+                    calculate();
+                }
+            })();
+        })();
+    </script>
+</body>
+</html>

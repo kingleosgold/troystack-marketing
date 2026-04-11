@@ -775,6 +775,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
             </label>
             <nav class="nav-links">
                 <a href="/signal"${activeNav === 'signal' ? ' class="active"' : ''}>Signal</a>
+                <a href="/calculator"${activeNav === 'calculator' ? ' class="active"' : ''}>Calculator</a>
                 <a href="/#features">Features</a>
                 <a href="/#troy">Troy</a>
                 <a href="/#pricing">Pricing</a>

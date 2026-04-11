@@ -1,4 +1,4 @@
-const UPSTREAM = 'https://api.stacktrackergold.com/v1/prices';
+const UPSTREAM = 'https://api.troystack.ai/v1/prices';
 
 const FALLBACK = {
   success: true,

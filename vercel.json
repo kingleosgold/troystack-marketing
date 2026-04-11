@@ -4,10 +4,6 @@
   "rewrites": [
     { "source": "/signal", "destination": "/api/signal-index" },
     { "source": "/signal/:slug", "destination": "/api/signal-article?slug=:slug" },
-    { "source": "/signal-sitemap.xml", "destination": "/api/signal-sitemap" },
-    { "source": "/favicon.ico", "destination": "/public/favicon.ico" },
-    { "source": "/favicon-16x16.png", "destination": "/public/favicon-16x16.png" },
-    { "source": "/favicon-32x32.png", "destination": "/public/favicon-32x32.png" },
-    { "source": "/apple-touch-icon.png", "destination": "/public/apple-touch-icon.png" }
+    { "source": "/signal-sitemap.xml", "destination": "/api/signal-sitemap" }
   ]
 }

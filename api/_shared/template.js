@@ -1,4 +1,4 @@
-const APP_STORE_URL = 'https://apps.apple.com/us/app/stack-tracker-gold/id6738029817';
+const APP_STORE_URL = 'https://apps.apple.com/us/app/troystack/id6738029817';
 const WEB_APP_URL = 'https://app.stacktrackergold.com';
 const SITE_URL = 'https://troystack.com';
 
@@ -113,10 +113,10 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg: #0a0a0a;
+            --bg: #0A0A0E;
             --bg-card: #1a1a1a;
-            --gold: #C9A84C;
-            --gold-glow: rgba(201, 168, 76, 0.1);
+            --gold: #DAA520;
+            --gold-glow: rgba(218, 165, 32, 0.1);
             --text: #f5f5f5;
             --text-secondary: #999;
             --text-muted: #666;
@@ -147,7 +147,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
             position: sticky;
             top: 0;
             z-index: 100;
-            background: rgba(10, 10, 10, 0.92);
+            background: rgba(10, 10, 14, 0.92);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border-bottom: 1px solid var(--border);
@@ -338,7 +338,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
             font-weight: 700;
             letter-spacing: 0.06em;
             color: var(--gold);
-            background: rgba(201, 168, 76, 0.1);
+            background: rgba(218, 165, 32, 0.1);
             padding: 4px 10px;
             border-radius: 20px;
         }
@@ -441,7 +441,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
         .prose a {
             color: var(--gold);
             text-decoration: underline;
-            text-decoration-color: rgba(201, 168, 76, 0.4);
+            text-decoration-color: rgba(218, 165, 32, 0.4);
             text-underline-offset: 3px;
         }
         .prose a:hover { text-decoration-color: var(--gold); }
@@ -504,7 +504,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
             font-size: 0.85rem;
             font-weight: 600;
             color: var(--gold);
-            background: rgba(201, 168, 76, 0.12);
+            background: rgba(218, 165, 32, 0.12);
             padding: 6px 14px;
             border-radius: 20px;
         }

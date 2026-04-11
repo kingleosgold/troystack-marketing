@@ -102,7 +102,7 @@ module.exports = async (req, res) => {
                 <h2>Get insights like this delivered to your phone</h2>
                 <p>Download TroyStack — your AI precious metals analyst. Daily briefs, Troy Chat, portfolio tracking, and price alerts.</p>
                 <div class="signal-cta-buttons">
-                    <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download on the App Store</a>
+                    <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download TroyStack</a>
                     <a href="${WEB_APP_URL}" class="btn btn-secondary">Open Web App</a>
                 </div>
             </div>

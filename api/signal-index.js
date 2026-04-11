@@ -43,7 +43,7 @@ module.exports = async (req, res) => {
                 <h1>Stack Signal</h1>
                 <p class="subtitle">AI-Powered Precious Metals Intelligence</p>
                 <p class="desc">Troy monitors 140+ sources daily, scoring and analyzing the stories that matter to precious metals stackers.</p>
-                <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download for Full Analysis</a>
+                <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download TroyStack</a>
             </div>
         </section>
 
@@ -61,7 +61,7 @@ module.exports = async (req, res) => {
                 <h2>Get Troy's Full Analysis</h2>
                 <p>Download TroyStack for complete AI commentary, Troy Chat, portfolio tracking, and price alerts.</p>
                 <div class="signal-cta-buttons">
-                    <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download on iOS</a>
+                    <a href="${APP_STORE_URL}" class="btn btn-primary" target="_blank" rel="noopener">Download TroyStack</a>
                     <a href="${WEB_APP_URL}" class="btn btn-secondary">Open Web App</a>
                 </div>
             </div>

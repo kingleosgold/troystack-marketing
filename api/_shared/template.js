@@ -777,6 +777,7 @@ function renderPage({ title, head = '', body = '', activeNav = '' }) {
                 <a href="/signal"${activeNav === 'signal' ? ' class="active"' : ''}>Signal</a>
                 <a href="/calculator"${activeNav === 'calculator' ? ' class="active"' : ''}>Calculator</a>
                 <a href="/speculation"${activeNav === 'speculation' ? ' class="active"' : ''}>What If?</a>
+                <a href="/junk-silver"${activeNav === 'junk-silver' ? ' class="active"' : ''}>Junk Silver</a>
                 <a href="/#features">Features</a>
                 <a href="/#troy">Troy</a>
                 <a href="/#pricing">Pricing</a>

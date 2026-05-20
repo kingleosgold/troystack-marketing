@@ -29,55 +29,96 @@
         }
         .container { max-width: 800px; margin: 0 auto; padding: 80px 24px; }
         h1 { font-size: 2.5rem; margin-bottom: 16px; }
-        .updated { color: var(--text-secondary); margin-bottom: 48px; }
-        h2 { font-size: 1.4rem; margin: 40px 0 16px; color: var(--gold); }
+        .updated { color: var(--text-secondary); margin-bottom: 40px; }
+        h2 { font-size: 1.4rem; margin: 40px 0 16px; color: var(--gold); scroll-margin-top: 24px; }
+        h3 { font-size: 1.05rem; margin: 20px 0 10px; color: var(--text-primary); }
         p, li { color: var(--text-secondary); margin-bottom: 16px; }
         ul { padding-left: 24px; }
+        strong { color: var(--text-primary); font-weight: 600; }
         a { color: var(--gold); }
         .back { display: inline-block; margin-bottom: 40px; color: var(--text-secondary); text-decoration: none; }
         .back:hover { color: var(--gold); }
+        .callout {
+            border: 1px solid var(--border);
+            border-left: 3px solid var(--gold);
+            background: rgba(218, 165, 32, 0.05);
+            padding: 20px 24px;
+            border-radius: 8px;
+            margin: 16px 0 24px;
+        }
+        .callout p { margin-bottom: 12px; }
+        .callout p:last-child { margin-bottom: 0; }
+        .footer-links { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.9rem; }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back">← Back to Home</a>
         <h1>Terms of Service</h1>
-        <p class="updated">Last updated: January 23, 2026</p>
+        <p class="updated"><strong>Effective: May 19, 2026</strong></p>
 
-        <h2>Agreement</h2>
-        <p>By using TroyStack ("the App"), you agree to these terms. If you don't agree, please don't use the App.</p>
+        <h2 id="introduction">1. Introduction</h2>
+        <p>These terms govern your use of TroyStack, operated by Mancini Tech Solutions LLC ("we," "us"). By using TroyStack, you agree to these terms.</p>
 
-        <h2>What the App Does</h2>
-        <p>TroyStack helps you track your precious metals holdings. It provides portfolio management tools, live spot prices, and analytics. The App is for informational purposes only.</p>
+        <h2 id="service-description">2. Service description</h2>
+        <p>TroyStack is a portfolio tracking tool for precious metals. The Troy AI assistant provides educational information and is not financial advice. Stack Signal, daily briefs, and speculation features are editorial and informational in nature.</p>
 
-        <h2>Not Financial Advice</h2>
-        <p>The App is a tracking tool, not a financial advisor. We don't provide investment advice. Spot prices are provided by third-party sources and may be delayed or inaccurate. Always verify prices before making buying or selling decisions.</p>
+        <h2 id="account-requirements">3. Account requirements</h2>
+        <p>You must be at least 13 (or the age of digital consent in your jurisdiction, whichever is higher). You're responsible for account security.</p>
 
-        <h2>Your Data</h2>
-        <p>Your portfolio data is stored on your device. You are responsible for backing up your data. If you delete the App or lose your device, your data may be lost. We recommend using the CSV export feature regularly.</p>
-
-        <h2>Subscriptions</h2>
-        <p>Some features require a paid subscription. Subscriptions are billed through Apple App Store or Google Play. You can cancel anytime through your device's subscription settings. Refunds are handled by Apple/Google according to their policies.</p>
-
-        <h2>Acceptable Use</h2>
-        <p>Don't use the App to:</p>
+        <h2 id="subscriptions-and-billing">4. Subscriptions and billing</h2>
+        <p>Consumer tiers (available via iOS App Store and web):</p>
         <ul>
-            <li>Violate any laws</li>
-            <li>Attempt to reverse engineer or hack the App</li>
-            <li>Interfere with the App's operation</li>
+            <li><strong>TroyStack Gold — Monthly:</strong> $4.99/month</li>
+            <li><strong>TroyStack Gold — Yearly:</strong> $39.99/year</li>
+            <li><strong>TroyStack Gold — Lifetime</strong> (also called "Lifetime Gold Pass" in the App Store): $149.99 one-time</li>
         </ul>
+        <p>Subscriptions auto-renew unless cancelled. Refunds are handled per Apple's and Stripe's respective policies. Prices may change with notice.</p>
 
-        <h2>Disclaimer</h2>
-        <p>The App is provided "as is" without warranties. We don't guarantee accuracy of spot prices, uptime, or that the App will meet your specific needs. Use at your own risk.</p>
+        <h2 id="acceptable-use">5. Acceptable use</h2>
+        <p>No abuse, no reverse engineering, no scraping, no using the service for unlawful purposes. Don't share your account credentials with others.</p>
 
-        <h2>Limitation of Liability</h2>
-        <p>We are not liable for any damages arising from your use of the App, including but not limited to financial losses, data loss, or decisions made based on information in the App.</p>
+        <h2 id="intellectual-property">6. Intellectual property</h2>
+        <p>TroyStack content and software belong to Mancini Tech Solutions LLC. Your portfolio holdings, notes, and content you create belong to you. By using the service, you grant us a limited license to process that content to provide the service.</p>
 
-        <h2>Changes</h2>
-        <p>We may update these terms. Continued use of the App after changes means you accept the new terms.</p>
+        <h2 id="not-financial-advice">7. Not financial advice</h2>
 
-        <h2>Contact</h2>
-        <p>Questions? Email us at <a href="mailto:support@troystack.com">support@troystack.com</a></p>
+        <div class="callout">
+            <p><strong>TroyStack is a portfolio tracking tool. It is not a licensed financial advisor, broker, or investment service.</strong></p>
+        </div>
+
+        <p>The Troy AI assistant uses third-party AI models to generate responses. Responses may be inaccurate, incomplete, or misleading. Troy is not a financial advisor and its responses are not financial advice. You are responsible for verifying any information before making decisions based on it. Do not share confidential information with Troy beyond what is necessary to ask your question.</p>
+
+        <p>Stack Signal is editorial commentary curated from public news sources and is not investment recommendations.</p>
+
+        <p>Daily briefs are AI-generated summaries of market conditions and your portfolio. They are informational only and not investment advice.</p>
+
+        <p>The speculation feature is illustrative only. Projections and scenarios shown are hypothetical and should not be relied upon as predictions.</p>
+
+        <p><strong>You are solely responsible for your investment decisions.</strong> TroyStack and Mancini Tech Solutions LLC are not liable for any financial losses, missed opportunities, or other damages arising from your use of the service.</p>
+
+        <h2 id="limitation-of-liability">8. Limitation of liability</h2>
+        <p>The service is provided "as is" without warranty of any kind, express or implied. We are not liable for indirect, incidental, or consequential damages. Our total liability for any claim is limited to the amount you've paid us in the twelve months preceding the claim.</p>
+
+        <h2 id="termination">9. Termination</h2>
+        <p>We can suspend or terminate accounts that violate these terms. You can delete your account at any time in app settings.</p>
+
+        <h2 id="governing-law">10. Governing law</h2>
+        <p>These terms are governed by the laws of the State of Connecticut, United States, without regard to conflict of laws principles.</p>
+
+        <h2 id="changes">11. Changes</h2>
+        <p>We may update these terms. The effective date will be updated and significant changes communicated in the app.</p>
+
+        <h2 id="contact">12. Contact</h2>
+        <p>
+            Mancini Tech Solutions LLC<br>
+            Connecticut, United States<br>
+            <a href="mailto:support@troystack.com">support@troystack.com</a>
+        </p>
+
+        <div class="footer-links">
+            <a href="/privacy">Privacy Policy</a> · <a href="/">Back to Home</a>
+        </div>
     </div>
 </body>
 </html>

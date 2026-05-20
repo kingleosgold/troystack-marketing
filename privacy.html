@@ -29,77 +29,218 @@
         }
         .container { max-width: 800px; margin: 0 auto; padding: 80px 24px; }
         h1 { font-size: 2.5rem; margin-bottom: 16px; }
-        .updated { color: var(--text-secondary); margin-bottom: 48px; }
-        h2 { font-size: 1.4rem; margin: 40px 0 16px; color: var(--gold); }
+        .updated { color: var(--text-secondary); margin-bottom: 16px; }
+        .intro { color: var(--text-secondary); margin-bottom: 40px; }
+        h2 { font-size: 1.4rem; margin: 40px 0 16px; color: var(--gold); scroll-margin-top: 24px; }
+        h3 { font-size: 1.05rem; margin: 24px 0 10px; color: var(--text-primary); }
         p, li { color: var(--text-secondary); margin-bottom: 16px; }
         ul { padding-left: 24px; }
+        ul ul { margin-top: 8px; padding-left: 24px; }
+        ul ul li { margin-bottom: 6px; }
+        strong { color: var(--text-primary); font-weight: 600; }
         a { color: var(--gold); }
         .back { display: inline-block; margin-bottom: 40px; color: var(--text-secondary); text-decoration: none; }
         .back:hover { color: var(--gold); }
+        .vendor-table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
+        .vendor-table th, .vendor-table td {
+            text-align: left;
+            padding: 12px 10px;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            vertical-align: top;
+        }
+        .vendor-table th { color: var(--text-primary); font-weight: 600; }
+        .vendor-table td:first-child { color: var(--text-primary); font-weight: 600; white-space: nowrap; }
+        .footer-links { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); font-size: 0.9rem; }
+        @media (max-width: 600px) {
+            .vendor-table, .vendor-table tbody, .vendor-table tr, .vendor-table td, .vendor-table th { display: block; }
+            .vendor-table th { display: none; }
+            .vendor-table tr { padding: 16px 0; border-bottom: 1px solid var(--border); }
+            .vendor-table td { padding: 4px 0; border-bottom: none; }
+            .vendor-table td:first-child { font-size: 1rem; margin-bottom: 4px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <a href="/" class="back">← Back to Home</a>
         <h1>Privacy Policy</h1>
-        <p class="updated">Last updated: January 27, 2026</p>
+        <p class="updated"><strong>Effective: May 19, 2026</strong></p>
 
-        <h2>The Short Version</h2>
-        <p>TroyStack is built with privacy as a core principle. You control your data. Use the app without signing in and everything stays on your device. Create an account and your data syncs securely to the cloud—your choice.</p>
+        <p class="intro">TroyStack is a precious metals portfolio tracking service operated by Mancini Tech Solutions LLC. We track what you tell us about your holdings, we use AI to help you understand markets and process receipts, and we use third-party services to deliver that experience. This document tells you what data we collect, who we share it with, and what your rights are. We've tried to write it in plain English.</p>
 
-        <h2>Data Storage</h2>
-        <p><strong>Local Storage:</strong> If you use the app without signing in, all your portfolio data—holdings, purchase dates, prices paid, and notes—is stored locally on your device. This data is encrypted using your device's built-in security (Face ID, Touch ID, or passcode). We never see it.</p>
-        <p><strong>Cloud Sync:</strong> If you create an account, your holdings sync securely to our cloud servers (hosted on Supabase) to enable access across devices. You can switch between local-only and cloud sync at any time.</p>
+        <h2 id="information-we-collect">1. Information we collect</h2>
 
-        <h2>What We Collect</h2>
-        <p><strong>For users who don't sign in:</strong> We collect nothing. Your data stays on your device.</p>
-        <p><strong>For signed-in users:</strong></p>
+        <h3>Account information</h3>
         <ul>
-            <li><strong>Email address:</strong> Used for your account and to contact you if needed.</li>
-            <li><strong>Holdings data:</strong> Your metals, quantities, purchase prices, and dates—synced to enable cross-device access.</li>
-            <li><strong>Receipt images:</strong> We do NOT store receipt images. These are processed in memory and deleted immediately after extracting the data.</li>
-        </ul>
-        <p><strong>For all users:</strong></p>
-        <ul>
-            <li><strong>Spot Prices:</strong> We fetch live metal prices from third-party APIs. These requests do not include any information about your holdings.</li>
-            <li><strong>Crash Reports:</strong> Anonymous crash data may be collected to help us fix bugs. This contains no personal or portfolio information.</li>
-            <li><strong>Subscription Management:</strong> If you subscribe, RevenueCat processes the payment. They receive standard purchase information from Apple/Google but have no access to your portfolio data.</li>
+            <li>Email address (required for account creation)</li>
+            <li>Hashed password (managed by Supabase Auth, never visible to us)</li>
+            <li>Display name (optional)</li>
+            <li>Subscription tier and purchase history (managed by Apple In-App Purchase, RevenueCat, and Stripe)</li>
         </ul>
 
-        <h2>What We Don't Do</h2>
+        <h3>Portfolio data</h3>
         <ul>
-            <li>Sell your data to third parties</li>
-            <li>Share your information with advertisers</li>
-            <li>Track your browsing or behavior outside the app</li>
-            <li>Access your data without your permission</li>
+            <li>Precious metals holdings you record (metal type, weight, cost basis, purchase date)</li>
+            <li>Receipt images you upload for scanning</li>
+            <li>Notes and tags you add to holdings</li>
         </ul>
 
-        <h2>Data Security</h2>
+        <h3>Chat and voice data (when you use Troy, our AI assistant)</h3>
         <ul>
-            <li>All data encrypted in transit (HTTPS/TLS)</li>
-            <li>All data encrypted at rest</li>
-            <li>Cloud data hosted on Supabase (SOC 2 compliant infrastructure)</li>
-            <li>Local data protected by your device's built-in security</li>
+            <li>Chat messages you send to Troy</li>
+            <li>Voice recordings when you use voice input</li>
+            <li>Voice playback requests when you use voice output</li>
         </ul>
 
-        <h2>Your Rights</h2>
+        <h3>Device and technical data</h3>
         <ul>
-            <li><strong>Export:</strong> Export your data anytime as a CSV file from within the app.</li>
-            <li><strong>Delete:</strong> Delete your account and all associated cloud data at any time.</li>
-            <li><strong>Control:</strong> Switch between local-only and cloud sync whenever you want.</li>
+            <li>Device push notification token (only for alerts you've subscribed to)</li>
+            <li>IP address (logged briefly by hosting infrastructure for standard operational purposes; not retained or used to identify you)</li>
+            <li>App version and operating system version</li>
         </ul>
 
-        <h2>Third-Party Services</h2>
+        <h2 id="how-we-use-the-information">2. How we use the information</h2>
         <ul>
-            <li>Apple App Store / Google Play (payment processing)</li>
-            <li>RevenueCat (subscription management)</li>
-            <li>Supabase (cloud sync and authentication)</li>
-            <li>MetalPriceAPI (spot prices)</li>
-            <li>Google Gemini (receipt scanning AI)</li>
+            <li>Provide the core service: track your portfolio, calculate value against live spot prices, generate intelligence summaries, send alerts you've opted into</li>
+            <li>Operate the Troy AI assistant: route your messages through third-party AI providers to generate responses</li>
+            <li>Process subscription payments through Apple, Stripe, and RevenueCat</li>
+            <li>Improve the product through aggregated, non-identifying usage patterns</li>
+            <li>Communicate with you about your account or the service</li>
+        </ul>
+        <p>Receipt images you upload are processed in memory and are not written to our servers' disk storage. They are forwarded to Google Gemini for OCR processing and are not retained by us afterward.</p>
+
+        <h2 id="third-party-services">3. Third-party services we use</h2>
+        <p>TroyStack uses the following third-party services to operate. Each service has its own privacy policy governing how they handle data they receive. We do not control those policies.</p>
+
+        <table class="vendor-table">
+            <thead>
+                <tr>
+                    <th>Vendor</th>
+                    <th>What they receive</th>
+                    <th>Purpose</th>
+                    <th>Reference</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Supabase</td>
+                    <td>Account credentials, portfolio data, chat history, push tokens</td>
+                    <td>Primary data storage and authentication</td>
+                    <td>Retained for the life of your account per Supabase's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>Apple</td>
+                    <td>Apple ID for Sign in with Apple, subscription status, in-app purchases</td>
+                    <td>Account authentication and payment processing</td>
+                    <td>Per Apple's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>Google (Sign in with Google)</td>
+                    <td>Google account identifier and email</td>
+                    <td>Optional alternative authentication</td>
+                    <td>Per Google's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>RevenueCat</td>
+                    <td>Subscription tier, anonymous user identifier</td>
+                    <td>Subscription management for iOS</td>
+                    <td>Per RevenueCat's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>Stripe</td>
+                    <td>Payment information for web subscriptions</td>
+                    <td>Payment processing; Stripe is PCI-compliant and we never see card numbers</td>
+                    <td>Per Stripe's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>Anthropic (Claude <code>claude-sonnet-4-6</code>)</td>
+                    <td>Stack Signal editorial long-form inputs (public news article content), not your portfolio or chat data</td>
+                    <td>Editorial synthesis for Stack Signal articles</td>
+                    <td>Per Anthropic's privacy policy and API data-usage terms (Anthropic states API submissions are not used for training by default)</td>
+                </tr>
+                <tr>
+                    <td>Google (Gemini <code>gemini-2.5-flash</code>)</td>
+                    <td>Troy chat messages, portfolio contents when used as context, daily brief generation (initial and regenerate), portfolio intelligence summaries, Stack Signal article scoring, receipt images for OCR</td>
+                    <td>Most user-data-touching AI work</td>
+                    <td>Per Google's API terms and privacy policy</td>
+                </tr>
+                <tr>
+                    <td>OpenAI (Whisper)</td>
+                    <td>Voice recordings when you use voice input</td>
+                    <td>Speech-to-text transcription</td>
+                    <td>Per OpenAI's privacy policy and API data-usage terms (OpenAI's default API retention is 30 days at the time of this writing)</td>
+                </tr>
+                <tr>
+                    <td>ElevenLabs</td>
+                    <td>Text content of Troy's responses when voice output is enabled and ElevenLabs is the active voice provider</td>
+                    <td>Text-to-speech synthesis</td>
+                    <td>Per ElevenLabs' privacy policy</td>
+                </tr>
+                <tr>
+                    <td>xAI (Grok)</td>
+                    <td>Text content of Troy's responses when voice output is enabled and xAI is the active voice provider</td>
+                    <td>Text-to-speech synthesis</td>
+                    <td>Per xAI's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>Expo Push Service</td>
+                    <td>Push notification routing</td>
+                    <td>Transient delivery only, not retained for analysis</td>
+                    <td>Per Expo's privacy policy</td>
+                </tr>
+                <tr>
+                    <td>Railway, Vercel</td>
+                    <td>Application hosting infrastructure</td>
+                    <td>Hosting and request handling</td>
+                    <td>Per their respective privacy policies</td>
+                </tr>
+                <tr>
+                    <td>Vercel Analytics</td>
+                    <td>Anonymous page view statistics on our marketing pages (not in the app itself)</td>
+                    <td>Understand site traffic</td>
+                    <td>Per Vercel's privacy policy</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2 id="what-we-dont-do">4. What we don't do</h2>
+        <ul>
+            <li>We do not sell your personal information to third parties.</li>
+            <li>We do not show advertising in the app.</li>
+            <li>We do not provide your portfolio data or chat content to any AI provider for the purpose of training their models. Anthropic, Google, OpenAI, ElevenLabs, and xAI each have their own published terms on training data usage. As of this writing, none of our AI providers' API terms permit training on API-submitted data by default.</li>
+            <li>We do not share your portfolio holdings with any party not listed in Section 3.</li>
+            <li>We do not access your portfolio data for marketing or sales targeting. Production data access is logged and limited to debugging and support purposes.</li>
         </ul>
 
-        <h2>Contact</h2>
-        <p>Questions? Email us at <a href="mailto:support@troystack.com">support@troystack.com</a></p>
+        <h2 id="your-rights">5. Your rights</h2>
+        <ul>
+            <li><strong>Access your data:</strong> export available in app settings.</li>
+            <li><strong>Delete your account:</strong> available in app settings; deletion is immediate and removes your data from our primary systems within 30 days. Some third-party providers may retain data according to their own policies (listed in Section 3).</li>
+            <li><strong>Update your information:</strong> editable in app settings.</li>
+            <li><strong>Contact us:</strong> <a href="mailto:support@troystack.com">support@troystack.com</a></li>
+        </ul>
+
+        <h2 id="childrens-privacy">6. Children's privacy</h2>
+        <p>TroyStack is not directed at children under 13 and we do not knowingly collect data from children under 13.</p>
+
+        <h2 id="international-users">7. International users</h2>
+        <p>We are based in the United States. By using TroyStack you consent to processing in the United States.</p>
+
+        <h2 id="changes-to-this-policy">8. Changes to this policy</h2>
+        <p>We will update the effective date when we make material changes. Significant changes will be communicated in the app.</p>
+
+        <h2 id="contact">9. Contact</h2>
+        <p>
+            Mancini Tech Solutions LLC<br>
+            Connecticut, United States<br>
+            <a href="mailto:support@troystack.com">support@troystack.com</a>
+        </p>
+
+        <div class="footer-links">
+            <a href="/terms">Terms of Service</a> · <a href="/">Back to Home</a>
+        </div>
     </div>
 </body>
 </html>

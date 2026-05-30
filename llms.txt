@@ -28,9 +28,9 @@ The Stack Signal is Troy's daily AI-powered precious metals intelligence feed. T
 
 ## Pricing
 - Free: Live spot prices, stack tracking, basic analytics, 3 Troy questions/day
-- Gold Monthly: $9.99/mo (7-day free trial)
-- Gold Yearly: $79.99/yr
-- Gold Lifetime: $199.99
+- Gold Monthly: $4.99/mo (7-day free trial)
+- Gold Yearly: $39.99/yr
+- Gold Lifetime: $149.99
 
 ## Links
 - iOS App: https://apps.apple.com/us/app/troystack/id6738029817

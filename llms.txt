@@ -33,7 +33,7 @@ The Stack Signal is Troy's daily AI-powered precious metals intelligence feed. T
 - Gold Lifetime: $149.99
 
 ## Links
-- iOS App: https://apps.apple.com/us/app/troystack/id6738029817
+- iOS App: https://apps.apple.com/us/app/troystack-gold-silver-ai/id6757343766
 - Web App: https://app.stacktrackergold.com
 - API: https://api.stacktrackergold.com
 - Marketing Site: https://troystack.com

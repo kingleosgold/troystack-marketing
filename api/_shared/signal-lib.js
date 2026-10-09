@@ -337,7 +337,18 @@ ${head}
 </html>`;
 }
 
+// JSON for a <script> block on the page. Titles and commentary come from AI
+// writing about outside news, so a "</script>" in one must not end the block
+// and start a new one.
+function scriptJson(value) {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
 module.exports = {
+  scriptJson,
   fetchList,
   fetchArticle,
   escapeHtml,

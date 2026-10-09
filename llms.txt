@@ -34,7 +34,7 @@ The Stack Signal is Troy's daily AI-powered precious metals intelligence feed. T
 
 ## Links
 - iOS App: https://apps.apple.com/us/app/troystack-gold-silver-ai/id6757343766
-- Web App: https://app.stacktrackergold.com
+- Web App: https://troystack.ai
 - API: https://api.stacktrackergold.com
 - Marketing Site: https://troystack.com
 - Privacy Policy: https://troystack.com/privacy

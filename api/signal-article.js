@@ -11,6 +11,7 @@ const {
   renderShell,
   SITE_URL,
   APP_STORE_URL,
+  scriptJson,
 } = require('./_shared/signal-lib');
 
 module.exports = async (req, res) => {
@@ -128,7 +129,7 @@ module.exports = async (req, res) => {
     <meta name="twitter:description" content="${escapeHtml(metaDesc)}">
     <meta name="twitter:image" content="${escapeHtml(ogImage)}">
     <meta name="twitter:site" content="@troystack_">
-    <script type="application/ld+json">${JSON.stringify(newsArticleJson)}</script>`;
+    <script type="application/ld+json">${scriptJson(newsArticleJson)}</script>`;
 
     const body = `
     <style>
@@ -353,8 +354,8 @@ module.exports = async (req, res) => {
     (function(){
       var xBtn = document.getElementById('share-x');
       var copyBtn = document.getElementById('share-copy');
-      var title = ${JSON.stringify(title)};
-      var url = ${JSON.stringify(articleUrl)};
+      var title = ${scriptJson(title)};
+      var url = ${scriptJson(articleUrl)};
 
       if (xBtn) xBtn.addEventListener('click', function(){
         var text = title + ' — via @troystack_';

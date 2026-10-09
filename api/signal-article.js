@@ -13,6 +13,13 @@ const {
   APP_STORE_URL,
 } = require('./_shared/signal-lib');
 
+// Readers who want more than the article go to the web app, where Troy and
+// the free week live, or to the App Store on an iPhone. Each link carries a
+// campaign so installs and checkouts from the Signal can be told apart.
+const WEB_APP_URL = 'https://troystack.ai';
+const WEB_TRIAL_URL = `${WEB_APP_URL}/auth?mode=signup&redirect=checkout&plan=monthly&campaign=site-signal`;
+const APP_STORE_TRIAL_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
+
 module.exports = async (req, res) => {
   const slug = req.query.slug;
   if (!slug) {
@@ -55,6 +62,9 @@ module.exports = async (req, res) => {
     const category = categoryLabel(article.category);
     const heroImg = article.image_url;
     const articleUrl = `${SITE_URL}/signal/${encodeURIComponent(article.slug)}`;
+    // troystack.ai asks Troy the question in ?q= as soon as the page opens.
+    // Visitors get three answers a day without an account.
+    const askTroyUrl = `${WEB_APP_URL}/troy?q=${encodeURIComponent(`I just read "${title}" on the Stack Signal. What does it mean for my stack?`)}`;
     const ogImage = heroImg || `${SITE_URL}/icon.png`;
 
     const sources = Array.isArray(article.sources) ? article.sources : [];
@@ -66,7 +76,7 @@ module.exports = async (req, res) => {
             const label = s.title || s.name || s.url;
             const host = s.name || '';
             if (!s.url) return `<li>${escapeHtml(label)}</li>`;
-            return `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener nofollow">${escapeHtml(label)}</a>${host ? ` <span class="src-name">— ${escapeHtml(host)}</span>` : ''}</li>`;
+            return `<li><a href="${escapeHtml(s.url)}" target="_blank" rel="noopener nofollow">${escapeHtml(label)}</a>${host ? ` <span class="src-name">· ${escapeHtml(host)}</span>` : ''}</li>`;
           }).join('')}
         </ul>
       </div>` : '';
@@ -101,7 +111,7 @@ module.exports = async (req, res) => {
       articleBody: plainBody,
       author: {
         '@type': 'Organization',
-        name: 'Troy — TroyStack AI Stack Analyst',
+        name: 'Troy, the TroyStack AI stack analyst',
         url: SITE_URL,
       },
       publisher: {
@@ -271,6 +281,29 @@ module.exports = async (req, res) => {
       .share-btn:hover { background: var(--gold-soft); }
       .share-btn.copied { background: var(--gold); color: #0B1120; border-color: var(--gold); }
 
+      .ask-troy {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-top: 28px;
+        padding: 18px 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--gold-border);
+        border-radius: 14px;
+      }
+      .ask-troy p { color: var(--text-secondary); font-size: 0.95rem; margin: 0; flex: 1 1 260px; }
+      .ask-troy p strong { color: var(--text); }
+      .ask-troy .cta-btn { padding: 11px 20px; font-size: 0.95rem; }
+
+      .cta-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+      .cta-btn-quiet {
+        background: transparent;
+        color: var(--gold);
+        border: 1px solid var(--gold-border);
+      }
+
       .related {
         padding: 56px 0 0;
         border-top: 1px solid var(--border);
@@ -337,27 +370,48 @@ module.exports = async (req, res) => {
         <button class="share-btn" id="share-x">𝕏 Share</button>
         <button class="share-btn" id="share-copy">Copy Link</button>
       </div>
+
+      <div class="ask-troy">
+        <p><strong>What does this mean for your stack?</strong> Ask Troy. He answers on troystack.ai, three questions a day free, no account needed.</p>
+        <a href="${escapeHtml(askTroyUrl)}" class="cta-btn">Ask Troy about this</a>
+      </div>
     </div>
 
     ${relatedHtml}
 
     <div class="container">
       <div class="cta">
-        <h2>Want Troy's analysis personalized to <span class="accent">YOUR</span> stack?</h2>
-        <p>TroyStack delivers daily briefings, Troy Chat, portfolio tracking, and price alerts — tuned to the metals you hold.</p>
-        <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="cta-btn">Download TroyStack</a>
+        <h2>Want Troy's read on <span class="accent">your</span> stack?</h2>
+        <p>Track your coins and bars at live spot, ask Troy anything, and with Gold get a morning brief written around what you hold. The first week of Gold is free.</p>
+        <div class="cta-row">
+          <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="cta-btn">Get the iPhone app</a>
+          <a href="${escapeHtml(WEB_TRIAL_URL)}" data-ios-href="${escapeHtml(APP_STORE_TRIAL_URL)}" data-ios-label="Start the free week in the app" class="cta-btn cta-btn-quiet">Start the free week on the web</a>
+        </div>
       </div>
     </div>
 
     <script>
     (function(){
+      // On an iPhone or iPad the free week starts in the App Store, where the
+      // app's own trial lives, the same as on troystack.com's pricing.
+      var ua = navigator.userAgent || '';
+      var iOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+      if (iOS) {
+        document.querySelectorAll('a[data-ios-href]').forEach(function(a) {
+          a.href = a.getAttribute('data-ios-href');
+          a.target = '_blank';
+          a.rel = 'noopener';
+          if (a.hasAttribute('data-ios-label')) a.textContent = a.getAttribute('data-ios-label');
+        });
+      }
+
       var xBtn = document.getElementById('share-x');
       var copyBtn = document.getElementById('share-copy');
       var title = ${JSON.stringify(title)};
       var url = ${JSON.stringify(articleUrl)};
 
       if (xBtn) xBtn.addEventListener('click', function(){
-        var text = title + ' — via @troystack_';
+        var text = title + ' via @troystack_';
         window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url), '_blank', 'noopener');
       });
 

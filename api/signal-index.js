@@ -7,6 +7,7 @@ const {
   renderShell,
   SITE_URL,
   APP_STORE_URL,
+  scriptJson,
 } = require('./_shared/signal-lib');
 
 const PAGE_SIZE = 10;
@@ -73,7 +74,7 @@ module.exports = async (req, res) => {
     <meta name="twitter:description" content="AI-powered precious metals market analysis by Troy.">
     <meta name="twitter:image" content="${escapeHtml(ogImage)}">
     <meta name="twitter:site" content="@troystack_">
-    <script type="application/ld+json">${JSON.stringify(itemListJson)}</script>`;
+    <script type="application/ld+json">${scriptJson(itemListJson)}</script>`;
 
     const body = `
     <style>

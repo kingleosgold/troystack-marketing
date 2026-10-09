@@ -11,6 +11,7 @@ const {
   renderShell,
   SITE_URL,
   APP_STORE_URL,
+  scriptJson,
 } = require('./_shared/signal-lib');
 
 // Readers who want more than the article go to the web app, where Troy and
@@ -62,9 +63,10 @@ module.exports = async (req, res) => {
     const category = categoryLabel(article.category);
     const heroImg = article.image_url;
     const articleUrl = `${SITE_URL}/signal/${encodeURIComponent(article.slug)}`;
-    // troystack.ai asks Troy the question in ?q= as soon as the page opens.
-    // Visitors get three answers a day without an account.
-    const askTroyUrl = `${WEB_APP_URL}/troy?q=${encodeURIComponent(`I just read "${title}" on the Stack Signal. What does it mean for my stack?`)}`;
+    // troystack.ai asks Troy the question in ?q= once the page opens. Visitors
+    // get three answers a day without an account, and Troy doesn't know a
+    // visitor's stack, so the question is one he can answer for anyone.
+    const askTroyUrl = `${WEB_APP_URL}/troy?q=${encodeURIComponent(`What does "${title}" mean for people who stack gold and silver?`)}`;
     const ogImage = heroImg || `${SITE_URL}/icon.png`;
 
     const sources = Array.isArray(article.sources) ? article.sources : [];
@@ -138,7 +140,7 @@ module.exports = async (req, res) => {
     <meta name="twitter:description" content="${escapeHtml(metaDesc)}">
     <meta name="twitter:image" content="${escapeHtml(ogImage)}">
     <meta name="twitter:site" content="@troystack_">
-    <script type="application/ld+json">${JSON.stringify(newsArticleJson)}</script>`;
+    <script type="application/ld+json">${scriptJson(newsArticleJson)}</script>`;
 
     const body = `
     <style>
@@ -372,7 +374,7 @@ module.exports = async (req, res) => {
       </div>
 
       <div class="ask-troy">
-        <p><strong>What does this mean for your stack?</strong> Ask Troy. He answers on troystack.ai, three questions a day free, no account needed.</p>
+        <p><strong>What does this mean for stackers?</strong> Ask Troy. He answers on troystack.ai, three questions a day free, no account needed.</p>
         <a href="${escapeHtml(askTroyUrl)}" class="cta-btn">Ask Troy about this</a>
       </div>
     </div>
@@ -382,9 +384,9 @@ module.exports = async (req, res) => {
     <div class="container">
       <div class="cta">
         <h2>Want Troy's read on <span class="accent">your</span> stack?</h2>
-        <p>Track your coins and bars at live spot, ask Troy anything, and with Gold get a morning brief written around what you hold. The first week of Gold is free.</p>
+        <p>Track your coins and bars at live spot, ask Troy anything, and with Gold get a morning brief written around what you hold. New to Gold? The first week is free.</p>
         <div class="cta-row">
-          <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="cta-btn">Get the iPhone app</a>
+          <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="cta-btn" data-ios-hide>Get the iPhone app</a>
           <a href="${escapeHtml(WEB_TRIAL_URL)}" data-ios-href="${escapeHtml(APP_STORE_TRIAL_URL)}" data-ios-label="Start the free week in the app" class="cta-btn cta-btn-quiet">Start the free week on the web</a>
         </div>
       </div>
@@ -393,10 +395,12 @@ module.exports = async (req, res) => {
     <script>
     (function(){
       // On an iPhone or iPad the free week starts in the App Store, where the
-      // app's own trial lives, the same as on troystack.com's pricing.
+      // app's own trial lives, the same as on troystack.com's pricing. The
+      // plain App Store button goes, so the box has one App Store link.
       var ua = navigator.userAgent || '';
       var iOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
       if (iOS) {
+        document.querySelectorAll('[data-ios-hide]').forEach(function(el) { el.style.display = 'none'; });
         document.querySelectorAll('a[data-ios-href]').forEach(function(a) {
           a.href = a.getAttribute('data-ios-href');
           a.target = '_blank';
@@ -407,8 +411,8 @@ module.exports = async (req, res) => {
 
       var xBtn = document.getElementById('share-x');
       var copyBtn = document.getElementById('share-copy');
-      var title = ${JSON.stringify(title)};
-      var url = ${JSON.stringify(articleUrl)};
+      var title = ${scriptJson(title)};
+      var url = ${scriptJson(articleUrl)};
 
       if (xBtn) xBtn.addEventListener('click', function(){
         var text = title + ' via @troystack_';

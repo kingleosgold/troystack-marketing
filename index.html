@@ -847,7 +847,7 @@
                     <p class="hero-sub">The AI-powered precious metals tracker. Live spot prices, receipt scanning, stack intelligence, and Troy — your personal stack analyst.</p>
                     <div class="hero-buttons">
                         <a href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-home&mt=8" class="btn btn-primary" target="_blank" rel="noopener">Download TroyStack</a>
-                        <a href="https://app.stacktrackergold.com" class="btn btn-secondary">Open Web App</a>
+                        <a href="https://troystack.ai/" class="btn btn-secondary">Open Web App</a>
                     </div>
                     <p class="hero-note">Free to start. No credit card required.</p>
                 </div>
@@ -969,7 +969,7 @@
                             <li>Basic analytics</li>
                             <li>3 Troy questions/day</li>
                         </ul>
-                        <a href="https://app.stacktrackergold.com/auth" class="btn btn-secondary">Start Free</a>
+                        <a href="https://troystack.ai/auth?mode=signup" class="btn btn-secondary">Start Free</a>
                     </div>
                     <div class="pricing-card gold-card">
                         <p class="pricing-tier">Gold</p>
@@ -986,7 +986,7 @@
                             <li>AI receipt scanner</li>
                             <li>Price alerts</li>
                         </ul>
-                        <a href="https://app.stacktrackergold.com/auth" class="btn btn-primary">Start 7-Day Free Trial</a>
+                        <a href="https://troystack.ai/auth?mode=signup&amp;redirect=checkout&amp;plan=monthly&amp;campaign=site-pricing" data-ios-href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&amp;ct=site-pricing&amp;mt=8" class="btn btn-primary">Start 7-Day Free Trial</a>
                         <p class="pricing-alt">Also available: $39.99/year (save 33%) &middot; $149.99 lifetime</p>
                     </div>
                 </div>
@@ -1041,6 +1041,20 @@
     </footer>
 
     <script>
+        // On an iPhone or iPad the free week starts in the App Store, where the
+        // app's own trial lives. Everywhere else it starts on troystack.ai,
+        // which goes straight from sign-up to checkout for the plan shown.
+        (function() {
+            var ua = navigator.userAgent || '';
+            var iOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+            if (!iOS) return;
+            document.querySelectorAll('a[data-ios-href]').forEach(function(a) {
+                a.href = a.getAttribute('data-ios-href');
+                a.target = '_blank';
+                a.rel = 'noopener';
+            });
+        })();
+
         // Close mobile nav when a link is tapped
         document.querySelectorAll('.nav-links a').forEach(function(link) {
             link.addEventListener('click', function() {

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Privacy Policy — TroyStack</title>
+    <title>Privacy Policy | TroyStack</title>
     <link rel="icon" href="/favicon.ico" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -66,9 +66,9 @@
     <div class="container">
         <a href="/" class="back">← Back to Home</a>
         <h1>Privacy Policy</h1>
-        <p class="updated"><strong>Effective: May 19, 2026</strong></p>
+        <p class="updated"><strong>Effective: October 15, 2026</strong></p>
 
-        <p class="intro">TroyStack is a precious metals portfolio tracking service operated by Mancini Tech Solutions LLC. We track what you tell us about your holdings, we use AI to help you understand markets and process receipts, and we use third-party services to deliver that experience. This document tells you what data we collect, who we share it with, and what your rights are. We've tried to write it in plain English.</p>
+        <p class="intro">TroyStack is a precious metals portfolio tracking service operated by Mancini Tech Solutions LLC, available as an app for iPhone and Android and on the web at troystack.ai. This policy covers all three. We track what you tell us about your holdings, we use AI to help you understand markets and process receipts, and we use third-party services to deliver that experience. This document tells you what data we collect, who we share it with, and what your rights are. We've tried to write it in plain English.</p>
 
         <h2 id="information-we-collect">1. Information we collect</h2>
 
@@ -77,7 +77,7 @@
             <li>Email address (required for account creation)</li>
             <li>Hashed password (managed by Supabase Auth, never visible to us)</li>
             <li>Display name (optional)</li>
-            <li>Subscription tier and purchase history (managed by Apple In-App Purchase, RevenueCat, and Stripe)</li>
+            <li>Subscription tier and purchase history (managed by Apple In-App Purchase on iPhone, Google Play Billing on Android, Stripe on the web, and RevenueCat across the apps)</li>
         </ul>
 
         <h3>Portfolio data</h3>
@@ -92,20 +92,22 @@
             <li>Chat messages you send to Troy</li>
             <li>Voice recordings when you use voice input</li>
             <li>Voice playback requests when you use voice output</li>
+            <li>Reports you file on one of Troy's replies, with the reply's text and the reason you give</li>
         </ul>
 
         <h3>Device and technical data</h3>
         <ul>
             <li>Device push notification token (only for alerts you've subscribed to)</li>
             <li>IP address (logged briefly by hosting infrastructure for standard operational purposes; not retained or used to identify you)</li>
-            <li>App version and operating system version</li>
+            <li>App version and operating system version (iOS or Android)</li>
         </ul>
 
         <h2 id="how-we-use-the-information">2. How we use the information</h2>
         <ul>
             <li>Provide the core service: track your portfolio, calculate value against live spot prices, generate intelligence summaries, send alerts you've opted into</li>
             <li>Operate the Troy AI assistant: route your messages through third-party AI providers to generate responses</li>
-            <li>Process subscription payments through Apple, Stripe, and RevenueCat</li>
+            <li>Process subscription payments through Apple, Google Play, Stripe, and RevenueCat</li>
+            <li>Review reports you file on Troy's replies, to find and fix answers that are wrong or inappropriate</li>
             <li>Improve the product through aggregated, non-identifying usage patterns</li>
             <li>Communicate with you about your account or the service</li>
         </ul>
@@ -137,6 +139,12 @@
                     <td>Per Apple's privacy policy</td>
                 </tr>
                 <tr>
+                    <td>Google Play</td>
+                    <td>Purchase and subscription status for in-app purchases on Android</td>
+                    <td>Payment processing on Android</td>
+                    <td>Per Google's privacy policy and the Google Play terms</td>
+                </tr>
+                <tr>
                     <td>Google (Sign in with Google)</td>
                     <td>Google account identifier and email</td>
                     <td>Optional alternative authentication</td>
@@ -145,7 +153,7 @@
                 <tr>
                     <td>RevenueCat</td>
                     <td>Subscription tier, anonymous user identifier</td>
-                    <td>Subscription management for iOS</td>
+                    <td>Subscription management for iPhone and Android</td>
                     <td>Per RevenueCat's privacy policy</td>
                 </tr>
                 <tr>
@@ -155,21 +163,21 @@
                     <td>Per Stripe's privacy policy</td>
                 </tr>
                 <tr>
-                    <td>Anthropic (Claude <code>claude-sonnet-4-6</code>)</td>
-                    <td>Stack Signal editorial long-form inputs (public news article content), not your portfolio or chat data</td>
-                    <td>Editorial synthesis for Stack Signal articles</td>
+                    <td>Anthropic (Claude <code>claude-sonnet-5-5</code>)</td>
+                    <td>Public news content for Stack Signal articles and the daily market brief. Troy chat messages and portfolio contents used as context when Claude answers Troy instead of Gemini, as a backup when Gemini is unavailable or for accounts testing Claude</td>
+                    <td>Editorial synthesis, and a second provider for Troy chat</td>
                     <td>Per Anthropic's privacy policy and API data-usage terms (Anthropic states API submissions are not used for training by default)</td>
                 </tr>
                 <tr>
                     <td>Google (Gemini <code>gemini-2.5-flash</code>)</td>
                     <td>Troy chat messages, portfolio contents when used as context, daily brief generation (initial and regenerate), portfolio intelligence summaries, Stack Signal article scoring, receipt images for OCR</td>
-                    <td>Most user-data-touching AI work</td>
+                    <td>Most user-data-touching AI work, and Troy chat by default</td>
                     <td>Per Google's API terms and privacy policy</td>
                 </tr>
                 <tr>
-                    <td>OpenAI (Whisper)</td>
-                    <td>Voice recordings when you use voice input</td>
-                    <td>Speech-to-text transcription</td>
+                    <td>OpenAI (Whisper, DALL-E 3)</td>
+                    <td>Voice recordings when you use voice input and OpenAI is the active speech-to-text provider. Image prompts for Stack Signal article art, which contain no user data</td>
+                    <td>Speech-to-text transcription and article images</td>
                     <td>Per OpenAI's privacy policy and API data-usage terms (OpenAI's default API retention is 30 days at the time of this writing)</td>
                 </tr>
                 <tr>
@@ -180,8 +188,8 @@
                 </tr>
                 <tr>
                     <td>xAI (Grok)</td>
-                    <td>Text content of Troy's responses when voice output is enabled and xAI is the active voice provider</td>
-                    <td>Text-to-speech synthesis</td>
+                    <td>Voice recordings when you use voice input and xAI is the active speech-to-text provider. Text content of Troy's responses when voice output is enabled and xAI is the active voice provider. Podcast scripts built from public market content</td>
+                    <td>Speech-to-text and text-to-speech synthesis</td>
                     <td>Per xAI's privacy policy</td>
                 </tr>
                 <tr>
@@ -217,7 +225,7 @@
         <h2 id="your-rights">5. Your rights</h2>
         <ul>
             <li><strong>Access your data:</strong> export available in app settings.</li>
-            <li><strong>Delete your account:</strong> available in app settings; deletion is immediate and removes your data from our primary systems within 30 days. Some third-party providers may retain data according to their own policies (listed in Section 3).</li>
+            <li><strong>Delete your account:</strong> in app settings on iPhone or Android, or on the web at <a href="https://troystack.ai/delete-account">troystack.ai/delete-account</a>. Deletion is immediate. It removes your holdings, Troy conversations, daily briefs, alerts, notification settings and push tokens, scan history, API keys, article likes and comments, your profile, and your sign-in from our primary systems, and any remaining copies within 30 days. Reports you filed on Troy's replies are kept for review with your account removed from them. Deleting your account doesn't cancel an App Store or Google Play subscription, which you manage in your store account. If you pay on the web, cancel that plan first, since we won't delete an account whose web plan is set to renew. Some third-party providers may retain data according to their own policies (listed in Section 3).</li>
             <li><strong>Update your information:</strong> editable in app settings.</li>
             <li><strong>Contact us:</strong> <a href="mailto:support@troystack.com">support@troystack.com</a></li>
         </ul>

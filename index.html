@@ -282,7 +282,8 @@
             top: 40px;
             left: 50%;
             transform: translateX(-50%);
-            width: 700px;
+            /* Capped at the screen, or a phone zooms the whole page out to fit it */
+            width: min(700px, 100vw);
             height: 500px;
             background: radial-gradient(ellipse, var(--gold-glow) 0%, transparent 70%);
             pointer-events: none;

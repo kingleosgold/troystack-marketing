@@ -1,0 +1,7 @@
+{
+  "name": "troystack-marketing",
+  "private": true,
+  "scripts": {
+    "test": "node --test"
+  }
+}

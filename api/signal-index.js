@@ -63,14 +63,14 @@ module.exports = async (req, res) => {
     const head = `
     <meta name="description" content="AI-powered precious metals market analysis. Daily coverage of gold, silver, COMEX, and the macro environment. By Troy, your AI stack analyst.">
     <link rel="canonical" href="${SITE_URL}/signal">
-    <meta property="og:title" content="Stack Signal — Daily Gold &amp; Silver Market Intelligence">
+    <meta property="og:title" content="Stack Signal: Daily Gold &amp; Silver Market Intelligence">
     <meta property="og:description" content="AI-powered precious metals market analysis by Troy, your AI stack analyst.">
     <meta property="og:image" content="${escapeHtml(ogImage)}">
     <meta property="og:url" content="${SITE_URL}/signal">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="TroyStack">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Stack Signal — Daily Gold &amp; Silver Market Intelligence">
+    <meta name="twitter:title" content="Stack Signal: Daily Gold &amp; Silver Market Intelligence">
     <meta name="twitter:description" content="AI-powered precious metals market analysis by Troy.">
     <meta name="twitter:image" content="${escapeHtml(ogImage)}">
     <meta name="twitter:site" content="@troystack_">
@@ -301,7 +301,7 @@ module.exports = async (req, res) => {
     </script>`;
 
     const html = renderShell({
-      title: 'Stack Signal — Daily Gold & Silver Market Intelligence | TroyStack',
+      title: 'Stack Signal: Daily Gold & Silver Market Intelligence | TroyStack',
       head,
       body,
       activeNav: 'signal',

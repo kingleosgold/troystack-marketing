@@ -110,3 +110,13 @@ test('internal links point at pages that exist', () => {
     }
   }
 });
+
+// A glow wider than a phone makes iOS Safari zoom the whole page out, since
+// body's overflow-x doesn't hold the layout viewport there.
+test('the hero glow never runs wider than the screen', () => {
+  const rule = read('index.html').match(/\.hero::before\s*\{([^}]*)\}/);
+  assert.ok(rule, 'index.html has a .hero::before rule');
+  const width = rule[1].match(/(?:^|;|\s)width:\s*([^;]+);/);
+  assert.ok(width, '.hero::before sets a width');
+  assert.match(width[1], /^min\([^)]*100vw[^)]*\)$/, '.hero::before width is capped at 100vw');
+});

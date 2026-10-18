@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="apple-itunes-app" content="app-id=6757343766">
-    <title>Gold &amp; Silver Price Speculation Calculator — What If? | TroyStack</title>
+    <title>Gold &amp; Silver Price Speculation Calculator: What If? | TroyStack</title>
     <meta name="description" content="Enter your gold and silver holdings, set target prices, and see what your stack could be worth. Free calculator by TroyStack.">
 
-    <meta property="og:title" content="What If Your Stack Was Worth More? — TroyStack">
+    <meta property="og:title" content="What If Your Stack Was Worth More? | TroyStack">
     <meta property="og:description" content="Set target prices for gold and silver. See what your stack could be worth and what it would buy. Free tool by TroyStack.">
     <meta property="og:image" content="https://troystack.com/og-speculation.png">
     <meta property="og:image:width" content="1200">
@@ -18,7 +18,7 @@
     <link rel="canonical" href="https://troystack.com/speculation">
 
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="What If Your Stack Was Worth More? — TroyStack">
+    <meta name="twitter:title" content="What If Your Stack Was Worth More? | TroyStack">
     <meta name="twitter:description" content="Set target prices for gold and silver. See what your stack could be worth.">
     <meta name="twitter:image" content="https://troystack.com/og-speculation.png">
     <meta name="twitter:site" content="@troystack_">
@@ -485,7 +485,7 @@
 
         <section class="hero">
             <h1>What If Your Stack<br><span class="accent">Was Worth More?</span></h1>
-            <p>Set target prices for gold and silver. See what your stack could be worth — and what it would buy.</p>
+            <p>Set target prices for gold and silver. See what your stack could be worth and what it would buy.</p>
         </section>
 
         <section>
@@ -579,7 +579,7 @@
 
         <section class="cta">
             <h2>Track your stack with <span class="accent">Troy</span></h2>
-            <p>Live spot prices, portfolio tracking, daily briefings, price alerts, and Troy Chat — your AI precious metals advisor.</p>
+            <p>Live spot prices, portfolio tracking, daily briefings, price alerts, and Troy Chat with your AI precious metals advisor.</p>
             <a href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-what-if&mt=8" target="_blank" rel="noopener" class="cta-btn">Download TroyStack</a>
         </section>
 
@@ -718,7 +718,7 @@
                 if (!prices) return;
                 const date = prices.ts ? new Date(prices.ts) : new Date();
                 const dateStr = date.toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' });
-                const flag = prices.fallback ? 'Prices as of' : 'Live spot prices —';
+                const flag = prices.fallback ? 'Prices as of' : 'Live spot prices as of';
                 els.priceStatus.innerHTML = `${flag} <strong>${dateStr}</strong> &nbsp;·&nbsp; Gold ${fmtMoneyShort(prices.gold)}/oz &nbsp;·&nbsp; Silver ${fmtMoneyShort(prices.silver)}/oz`;
             }
 
@@ -912,7 +912,7 @@
                 const text = buildShareText(lastResult);
                 const url = shareUrlForCurrent();
                 if (navigator.share) {
-                    try { await navigator.share({ title: 'TroyStack — What If Calculator', text, url }); } catch (_) {}
+                    try { await navigator.share({ title: 'TroyStack What If Calculator', text, url }); } catch (_) {}
                 } else {
                     try {
                         await navigator.clipboard.writeText(`${text}\n${url}`);

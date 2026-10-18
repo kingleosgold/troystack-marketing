@@ -120,3 +120,16 @@ test('the hero glow never runs wider than the screen', () => {
   assert.ok(width, '.hero::before sets a width');
   assert.match(width[1], /^min\([^)]*100vw[^)]*\)$/, '.hero::before width is capped at 100vw');
 });
+
+// The house style bans em dashes in anything a visitor reads, including titles,
+// alt text and the strings scripts put on screen.
+test('no page, script or llms.txt carries an em dash', () => {
+  const files = [
+    ...htmlPages,
+    'llms.txt',
+    ...fs.readdirSync(path.join(ROOT, 'api')).filter((f) => f.endsWith('.js')).map((f) => `api/${f}`),
+  ];
+  for (const f of files) {
+    assert.doesNotMatch(read(f), /—|&mdash;|&#8212;|&#x2014;/i, `${f} has an em dash`);
+  }
+});

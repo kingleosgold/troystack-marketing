@@ -7,10 +7,23 @@ const ROOT = path.join(__dirname, '..');
 const read = (f) => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const htmlPages = fs.readdirSync(ROOT).filter((f) => f.endsWith('.html'));
 
+// Every JSON-LD block on a page, whatever the other attributes on its tag.
+const jsonLd = (text) =>
+  [...text.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    .filter(([, attrs]) => /\btype\s*=\s*["']?application\/ld\+json/i.test(attrs))
+    .map(([, , body]) => body);
+
+// Whether a path matches a Vercel rewrite source, one segment at a time, so
+// /signal/:slug matches /signal/foo and not /signal/foo/bar.
+function matchesRewrite(urlPath, source) {
+  const want = source.split('/');
+  const got = urlPath.split('/');
+  return want.length === got.length && want.every((seg, i) => seg.startsWith(':') ? got[i] !== '' : seg === got[i]);
+}
+
 test('every JSON-LD block parses', () => {
   for (const page of htmlPages) {
-    const blocks = [...read(page).matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)];
-    for (const [, json] of blocks) {
+    for (const json of jsonLd(read(page))) {
       assert.doesNotThrow(() => JSON.parse(json), `${page} has JSON-LD that doesn't parse`);
     }
   }
@@ -20,7 +33,7 @@ test('every JSON-LD block parses', () => {
 // change can't land on one page and miss another.
 function goldPrices() {
   const index = read('index.html');
-  const offers = JSON.parse(index.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/)[1]).offers;
+  const offers = jsonLd(index).map((b) => JSON.parse(b)).find((d) => Array.isArray(d.offers)).offers;
   const byName = Object.fromEntries(offers.map((o) => [o.name, o.price]));
   return { monthly: byName['Gold Monthly'], yearly: byName['Gold Yearly'], lifetime: byName['Gold Lifetime'] };
 }
@@ -68,12 +81,23 @@ test('every sitemap URL has a page or a rewrite behind it', () => {
   for (const loc of locs) {
     if (loc === '/') continue;
     const page = `${loc.slice(1)}.html`;
-    assert.ok(fs.existsSync(path.join(ROOT, page)) || rewrites.includes(loc), `sitemap lists ${loc} with nothing behind it`);
+    assert.ok(fs.existsSync(path.join(ROOT, page)) || rewrites.some((r) => matchesRewrite(loc, r)), `sitemap lists ${loc} with nothing behind it`);
   }
 });
 
+test('a rewrite matches one segment per parameter', () => {
+  assert.ok(matchesRewrite('/signal/gold-up', '/signal/:slug'));
+  assert.ok(!matchesRewrite('/signal/gold-up/extra', '/signal/:slug'));
+  assert.ok(!matchesRewrite('/signal/', '/signal/:slug'));
+  assert.ok(matchesRewrite('/signal', '/signal'));
+});
+
+test('JSON-LD is found with other attributes on its tag', () => {
+  assert.deepEqual(jsonLd('<script id="s" type="application/ld+json">{"a":1}</script><script>x</script>'), ['{"a":1}']);
+});
+
 test('internal links point at pages that exist', () => {
-  const rewrites = JSON.parse(read('vercel.json')).rewrites.map((r) => r.source.split('/:')[0]);
+  const rewrites = JSON.parse(read('vercel.json')).rewrites.map((r) => r.source);
   for (const page of htmlPages) {
     for (const [, href] of read(page).matchAll(/href="(\/[^"#?]*)/g)) {
       if (href === '/') continue;
@@ -81,7 +105,7 @@ test('internal links point at pages that exist', () => {
       const exists =
         fs.existsSync(path.join(ROOT, href)) ||
         fs.existsSync(path.join(ROOT, `${clean.slice(1)}.html`)) ||
-        rewrites.some((r) => clean === r || clean.startsWith(`${r}/`));
+        rewrites.some((r) => matchesRewrite(clean, r));
       assert.ok(exists, `${page} links to ${href}, which doesn't exist`);
     }
   }

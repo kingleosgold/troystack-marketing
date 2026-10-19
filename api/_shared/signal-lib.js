@@ -1,7 +1,7 @@
 const UPSTREAM_BASE = 'https://api.troystack.ai/v1/stack-signal';
 
-async function fetchList({ limit = 10, offset = 0 } = {}) {
-  const url = `${UPSTREAM_BASE}?limit=${limit}&offset=${offset}`;
+async function fetchList({ limit = 10, offset = 0, type } = {}) {
+  const url = `${UPSTREAM_BASE}?limit=${limit}&offset=${offset}${type ? `&type=${type}` : ''}`;
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) throw new Error(`upstream ${res.status}`);
   const data = await res.json();
@@ -16,6 +16,16 @@ async function fetchArticle(slug) {
   const data = await res.json();
   return data?.article || null;
 }
+
+// Troy's recaps (the daily Stack Signal, the evening signal, the weekly recap
+// and the week ahead) are the Signal pages search engines should index. The
+// news items are short takes on someone else's headline, so they stay out of
+// the index until they fold into their day's recap.
+function isRecap(article) {
+  return article?.is_stack_signal === true;
+}
+
+const NOINDEX = 'noindex, follow';
 
 function escapeHtml(str) {
   if (str == null) return '';
@@ -351,6 +361,8 @@ module.exports = {
   scriptJson,
   fetchList,
   fetchArticle,
+  isRecap,
+  NOINDEX,
   escapeHtml,
   formatDate,
   stripMarkdown,

@@ -59,3 +59,93 @@ test('/api/prices falls back when the upstream fails', async (t) => {
   assert.equal(body.fallback, true);
   assert.equal(res.headers['Cache-Control'], 's-maxage=60');
 });
+
+function listResponse(articles) {
+  return { ok: true, status: 200, json: async () => ({ articles }) };
+}
+
+const recap = (slug, day) => ({ slug, is_stack_signal: true, published_at: `${day}T12:00:00Z` });
+const item = (slug, day) => ({ slug, is_stack_signal: false, published_at: `${day}T12:00:00Z` });
+
+test('the Signal sitemap lists every recap and no news item', async (t) => {
+  // Two full pages and a short third, so the sitemap has to page.
+  const all = [];
+  for (let i = 0; i < 120; i++) all.push(recap(`the-stack-signal-${i}`, '2026-10-01'));
+  all.push(item('gold-rises-2026-10-19', '2026-10-19'));
+  const urls = [];
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    urls.push(url);
+    const q = new URL(url).searchParams;
+    const offset = Number(q.get('offset'));
+    const rows = q.get('type') === 'signal' ? all.filter((a) => a.is_stack_signal) : all;
+    return listResponse(rows.slice(offset, offset + Number(q.get('limit'))));
+  });
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal((res.body.match(/<loc>/g) || []).length, 120);
+  assert.ok(res.body.includes('/signal/the-stack-signal-119<'));
+  assert.ok(!res.body.includes('gold-rises'));
+  assert.ok(urls.every((u) => u.includes('type=signal')));
+  assert.ok(urls.length <= 20);
+});
+
+test('the Signal sitemap drops news items an older API still returns', async (t) => {
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    const offset = Number(new URL(url).searchParams.get('offset'));
+    return listResponse(offset === 0 ? [recap('evening-signal-2026-10-18', '2026-10-18'), item('silver-dips-2026-10-18', '2026-10-18')] : []);
+  });
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.ok(res.body.includes('/signal/evening-signal-2026-10-18<'));
+  assert.ok(!res.body.includes('silver-dips'));
+});
+
+test('the Signal sitemap stops at 20 calls', async (t) => {
+  let calls = 0;
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    calls++;
+    const offset = Number(new URL(url).searchParams.get('offset'));
+    return listResponse(Array.from({ length: 50 }, (_, i) => recap(`r-${offset + i}`, '2026-01-01')));
+  });
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.equal(calls, 20);
+  assert.equal((res.body.match(/<loc>/g) || []).length, 1000);
+});
+
+function articleResponse(article, related = []) {
+  return async (url) => (url.includes('?limit=')
+    ? listResponse(related)
+    : { ok: true, status: 200, json: async () => ({ article }) });
+}
+
+const robotsMeta = (html) => /<meta name="robots" content="noindex, follow">/.test(html);
+
+test('a news item page is noindex, follow', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', troy_commentary: 'Gold rose.' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['X-Robots-Tag'], 'noindex, follow');
+  assert.ok(robotsMeta(res.body));
+});
+
+test('a recap page stays indexable', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['X-Robots-Tag'], undefined);
+  assert.ok(!robotsMeta(res.body));
+  assert.ok(res.body.includes('<link rel="canonical" href="https://troystack.com/signal/the-stack-signal-2026-10-19">'));
+});
+
+test('the fallback page an upstream failure answers is noindex', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => ({ ok: false, status: 503 }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['X-Robots-Tag'], 'noindex, follow');
+  assert.ok(robotsMeta(res.body));
+});

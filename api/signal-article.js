@@ -3,6 +3,7 @@ const {
   fetchList,
   isRecap,
   NOINDEX,
+  usableOneLiner,
   escapeHtml,
   formatDate,
   firstSentences,
@@ -57,6 +58,7 @@ module.exports = async (req, res) => {
 
     const title = article.title || 'Stack Signal';
     const commentary = article.troy_commentary || '';
+    const oneLiner = usableOneLiner(article.troy_one_liner);
     const bodyHtml = renderMarkdown(commentary);
     const metaDesc = firstSentences(commentary, 2, 160);
     const mins = readingTime(commentary);
@@ -364,7 +366,7 @@ module.exports = async (req, res) => {
 
       <h1 class="article-title">${escapeHtml(title)}</h1>
 
-      ${article.troy_one_liner ? `<p class="article-oneliner">&ldquo;${escapeHtml(article.troy_one_liner)}&rdquo;</p>` : ''}
+      ${oneLiner ? `<p class="article-oneliner">&ldquo;${escapeHtml(oneLiner)}&rdquo;</p>` : ''}
 
       <div class="prose">
         ${bodyHtml}

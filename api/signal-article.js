@@ -1,6 +1,8 @@
 const {
   fetchArticle,
   fetchList,
+  isRecap,
+  NOINDEX,
   escapeHtml,
   formatDate,
   firstSentences,
@@ -68,6 +70,7 @@ module.exports = async (req, res) => {
     // visitor's stack, so the question is one he can answer for anyone.
     const askTroyUrl = `${WEB_APP_URL}/troy?q=${encodeURIComponent(`What does "${title}" mean for people who stack gold and silver?`)}`;
     const ogImage = heroImg || `${SITE_URL}/icon.png`;
+    const indexable = isRecap(article);
 
     const sources = Array.isArray(article.sources) ? article.sources : [];
     const sourcesHtml = sources.length > 0 ? `
@@ -124,7 +127,8 @@ module.exports = async (req, res) => {
       mainEntityOfPage: { '@type': 'WebPage', '@id': articleUrl },
     };
 
-    const head = `
+    const head = `${indexable ? '' : `
+    <meta name="robots" content="${NOINDEX}">`}
     <meta name="description" content="${escapeHtml(metaDesc)}">
     <link rel="canonical" href="${articleUrl}">
     <meta property="og:title" content="${escapeHtml(title)}">
@@ -444,6 +448,7 @@ module.exports = async (req, res) => {
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
+    if (!indexable) res.setHeader('X-Robots-Tag', NOINDEX);
     res.status(200).send(html);
   } catch (err) {
     const body = `
@@ -456,11 +461,15 @@ module.exports = async (req, res) => {
     </section>`;
     const html = renderShell({
       title: 'Article | TroyStack',
+      head: `<meta name="robots" content="${NOINDEX}">`,
       body,
       activeNav: 'signal',
     });
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 's-maxage=30');
+    // The fallback answers 200, so it says noindex or it could stand in for
+    // the article in the index.
+    res.setHeader('X-Robots-Tag', NOINDEX);
     res.status(200).send(html);
   }
 };

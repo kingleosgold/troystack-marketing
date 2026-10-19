@@ -19,22 +19,31 @@ function escapeXml(s) {
 }
 
 // Every recap, newest first. The news items are noindex, so they stay out.
+// A page that fails stops the paging but keeps the recaps already fetched,
+// so one bad call can't empty the sitemap. complete says whether every page
+// came back.
 async function fetchRecaps() {
   const recaps = [];
   for (let start = 0; start < MAX_PAGES; start += BATCH) {
-    const pages = await Promise.all(
+    const pages = await Promise.allSettled(
       Array.from({ length: Math.min(BATCH, MAX_PAGES - start) }, (_, i) =>
         fetchList({ limit: PAGE, offset: (start + i) * PAGE, type: 'signal' })),
     );
-    for (const page of pages) recaps.push(...page.filter(isRecap));
-    if (pages.some((page) => page.length < PAGE)) break;
+    for (const page of pages) {
+      if (page.status === 'rejected') {
+        if (recaps.length === 0) throw page.reason;
+        return { recaps, complete: false };
+      }
+      recaps.push(...page.value.filter(isRecap));
+      if (page.value.length < PAGE) return { recaps, complete: true };
+    }
   }
-  return recaps;
+  return { recaps, complete: true };
 }
 
 module.exports = async (req, res) => {
   try {
-    const articles = await fetchRecaps();
+    const { recaps: articles, complete } = await fetchRecaps();
     const seen = new Set();
 
     const urls = articles.filter((a) => a.slug && !seen.has(a.slug) && seen.add(a.slug)).map(a => {
@@ -53,7 +62,8 @@ ${urls}
 </urlset>`;
 
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=3600, stale-while-revalidate=86400');
+    // A partial sitemap is cached briefly so the missing pages come back soon.
+    res.setHeader('Cache-Control', complete ? 's-maxage=3600, stale-while-revalidate=86400' : 's-maxage=300');
     res.status(200).send(xml);
   } catch (err) {
     res.setHeader('Content-Type', 'application/xml; charset=utf-8');

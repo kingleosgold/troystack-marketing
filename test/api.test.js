@@ -114,6 +114,35 @@ test('the Signal sitemap stops at 20 calls', async (t) => {
   assert.equal((res.body.match(/<loc>/g) || []).length, 1000);
 });
 
+test('a failed page keeps the recaps already fetched and caches briefly', async (t) => {
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    const offset = Number(new URL(url).searchParams.get('offset'));
+    if (offset === 100) return { ok: false, status: 429 };
+    return listResponse(Array.from({ length: 50 }, (_, i) => recap(`r-${offset + i}`, '2026-01-01')));
+  });
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal((res.body.match(/<loc>/g) || []).length, 100);
+  assert.equal(res.headers['Cache-Control'], 's-maxage=300');
+});
+
+test('a failed first page answers the empty sitemap as before', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => ({ ok: false, status: 503 }));
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal((res.body.match(/<loc>/g) || []).length, 0);
+  assert.equal(res.headers['Cache-Control'], 's-maxage=30');
+});
+
+test('a full sitemap caches for an hour', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([recap('weekly-recap-2026-10-17', '2026-10-17')]));
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.equal(res.headers['Cache-Control'], 's-maxage=3600, stale-while-revalidate=86400');
+});
+
 function articleResponse(article, related = []) {
   return async (url) => (url.includes('?limit=')
     ? listResponse(related)

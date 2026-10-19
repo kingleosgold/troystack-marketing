@@ -133,3 +133,13 @@ test('no page, script or llms.txt carries an em dash', () => {
     assert.doesNotMatch(read(f), /—|&mdash;|&#8212;|&#x2014;/i, `${f} has an em dash`);
   }
 });
+
+test('every link to troystack.ai/gold says which page sent it', () => {
+  // troystack.ai counts a Gold page visit under a site-* token, so its funnel
+  // shows which page here sent the visitor.
+  for (const f of htmlPages) {
+    for (const [, href] of read(f).matchAll(/href="(https:\/\/troystack\.ai\/gold\b[^"]*)"/g)) {
+      assert.match(href, /^https:\/\/troystack\.ai\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `${f} links to ${href}`);
+    }
+  }
+});

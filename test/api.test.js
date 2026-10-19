@@ -178,3 +178,27 @@ test('the fallback page an upstream failure answers is noindex', async (t) => {
   assert.equal(res.headers['X-Robots-Tag'], 'noindex, follow');
   assert.ok(robotsMeta(res.body));
 });
+
+test('a one-liner cut to a word or two stays off the article page', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...item('fed-2026-10-08', '2026-10-08'), title: 'Fed minutes', troy_commentary: 'Gold fell.', troy_one_liner: 'Gold shines as' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'fed-2026-10-08' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(!res.body.includes('<p class="article-oneliner">'));
+  assert.ok(!res.body.includes('Gold shines as'));
+});
+
+test('a whole one-liner shows on the article page', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...item('fed-2026-10-18', '2026-10-18'), title: 'Fed minutes', troy_commentary: 'Gold fell.', troy_one_liner: 'Central banks stack physical gold, smart money follows' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'fed-2026-10-18' } }, res);
+  assert.ok(res.body.includes('<p class="article-oneliner">&ldquo;Central banks stack physical gold, smart money follows&rdquo;</p>'));
+});
+
+test('usableOneLiner keeps five words and 25 characters', () => {
+  const { usableOneLiner } = require('../api/_shared/signal-lib');
+  assert.equal(usableOneLiner('Fed'), '');
+  assert.equal(usableOneLiner(null), '');
+  assert.equal(usableOneLiner('Paper Dip: Stack'), '');
+  assert.equal(usableOneLiner('  Smart money backs miners,\n physical gold next '), 'Smart money backs miners, physical gold next');
+});

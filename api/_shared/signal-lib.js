@@ -27,6 +27,14 @@ function isRecap(article) {
 
 const NOINDEX = 'noindex, follow';
 
+// News items stored before 10/9 carry a one-liner cut to a word or two, like
+// "Fed" or "Gold shines as". troystack.ai and Troy's chat context skip any line
+// under five words or 25 characters, and the article page does the same.
+function usableOneLiner(text) {
+  const s = String(text || '').replace(/\s+/g, ' ').trim();
+  return s.split(' ').length >= 5 && s.length >= 25 ? s : '';
+}
+
 function escapeHtml(str) {
   if (str == null) return '';
   return String(str)
@@ -363,6 +371,7 @@ module.exports = {
   fetchArticle,
   isRecap,
   NOINDEX,
+  usableOneLiner,
   escapeHtml,
   formatDate,
   stripMarkdown,

@@ -262,6 +262,29 @@ test('only a morning recap of today or yesterday in New York caches briefly', ()
   assert.equal(isFreshMorningRecap(undefined, now), false);
 });
 
+test('only a news item from today or yesterday in New York caches briefly', () => {
+  const { isFreshNewsItem } = require('../api/signal-article');
+  const now = Date.parse('2026-10-20T03:00:00Z'); // 11 PM on 10/19 in New York
+  assert.equal(isFreshNewsItem(item('a', '2026-10-19'), now), true);
+  assert.equal(isFreshNewsItem(item('a', '2026-10-18'), now), true);
+  assert.equal(isFreshNewsItem(item('a', '2026-10-17'), now), false);
+  assert.equal(isFreshNewsItem({ slug: 'a', is_stack_signal: false, created_at: '2026-10-19T12:00:00Z' }, now), true);
+  assert.equal(isFreshNewsItem({ slug: 'a', is_stack_signal: false }, now), false);
+  assert.equal(isFreshNewsItem(recap('evening-signal-2026-10-19', '2026-10-19'), now), false);
+});
+
+test('a fresh news item with no home yet caches briefly, an old one keeps the long cache', async (t) => {
+  const today = new Date().toISOString().slice(0, 10);
+  for (const [day, want] of [[today, 's-maxage=60, stale-while-revalidate=60'], ['2026-01-05', 's-maxage=300, stale-while-revalidate=86400']]) {
+    t.mock.method(globalThis, 'fetch', articleResponse({ ...item(`gold-rises-${day}`, day), published_at: day === today ? new Date().toISOString() : `${day}T12:00:00Z`, title: 'Gold rises', troy_commentary: 'Gold rose.' }));
+    const res = fakeRes();
+    await require('../api/signal-article')({ query: { slug: `gold-rises-${day}` } }, res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.headers['Cache-Control'], want, day);
+    globalThis.fetch.mock.restore();
+  }
+});
+
 test('an old morning recap keeps the long cache', async (t) => {
   t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-01-05', '2026-01-05'), title: 'The Stack Signal', troy_commentary: 'Morning.', news: [{ title: 'Gold rises', slug: 'gold-rises-2026-01-05' }] }));
   const res = fakeRes();

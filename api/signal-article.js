@@ -39,16 +39,23 @@ function sourceLink(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : '';
 }
 
-// A morning recap of today or yesterday in New York can still gain news, so
-// it caches briefly. Older recaps and every other page keep the long cache.
+// A morning recap of today or yesterday in New York can still gain news, and
+// a news item from those days can still fold into one, so both cache briefly.
+// Older pages keep the long cache.
 const MORNING_RECAP = /^the-stack-signal-(\d{4}-\d{2}-\d{2})$/;
 function etDay(t) {
   return new Date(t).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
 }
+function isFreshDay(day, now) {
+  return day === etDay(now) || day === etDay(now - 86400000);
+}
 function isFreshMorningRecap(slug, now = Date.now()) {
   const m = MORNING_RECAP.exec(slug || '');
-  if (!m) return false;
-  return m[1] === etDay(now) || m[1] === etDay(now - 86400000);
+  return !!m && isFreshDay(m[1], now);
+}
+function isFreshNewsItem(article, now = Date.now()) {
+  const t = Date.parse(article.published_at || article.created_at);
+  return !isRecap(article) && Number.isFinite(t) && isFreshDay(etDay(t), now);
 }
 
 // A morning recap ends with its day's news, one block per item, so a folded
@@ -532,8 +539,10 @@ const handler = async (req, res) => {
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     // A fresh morning recap gains items through the day, and a folded item's
-    // 301 sends readers to its anchor, so it can't be served a day stale.
-    res.setHeader('Cache-Control', isFreshMorningRecap(article.slug) ? 's-maxage=60, stale-while-revalidate=60' : 's-maxage=300, stale-while-revalidate=86400');
+    // 301 sends readers to its anchor, so it can't be served a day stale. A
+    // fresh news item can gain its home any time, so its page can't either.
+    const fresh = isFreshMorningRecap(article.slug) || isFreshNewsItem(article);
+    res.setHeader('Cache-Control', fresh ? 's-maxage=60, stale-while-revalidate=60' : 's-maxage=300, stale-while-revalidate=86400');
     if (!indexable) res.setHeader('X-Robots-Tag', NOINDEX);
     res.status(200).send(html);
   } catch (err) {
@@ -562,3 +571,4 @@ const handler = async (req, res) => {
 
 module.exports = handler;
 module.exports.isFreshMorningRecap = isFreshMorningRecap;
+module.exports.isFreshNewsItem = isFreshNewsItem;

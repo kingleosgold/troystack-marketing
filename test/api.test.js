@@ -345,9 +345,55 @@ test('the Signal index links folded news to the recap anchor', async (t) => {
   assert.ok(res.body.includes('<a href="/signal/the-stack-signal-2026-10-19" class="signal-card">'));
   assert.ok(res.body.includes('<a href="/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19" class="signal-card">'));
   assert.ok(res.body.includes('<a href="/signal/silver-dips-2026-10-20" class="signal-card">'));
-  // The Load more script builds the same links and still parses.
+  // The Load more script still parses.
   for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
-  assert.ok(res.body.includes("'/signal/' + home + '#' + encodeURIComponent(a.slug)"));
+});
+
+// The Load more script carries its own copy of signalHref. Run the served copy
+// against the shared one so the two can't drift apart.
+test('Load more cards link the same way as signalHref', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([]));
+  const res = fakeRes();
+  await require('../api/signal-index')({ method: 'GET', query: {} }, res);
+  const start = res.body.indexOf('function esc(');
+  const end = res.body.indexOf("btn.addEventListener('click'");
+  assert.ok(start > 0 && end > start);
+  const renderCard = new Function(`${res.body.slice(start, end)}; return renderCard;`)();
+  const cases = [
+    { ...item('gold-rises-2026-10-19', '2026-10-19'), home_slug: 'the-stack-signal-2026-10-19' },
+    ...[null, undefined, '', 'gold-rises-2026-10-19', '../x', 'https://evil.example', 42]
+      .map((home_slug) => ({ ...item('gold-rises-2026-10-19', '2026-10-19'), home_slug })),
+    { ...recap('evening-signal-2026-10-19', '2026-10-19'), home_slug: 'the-stack-signal-2026-10-19' },
+    { is_stack_signal: false, home_slug: 'the-stack-signal-2026-10-19' },
+    { slug: '', is_stack_signal: false },
+    { slug: 42, is_stack_signal: false },
+    { ...item('gold rises #2', '2026-10-19'), home_slug: 'The-Stack-Signal-2026-10-19' },
+  ];
+  for (const a of cases) {
+    const href = renderCard(a).match(/^<a href="([^"]*)"/)[1].replace(/&amp;/g, '&');
+    assert.equal(href, lib.signalHref(a), JSON.stringify(a));
+  }
+});
+
+test('an item with no slug links to the Signal index and stays off the ItemList', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([
+    { ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-19' },
+    { ...item('silver-dips-2026-10-20', '2026-10-20'), title: 'Silver dips', home_slug: null },
+    { is_stack_signal: false, published_at: '2026-10-20T12:00:00Z', title: 'No slug' },
+  ]));
+  const res = fakeRes();
+  await require('../api/signal-index')({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(!res.body.includes('/signal/undefined'));
+  assert.ok(res.body.includes('<a href="/signal" class="signal-card">'));
+  const [, json] = res.body.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/);
+  const list = JSON.parse(json);
+  assert.equal(list['@type'], 'ItemList');
+  assert.equal(list.numberOfItems, 2);
+  assert.deepEqual(list.itemListElement.map((e) => [e.position, e.url]), [
+    [1, 'https://troystack.com/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19'],
+    [2, 'https://troystack.com/signal/silver-dips-2026-10-20'],
+  ]);
 });
 
 test('related cards link folded news to the recap anchor', async (t) => {

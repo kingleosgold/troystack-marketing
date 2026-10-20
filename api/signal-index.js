@@ -1,6 +1,7 @@
 const {
   fetchList,
   signalHref,
+  SLUG_RE,
   escapeHtml,
   formatDate,
   firstSentences,
@@ -43,17 +44,18 @@ module.exports = async (req, res) => {
 
     const hasMore = articles.length === PAGE_SIZE;
 
+    const listed = articles.filter((a) => typeof a.slug === 'string' && a.slug);
     const itemListJson = {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Stack Signal',
       description: 'AI-powered precious metals market intelligence by Troy',
       url: `${SITE_URL}/signal`,
-      numberOfItems: articles.length,
-      itemListElement: articles.map((a, i) => ({
+      numberOfItems: listed.length,
+      itemListElement: listed.map((a, i) => ({
         '@type': 'ListItem',
         position: i + 1,
-        url: `${SITE_URL}/signal/${a.slug}`,
+        url: `${SITE_URL}${signalHref(a)}`,
         name: a.title,
       })),
     };
@@ -245,11 +247,12 @@ module.exports = async (req, res) => {
         return String(c||'').replace(/[_-]/g,' ').replace(/\\b\\w/g, function(x){return x.toUpperCase();});
       }
       function renderCard(a){
-        // Same rule as signalHref in signal-lib.js.
+        // Same rule as signalHref in signal-lib.js, tested against it.
         var home = a.home_slug;
-        var href = (a.is_stack_signal !== true && typeof home === 'string' && /^[a-z0-9][a-z0-9-]*$/i.test(home) && home !== a.slug)
-          ? '/signal/' + home + '#' + encodeURIComponent(a.slug)
-          : '/signal/' + a.slug;
+        var href = (typeof a.slug !== 'string' || !a.slug) ? '/signal'
+          : (a.is_stack_signal !== true && typeof home === 'string' && /${SLUG_RE.source}/${SLUG_RE.flags}.test(home) && home !== a.slug)
+            ? '/signal/' + home + '#' + encodeURIComponent(a.slug)
+            : '/signal/' + a.slug;
         var title = esc(a.title||'');
         var excerpt = esc(firstSent(a.troy_commentary, 220));
         var date = esc(fmtDate(a.published_at || a.created_at));

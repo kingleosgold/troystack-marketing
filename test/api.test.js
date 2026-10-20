@@ -31,6 +31,7 @@ function fakeRes() {
     body: undefined,
     setHeader(k, v) { this.headers[k] = v; },
     status(c) { this.statusCode = c; return this; },
+    writeHead(c, h = {}) { this.statusCode = c; Object.assign(this.headers, h); return this; },
     send(b) { this.body = b; return this; },
     end() { return this; },
   };
@@ -201,4 +202,60 @@ test('usableOneLiner keeps five words and 25 characters', () => {
   assert.equal(usableOneLiner(null), '');
   assert.equal(usableOneLiner('Paper Dip: Stack'), '');
   assert.equal(usableOneLiner('  Smart money backs miners,\n physical gold next '), 'Smart money backs miners, physical gold next');
+});
+
+test('a news item with a morning recap answers 301 to its block there', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-19' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.Location, '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
+  assert.match(res.headers['Cache-Control'], /max-age=86400/);
+});
+
+test('a news item without a recap, or with an odd home_slug, keeps its noindex page', async (t) => {
+  for (const home_slug of [null, undefined, '', 'gold-rises-2026-10-19', '../x', 'https://evil.example', 42]) {
+    t.mock.method(globalThis, 'fetch', articleResponse({ ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', troy_commentary: 'Gold rose.', home_slug }));
+    const res = fakeRes();
+    await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
+    assert.equal(res.statusCode, 200, String(home_slug));
+    assert.equal(res.headers['X-Robots-Tag'], 'noindex, follow');
+    globalThis.fetch.mock.restore();
+  }
+});
+
+test('a recap never redirects even if it carries a home_slug', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('evening-signal-2026-10-19', '2026-10-19'), title: 'Evening', troy_commentary: 'Done.', home_slug: 'the-stack-signal-2026-10-19' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'evening-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+});
+
+test('a morning recap ends with a Headlines block per news item', async (t) => {
+  const news = [
+    { title: 'Gold rises <fast>', slug: 'gold-rises-2026-10-19', one_liner: 'Central banks keep buying gold every single month', source: 'Reuters', source_url: 'https://reuters.com/a' },
+    { title: 'Silver dips', slug: 'silver-dips-2026-10-19', one_liner: 'Fed', source: 'Kitco', source_url: 'javascript:alert(1)' },
+    { title: 'No slug', slug: '' },
+  ];
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Morning.', news }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(res.body.includes('<h2>Headlines</h2>'));
+  assert.ok(res.body.includes('id="gold-rises-2026-10-19"'));
+  assert.ok(res.body.includes('Gold rises &lt;fast&gt;'));
+  assert.ok(res.body.includes('Central banks keep buying gold every single month'));
+  assert.ok(res.body.includes('href="https://reuters.com/a"'));
+  assert.ok(res.body.includes('id="silver-dips-2026-10-19"'));
+  assert.ok(!res.body.includes('javascript:alert'));
+  assert.ok(!res.body.includes('No slug'));
+  assert.equal(res.headers['Cache-Control'], 's-maxage=60, stale-while-revalidate=60');
+});
+
+test('a recap with no news has no Headlines and keeps the long cache', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Morning.', news: [] }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.ok(!res.body.includes('Headlines'));
+  assert.equal(res.headers['Cache-Control'], 's-maxage=300, stale-while-revalidate=86400');
 });

@@ -24,6 +24,44 @@ const WEB_APP_URL = 'https://troystack.ai';
 const WEB_TRIAL_URL = `${WEB_APP_URL}/auth?mode=signup&redirect=checkout&plan=monthly&campaign=site-signal`;
 const APP_STORE_TRIAL_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
 
+// A news item folds into its day's morning recap once that recap exists. The
+// API names it in home_slug, and the item's page answers 301 to its block on
+// the recap. Anything that isn't a plain slug, or points back at the item,
+// keeps the item's own page.
+const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/i;
+function homeLocation(article) {
+  const home = article.home_slug;
+  if (isRecap(article) || typeof home !== 'string' || !SLUG_RE.test(home) || home === article.slug) return null;
+  return `/signal/${home}#${encodeURIComponent(article.slug)}`;
+}
+
+function sourceLink(url) {
+  return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : '';
+}
+
+// A morning recap ends with its day's news, one block per item, so a folded
+// item's old URL lands on its own headline.
+function headlinesHtml(news) {
+  if (!Array.isArray(news) || news.length === 0) return '';
+  const blocks = news.filter(n => n && n.slug && n.title).map(n => {
+    const oneLiner = usableOneLiner(n.one_liner);
+    const url = sourceLink(n.source_url);
+    const label = n.source || 'Source';
+    return `
+          <div class="headline" id="${escapeHtml(n.slug)}">
+            <h3>${escapeHtml(n.title)}</h3>
+            ${oneLiner ? `<p>${escapeHtml(oneLiner)}</p>` : ''}
+            ${url ? `<a href="${escapeHtml(url)}" target="_blank" rel="noopener nofollow">${escapeHtml(label)}</a>` : (n.source ? `<span class="src-name">${escapeHtml(n.source)}</span>` : '')}
+          </div>`;
+  });
+  if (blocks.length === 0) return '';
+  return `
+      <section class="headlines">
+        <h2>Headlines</h2>
+        ${blocks.join('')}
+      </section>`;
+}
+
 module.exports = async (req, res) => {
   const slug = req.query.slug;
   if (!slug) {
@@ -56,6 +94,14 @@ module.exports = async (req, res) => {
       return res.status(404).send(html);
     }
 
+    const home = homeLocation(article);
+    if (home) {
+      // A day's cache bounds how long a stale 301 can outlive a renamed recap.
+      res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+      res.writeHead(301, { Location: home });
+      return res.end();
+    }
+
     const title = article.title || 'Stack Signal';
     const commentary = article.troy_commentary || '';
     const oneLiner = usableOneLiner(article.troy_one_liner);
@@ -73,6 +119,7 @@ module.exports = async (req, res) => {
     const askTroyUrl = `${WEB_APP_URL}/troy?q=${encodeURIComponent(`What does "${title}" mean for people who stack gold and silver?`)}`;
     const ogImage = heroImg || `${SITE_URL}/icon.png`;
     const indexable = isRecap(article);
+    const headlines = headlinesHtml(article.news);
 
     const sources = Array.isArray(article.sources) ? article.sources : [];
     const sourcesHtml = sources.length > 0 ? `
@@ -270,6 +317,27 @@ module.exports = async (req, res) => {
       .sources a:hover { color: var(--gold); text-decoration: underline; }
       .sources .src-name { color: var(--text-muted); font-size: 0.82rem; }
 
+      .headlines {
+        margin-top: 40px;
+        padding-top: 28px;
+        border-top: 1px solid var(--border);
+      }
+      .headlines h2 {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin-bottom: 16px;
+      }
+      .headline {
+        padding: 16px 0;
+        border-bottom: 1px solid var(--border);
+        scroll-margin-top: 88px;
+      }
+      .headline:target { border-left: 2px solid var(--gold); padding-left: 12px; }
+      .headline h3 { font-size: 1.02rem; font-weight: 600; line-height: 1.4; margin-bottom: 6px; }
+      .headline p { color: var(--text-secondary); font-size: 0.95rem; line-height: 1.55; margin-bottom: 6px; }
+      .headline a { color: var(--gold); font-size: 0.85rem; text-decoration: underline; text-underline-offset: 3px; overflow-wrap: anywhere; }
+      .headline .src-name { color: var(--text-muted); font-size: 0.82rem; }
+
       .share-row {
         display: flex;
         gap: 10px;
@@ -374,6 +442,8 @@ module.exports = async (req, res) => {
 
       ${sourcesHtml}
 
+      ${headlines}
+
       <div class="share-row">
         <button class="share-btn" id="share-x">𝕏 Share</button>
         <button class="share-btn" id="share-copy">Copy Link</button>
@@ -449,7 +519,9 @@ module.exports = async (req, res) => {
     });
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
+    // A recap with headlines gains items through the day, and a folded item's
+    // 301 sends readers to its anchor, so it can't be served a day stale.
+    res.setHeader('Cache-Control', headlines ? 's-maxage=60, stale-while-revalidate=60' : 's-maxage=300, stale-while-revalidate=86400');
     if (!indexable) res.setHeader('X-Robots-Tag', NOINDEX);
     res.status(200).send(html);
   } catch (err) {

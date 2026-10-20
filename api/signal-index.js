@@ -1,5 +1,6 @@
 const {
   fetchList,
+  signalHref,
   escapeHtml,
   formatDate,
   firstSentences,
@@ -13,14 +14,13 @@ const {
 const PAGE_SIZE = 10;
 
 function renderCard(article) {
-  const slug = article.slug;
   const title = article.title || '';
   const excerpt = firstSentences(article.troy_commentary, 2, 220);
   const date = formatDate(article.published_at || article.created_at);
   const category = categoryLabel(article.category);
   const image = article.image_url;
 
-  return `<a href="/signal/${escapeHtml(slug)}" class="signal-card">
+  return `<a href="${escapeHtml(signalHref(article))}" class="signal-card">
     ${image ? `<img class="signal-card-image" src="${escapeHtml(image)}" alt="${escapeHtml(title)}" loading="lazy">` : ''}
     <div class="signal-card-body">
       <div class="signal-card-meta">
@@ -245,13 +245,17 @@ module.exports = async (req, res) => {
         return String(c||'').replace(/[_-]/g,' ').replace(/\\b\\w/g, function(x){return x.toUpperCase();});
       }
       function renderCard(a){
-        var slug = esc(a.slug);
+        // Same rule as signalHref in signal-lib.js.
+        var home = a.home_slug;
+        var href = (a.is_stack_signal !== true && typeof home === 'string' && /^[a-z0-9][a-z0-9-]*$/i.test(home) && home !== a.slug)
+          ? '/signal/' + home + '#' + encodeURIComponent(a.slug)
+          : '/signal/' + a.slug;
         var title = esc(a.title||'');
         var excerpt = esc(firstSent(a.troy_commentary, 220));
         var date = esc(fmtDate(a.published_at || a.created_at));
         var cat = esc(catLabel(a.category));
         var img = a.image_url;
-        return '<a href="/signal/'+slug+'" class="signal-card">' +
+        return '<a href="'+esc(href)+'" class="signal-card">' +
           (img ? '<img class="signal-card-image" src="'+esc(img)+'" alt="'+title+'" loading="lazy">' : '') +
           '<div class="signal-card-body">' +
             '<div class="signal-card-meta">' +

@@ -321,3 +321,46 @@ test('a recap with no news has no Headlines', async (t) => {
   await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
   assert.ok(!res.body.includes('Headlines'));
 });
+
+// Cards link a folded news item straight to its block on the recap, so the
+// reader skips the 301. Anything else links to the item's own page.
+test('signalHref links a folded news item to its recap anchor', () => {
+  const { signalHref } = require('../api/_shared/signal-lib');
+  assert.equal(signalHref({ ...item('gold-rises-2026-10-19', '2026-10-19'), home_slug: 'the-stack-signal-2026-10-19' }), '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
+  for (const home_slug of [null, undefined, '', 'gold-rises-2026-10-19', '../x', 'https://evil.example', 42]) {
+    assert.equal(signalHref({ ...item('gold-rises-2026-10-19', '2026-10-19'), home_slug }), '/signal/gold-rises-2026-10-19', String(home_slug));
+  }
+  assert.equal(signalHref({ ...recap('evening-signal-2026-10-19', '2026-10-19'), home_slug: 'the-stack-signal-2026-10-19' }), '/signal/evening-signal-2026-10-19');
+});
+
+test('the Signal index links folded news to the recap anchor', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([
+    { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal' },
+    { ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-19' },
+    { ...item('silver-dips-2026-10-20', '2026-10-20'), title: 'Silver dips', home_slug: null },
+  ]));
+  const res = fakeRes();
+  await require('../api/signal-index')({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(res.body.includes('<a href="/signal/the-stack-signal-2026-10-19" class="signal-card">'));
+  assert.ok(res.body.includes('<a href="/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19" class="signal-card">'));
+  assert.ok(res.body.includes('<a href="/signal/silver-dips-2026-10-20" class="signal-card">'));
+  // The Load more script builds the same links and still parses.
+  for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
+  assert.ok(res.body.includes("'/signal/' + home + '#' + encodeURIComponent(a.slug)"));
+});
+
+test('related cards link folded news to the recap anchor', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse(
+    { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' },
+    [
+      { ...item('gold-rises-2026-10-18', '2026-10-18'), title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-18' },
+      { ...recap('evening-signal-2026-10-18', '2026-10-18'), title: 'Evening' },
+    ],
+  ));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(res.body.includes('<a href="/signal/the-stack-signal-2026-10-18#gold-rises-2026-10-18" class="related-card">'));
+  assert.ok(res.body.includes('<a href="/signal/evening-signal-2026-10-18" class="related-card">'));
+});

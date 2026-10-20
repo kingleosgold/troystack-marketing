@@ -2,6 +2,8 @@ const {
   fetchArticle,
   fetchList,
   isRecap,
+  homeLocation,
+  signalHref,
   NOINDEX,
   usableOneLiner,
   escapeHtml,
@@ -23,17 +25,6 @@ const {
 const WEB_APP_URL = 'https://troystack.ai';
 const WEB_TRIAL_URL = `${WEB_APP_URL}/auth?mode=signup&redirect=checkout&plan=monthly&campaign=site-signal`;
 const APP_STORE_TRIAL_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
-
-// A news item folds into its day's morning recap once that recap exists. The
-// API names it in home_slug, and the item's page answers 301 to its block on
-// the recap. Anything that isn't a plain slug, or points back at the item,
-// keeps the item's own page.
-const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/i;
-function homeLocation(article, slug) {
-  const home = article.home_slug;
-  if (isRecap(article) || typeof home !== 'string' || !SLUG_RE.test(home) || home === slug) return null;
-  return `/signal/${home}#${encodeURIComponent(slug)}`;
-}
 
 function sourceLink(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : '';
@@ -172,7 +163,7 @@ const handler = async (req, res) => {
           <h2>More from Stack Signal</h2>
           <div class="related-grid">
             ${relatedArticles.map(a => `
-              <a href="/signal/${escapeHtml(a.slug)}" class="related-card">
+              <a href="${escapeHtml(signalHref(a))}" class="related-card">
                 ${a.image_url ? `<img src="${escapeHtml(a.image_url)}" alt="${escapeHtml(a.title || '')}" loading="lazy">` : ''}
                 <div class="related-body">
                   <div class="related-date">${escapeHtml(formatDate(a.published_at || a.created_at))}</div>

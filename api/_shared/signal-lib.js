@@ -25,6 +25,23 @@ function isRecap(article) {
   return article?.is_stack_signal === true;
 }
 
+// A news item folds into its day's morning recap once that recap exists. The
+// API names it in home_slug, and the item's page answers 301 to its block on
+// the recap. Anything that isn't a plain slug, or points back at the item,
+// keeps the item's own page.
+const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/i;
+function homeLocation(article, slug) {
+  const home = article.home_slug;
+  if (isRecap(article) || typeof home !== 'string' || !SLUG_RE.test(home) || home === slug) return null;
+  return `/signal/${home}#${encodeURIComponent(slug)}`;
+}
+
+// Where a card links. A folded news item links straight to its block on the
+// recap, so the reader skips the 301.
+function signalHref(article) {
+  return homeLocation(article, article.slug) || `/signal/${article.slug}`;
+}
+
 const NOINDEX = 'noindex, follow';
 
 // News items stored before 10/9 carry a one-liner cut to a word or two, like
@@ -370,6 +387,8 @@ module.exports = {
   fetchList,
   fetchArticle,
   isRecap,
+  homeLocation,
+  signalHref,
   NOINDEX,
   usableOneLiner,
   escapeHtml,

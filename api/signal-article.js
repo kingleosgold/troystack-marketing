@@ -17,6 +17,7 @@ const {
   SITE_URL,
   APP_STORE_URL,
   scriptJson,
+  querySlug,
 } = require('./_shared/signal-lib');
 
 // Readers who want more than the article go to the web app, where Troy and
@@ -83,7 +84,7 @@ function headlinesHtml(news) {
 }
 
 const handler = async (req, res) => {
-  const slug = req.query.slug;
+  const slug = querySlug(req.query);
   if (!slug) {
     res.writeHead(302, { Location: '/signal' });
     return res.end();
@@ -114,7 +115,10 @@ const handler = async (req, res) => {
       return res.status(404).send(html);
     }
 
-    const home = homeLocation(article, article.slug || slug);
+    // The canonical, og:url and freshness read the upstream slug, and the
+    // requested one when upstream leaves it off.
+    const pageSlug = article.slug || slug;
+    const home = homeLocation(article, pageSlug);
     if (home) {
       // A day's CDN cache bounds how long a stale 301 can outlive a renamed
       // recap. Browsers keep it five minutes, since a purge can't reach them.
@@ -133,7 +137,7 @@ const handler = async (req, res) => {
     const date = formatDate(article.published_at || article.created_at);
     const category = categoryLabel(article.category);
     const heroImg = article.image_url;
-    const articleUrl = `${SITE_URL}/signal/${encodeURIComponent(article.slug)}`;
+    const articleUrl = `${SITE_URL}/signal/${encodeURIComponent(pageSlug)}`;
     // troystack.ai asks Troy the question in ?q= once the page opens. Visitors
     // get three answers a day without an account, and Troy doesn't know a
     // visitor's stack, so the question is one he can answer for anyone.
@@ -156,7 +160,7 @@ const handler = async (req, res) => {
         </ul>
       </div>` : '';
 
-    const relatedArticles = related.filter(a => a.slug !== slug).slice(0, 3);
+    const relatedArticles = related.filter(a => a.slug !== pageSlug).slice(0, 3);
     const relatedHtml = relatedArticles.length > 0 ? `
       <section class="related">
         <div class="container">
@@ -543,7 +547,7 @@ const handler = async (req, res) => {
     // A fresh morning recap gains items through the day, and a folded item's
     // 301 sends readers to its anchor, so it can't be served a day stale. A
     // fresh news item can gain its home any time, so its page can't either.
-    const fresh = isFreshMorningRecap(article.slug) || isFreshNewsItem(article);
+    const fresh = isFreshMorningRecap(pageSlug) || isFreshNewsItem(article);
     res.setHeader('Cache-Control', fresh ? 's-maxage=60, stale-while-revalidate=60' : 's-maxage=300, stale-while-revalidate=86400');
     if (!indexable) res.setHeader('X-Robots-Tag', NOINDEX);
     res.status(200).send(html);

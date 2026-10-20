@@ -384,7 +384,15 @@ function scriptJson(value) {
     .replace(/\u2029/g, '\\u2029');
 }
 
+// A query string that repeats slug hands the handler an array. The first
+// value is the one the rewrite put there.
+function querySlug(query) {
+  const v = query && query.slug;
+  return Array.isArray(v) ? v[0] : v;
+}
+
 module.exports = {
+  querySlug,
   scriptJson,
   fetchList,
   fetchArticle,

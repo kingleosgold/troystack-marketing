@@ -1,3 +1,5 @@
+const { querySlug } = require('./_shared/signal-lib');
+
 const UPSTREAM = 'https://api.troystack.ai/v1/stack-signal';
 
 module.exports = async (req, res) => {
@@ -9,7 +11,7 @@ module.exports = async (req, res) => {
     return res.status(204).end();
   }
 
-  const slug = req.query.slug;
+  const slug = querySlug(req.query);
   if (!slug) {
     res.setHeader('Cache-Control', 's-maxage=60');
     return res.status(400).send(JSON.stringify({ success: false, error: 'slug required' }));

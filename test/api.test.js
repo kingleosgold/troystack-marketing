@@ -210,7 +210,29 @@ test('a news item with a morning recap answers 301 to its block there', async (t
   await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
   assert.equal(res.statusCode, 301);
   assert.equal(res.headers.Location, '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
-  assert.match(res.headers['Cache-Control'], /max-age=86400/);
+  assert.equal(res.headers['Cache-Control'], 'public, max-age=300, s-maxage=86400');
+});
+
+test('a folded news item with no slug in its record redirects to the slug asked for', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ is_stack_signal: false, published_at: '2026-10-19T12:00:00Z', title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-19' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.Location, '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
+});
+
+test('yesterday stays fresh across a clock change in New York', () => {
+  const { isFreshMorningRecap } = require('../api/signal-article');
+  // 12:30 AM EDT on 3/9/2026, the first night after spring forward.
+  const now = Date.parse('2026-03-09T04:30:00Z');
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-03-09', now), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-03-08', now), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-03-07', now), false);
+  // 11:30 PM EST on 11/1/2026, the night clocks fall back.
+  const fall = Date.parse('2026-11-02T04:30:00Z');
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-11-01', fall), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-10-31', fall), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-10-30', fall), false);
 });
 
 test('a news item without a recap, or with an odd home_slug, keeps its noindex page', async (t) => {

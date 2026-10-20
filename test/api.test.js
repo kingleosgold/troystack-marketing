@@ -410,3 +410,38 @@ test('related cards link folded news to the recap anchor', async (t) => {
   assert.ok(res.body.includes('<a href="/signal/the-stack-signal-2026-10-18#gold-rises-2026-10-18" class="related-card">'));
   assert.ok(res.body.includes('<a href="/signal/evening-signal-2026-10-18" class="related-card">'));
 });
+
+test('a repeated slug in the query string reads the first value', async (t) => {
+  const seen = [];
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    seen.push(url);
+    return articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' })(url);
+  });
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: ['the-stack-signal-2026-10-19', 'other'] } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(seen.some(u => u.endsWith('/the-stack-signal-2026-10-19')));
+  assert.ok(res.body.includes('<link rel="canonical" href="https://troystack.com/signal/the-stack-signal-2026-10-19">'));
+});
+
+test('an article upstream sends without a slug takes its canonical from the request', async (t) => {
+  const { slug, ...noSlug } = recap('the-stack-signal-2026-10-19', '2026-10-19');
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...noSlug, title: 'The Stack Signal', troy_commentary: 'Gold held.' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(!res.body.includes('/signal/undefined'));
+  assert.ok(res.body.includes('<meta property="og:url" content="https://troystack.com/signal/the-stack-signal-2026-10-19">'));
+});
+
+test('the JSON slug route reads the first of a repeated slug', async (t) => {
+  const seen = [];
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    seen.push(url);
+    return { ok: true, status: 200, json: async () => ({ success: true }) };
+  });
+  const res = fakeRes();
+  await require('../api/signal-slug')({ method: 'GET', query: { slug: ['a-1', 'b-2'] } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(seen, ['https://api.troystack.ai/v1/stack-signal/a-1']);
+});

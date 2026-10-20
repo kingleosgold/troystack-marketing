@@ -29,10 +29,10 @@ const APP_STORE_TRIAL_URL = 'https://apps.apple.com/app/apple-store/id6757343766
 // the recap. Anything that isn't a plain slug, or points back at the item,
 // keeps the item's own page.
 const SLUG_RE = /^[a-z0-9][a-z0-9-]*$/i;
-function homeLocation(article) {
+function homeLocation(article, slug) {
   const home = article.home_slug;
-  if (isRecap(article) || typeof home !== 'string' || !SLUG_RE.test(home) || home === article.slug) return null;
-  return `/signal/${home}#${encodeURIComponent(article.slug)}`;
+  if (isRecap(article) || typeof home !== 'string' || !SLUG_RE.test(home) || home === slug) return null;
+  return `/signal/${home}#${encodeURIComponent(slug)}`;
 }
 
 function sourceLink(url) {
@@ -43,11 +43,21 @@ function sourceLink(url) {
 // a news item from those days can still fold into one, so both cache briefly.
 // Older pages keep the long cache.
 const MORNING_RECAP = /^the-stack-signal-(\d{4}-\d{2}-\d{2})$/;
+const ET_PARTS = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' });
 function etDay(t) {
-  return new Date(t).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+  const p = Object.fromEntries(ET_PARTS.formatToParts(new Date(t)).map(x => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
+// Yesterday is the calendar day before today in New York, so the hour lost
+// or gained at a clock change doesn't skip it.
+function dayBefore(day) {
+  const d = new Date(`${day}T00:00:00Z`);
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
 }
 function isFreshDay(day, now) {
-  return day === etDay(now) || day === etDay(now - 86400000);
+  const today = etDay(now);
+  return day === today || day === dayBefore(today);
 }
 function isFreshMorningRecap(slug, now = Date.now()) {
   const m = MORNING_RECAP.exec(slug || '');
@@ -113,10 +123,11 @@ const handler = async (req, res) => {
       return res.status(404).send(html);
     }
 
-    const home = homeLocation(article);
+    const home = homeLocation(article, article.slug || slug);
     if (home) {
-      // A day's cache bounds how long a stale 301 can outlive a renamed recap.
-      res.setHeader('Cache-Control', 'public, max-age=86400, s-maxage=86400');
+      // A day's CDN cache bounds how long a stale 301 can outlive a renamed
+      // recap. Browsers keep it five minutes, since a purge can't reach them.
+      res.setHeader('Cache-Control', 'public, max-age=300, s-maxage=86400');
       res.writeHead(301, { Location: home });
       return res.end();
     }

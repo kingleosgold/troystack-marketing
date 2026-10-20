@@ -37,9 +37,11 @@ function homeLocation(article, slug) {
 }
 
 // Where a card links. A folded news item links straight to its block on the
-// recap, so the reader skips the 301.
+// recap, so the reader skips the 301. An item with no slug links to the index.
 function signalHref(article) {
-  return homeLocation(article, article.slug) || `/signal/${article.slug}`;
+  const slug = article.slug;
+  if (typeof slug !== 'string' || !slug) return '/signal';
+  return homeLocation(article, slug) || `/signal/${slug}`;
 }
 
 const NOINDEX = 'noindex, follow';
@@ -389,6 +391,7 @@ module.exports = {
   isRecap,
   homeLocation,
   signalHref,
+  SLUG_RE,
   NOINDEX,
   usableOneLiner,
   escapeHtml,

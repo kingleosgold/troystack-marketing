@@ -39,6 +39,18 @@ function sourceLink(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : '';
 }
 
+// A morning recap of today or yesterday in New York can still gain news, so
+// it caches briefly. Older recaps and every other page keep the long cache.
+const MORNING_RECAP = /^the-stack-signal-(\d{4}-\d{2}-\d{2})$/;
+function etDay(t) {
+  return new Date(t).toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+}
+function isFreshMorningRecap(slug, now = Date.now()) {
+  const m = MORNING_RECAP.exec(slug || '');
+  if (!m) return false;
+  return m[1] === etDay(now) || m[1] === etDay(now - 86400000);
+}
+
 // A morning recap ends with its day's news, one block per item, so a folded
 // item's old URL lands on its own headline.
 function headlinesHtml(news) {
@@ -62,7 +74,7 @@ function headlinesHtml(news) {
       </section>`;
 }
 
-module.exports = async (req, res) => {
+const handler = async (req, res) => {
   const slug = req.query.slug;
   if (!slug) {
     res.writeHead(302, { Location: '/signal' });
@@ -519,9 +531,9 @@ module.exports = async (req, res) => {
     });
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    // A recap with headlines gains items through the day, and a folded item's
+    // A fresh morning recap gains items through the day, and a folded item's
     // 301 sends readers to its anchor, so it can't be served a day stale.
-    res.setHeader('Cache-Control', headlines ? 's-maxage=60, stale-while-revalidate=60' : 's-maxage=300, stale-while-revalidate=86400');
+    res.setHeader('Cache-Control', isFreshMorningRecap(article.slug) ? 's-maxage=60, stale-while-revalidate=60' : 's-maxage=300, stale-while-revalidate=86400');
     if (!indexable) res.setHeader('X-Robots-Tag', NOINDEX);
     res.status(200).send(html);
   } catch (err) {
@@ -547,3 +559,6 @@ module.exports = async (req, res) => {
     res.status(200).send(html);
   }
 };
+
+module.exports = handler;
+module.exports.isFreshMorningRecap = isFreshMorningRecap;

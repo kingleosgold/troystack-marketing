@@ -249,13 +249,30 @@ test('a morning recap ends with a Headlines block per news item', async (t) => {
   assert.ok(res.body.includes('id="silver-dips-2026-10-19"'));
   assert.ok(!res.body.includes('javascript:alert'));
   assert.ok(!res.body.includes('No slug'));
-  assert.equal(res.headers['Cache-Control'], 's-maxage=60, stale-while-revalidate=60');
 });
 
-test('a recap with no news has no Headlines and keeps the long cache', async (t) => {
+test('only a morning recap of today or yesterday in New York caches briefly', () => {
+  const { isFreshMorningRecap } = require('../api/signal-article');
+  const now = Date.parse('2026-10-20T03:00:00Z'); // 11 PM on 10/19 in New York
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-10-19', now), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-10-18', now), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-10-17', now), false);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-10-20', now), false);
+  assert.equal(isFreshMorningRecap('evening-signal-2026-10-19', now), false);
+  assert.equal(isFreshMorningRecap(undefined, now), false);
+});
+
+test('an old morning recap keeps the long cache', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-01-05', '2026-01-05'), title: 'The Stack Signal', troy_commentary: 'Morning.', news: [{ title: 'Gold rises', slug: 'gold-rises-2026-01-05' }] }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-01-05' } }, res);
+  assert.ok(res.body.includes('id="gold-rises-2026-01-05"'));
+  assert.equal(res.headers['Cache-Control'], 's-maxage=300, stale-while-revalidate=86400');
+});
+
+test('a recap with no news has no Headlines', async (t) => {
   t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Morning.', news: [] }));
   const res = fakeRes();
   await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
   assert.ok(!res.body.includes('Headlines'));
-  assert.equal(res.headers['Cache-Control'], 's-maxage=300, stale-while-revalidate=86400');
 });

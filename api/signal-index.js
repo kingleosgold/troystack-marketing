@@ -250,7 +250,7 @@ module.exports = async (req, res) => {
         // Same rule as signalHref in signal-lib.js, tested against it.
         var home = a.home_slug;
         var href = (typeof a.slug !== 'string' || !a.slug) ? '/signal'
-          : (a.is_stack_signal !== true && typeof home === 'string' && /${SLUG_RE.source}/i.test(home) && home !== a.slug)
+          : (a.is_stack_signal !== true && typeof home === 'string' && /${SLUG_RE.source}/${SLUG_RE.flags}.test(home) && home !== a.slug)
             ? '/signal/' + home + '#' + encodeURIComponent(a.slug)
             : '/signal/' + a.slug;
         var title = esc(a.title||'');

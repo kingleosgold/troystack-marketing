@@ -445,3 +445,107 @@ test('the JSON slug route reads the first of a repeated slug', async (t) => {
   assert.equal(res.statusCode, 200);
   assert.deepEqual(seen, ['https://api.troystack.ai/v1/stack-signal/a-1']);
 });
+
+// Follow-up tests filed in the Claude reviews of #19, #20 and #23.
+
+test('a source with no URL lists as plain text, a headline with none shows its name', async (t) => {
+  const news = [{ title: 'Gold rises', slug: 'gold-rises-2026-01-05', one_liner: 'Central banks keep buying gold every single month', source: 'Reuters' }];
+  const sources = [{ title: 'Mint report', name: 'US Mint' }, { title: 'Kitco piece', name: 'Kitco', url: 'https://kitco.com/a' }];
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-01-05', '2026-01-05'), title: 'The Stack Signal', troy_commentary: 'Morning.', news, sources }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-01-05' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(res.body.includes('<li>Mint report</li>'));
+  assert.ok(!res.body.includes('US Mint'));
+  assert.ok(res.body.includes('<li><a href="https://kitco.com/a" target="_blank" rel="noopener nofollow">Kitco piece</a>'));
+  const block = res.body.slice(res.body.indexOf('id="gold-rises-2026-01-05"'));
+  assert.ok(block.includes('<span class="src-name">Reuters</span>'));
+  assert.ok(!block.slice(0, block.indexOf('</div>')).includes('<a '));
+});
+
+test('a headline with no one-liner has no line under its title', async (t) => {
+  const news = [{ title: 'Silver dips', slug: 'silver-dips-2026-01-05', source: 'Kitco', source_url: 'https://kitco.com/b' }];
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-01-05', '2026-01-05'), title: 'The Stack Signal', troy_commentary: 'Morning.', news }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-01-05' } }, res);
+  const block = res.body.slice(res.body.indexOf('id="silver-dips-2026-01-05"'));
+  const inner = block.slice(0, block.indexOf('</div>'));
+  assert.ok(inner.includes('<h3>Silver dips</h3>'));
+  assert.ok(!/<p[\s>]/.test(inner));
+  assert.ok(inner.includes('href="https://kitco.com/b"'));
+});
+
+test('a folded item answers its 301 with no body', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', troy_commentary: 'Gold rose.', home_slug: 'the-stack-signal-2026-10-19' }));
+  const res = fakeRes();
+  let ended = 0;
+  res.end = function (b) { ended++; this.body = b; return this; };
+  await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.Location, '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
+  assert.equal(ended, 1);
+  assert.equal(res.body, undefined);
+  assert.equal(res.headers['Content-Type'], undefined);
+});
+
+test("today's morning recap caches briefly through the handler", async (t) => {
+  const p = Object.fromEntries(new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' })
+    .formatToParts(new Date()).map((x) => [x.type, x.value]));
+  const today = `${p.year}-${p.month}-${p.day}`;
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap(`the-stack-signal-${today}`, today), title: 'The Stack Signal', troy_commentary: 'Morning.' }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: `the-stack-signal-${today}` } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.headers['Cache-Control'], 's-maxage=60, stale-while-revalidate=60');
+});
+
+test('yesterday stays fresh across the new year in New York', () => {
+  const { isFreshMorningRecap, isFreshNewsItem } = require('../api/signal-article');
+  // 12:30 AM EST on 1/1/2027.
+  const now = Date.parse('2027-01-01T05:30:00Z');
+  assert.equal(isFreshMorningRecap('the-stack-signal-2027-01-01', now), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-31', now), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-30', now), false);
+  assert.equal(isFreshNewsItem(item('a', '2026-12-31'), now), true);
+  assert.equal(isFreshNewsItem(item('a', '2026-12-30'), now), false);
+  // 11:30 PM EST on 12/31/2026, when UTC has already turned the year.
+  const eve = Date.parse('2027-01-01T04:30:00Z');
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-31', eve), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-30', eve), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2027-01-01', eve), false);
+  assert.equal(isFreshNewsItem(item('a', '2026-12-30'), eve), true);
+  assert.equal(isFreshNewsItem(item('a', '2026-12-29'), eve), false);
+});
+
+test('an empty first slug sends the reader to the index, never to the second', async (t) => {
+  const seen = [];
+  t.mock.method(globalThis, 'fetch', async (url) => { seen.push(url); return listResponse([]); });
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: ['', 'the-stack-signal-2026-10-19'] } }, res);
+  assert.equal(res.statusCode, 302);
+  assert.equal(res.headers.Location, '/signal');
+  assert.deepEqual(seen, []);
+  const json = fakeRes();
+  await require('../api/signal-slug')({ method: 'GET', query: { slug: ['', 'x'] } }, json);
+  assert.equal(json.statusCode, 400);
+  assert.deepEqual(seen, []);
+});
+
+test('related cards drop the upstream slug when it differs from the one asked for', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse(
+    { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' },
+    [
+      { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'Same page' },
+      { ...recap('The-Stack-Signal-2026-10-19', '2026-10-19'), title: 'Asked slug' },
+      { ...recap('evening-signal-2026-10-18', '2026-10-18'), title: 'Evening' },
+    ],
+  ));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'The-Stack-Signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.ok(res.body.includes('<link rel="canonical" href="https://troystack.com/signal/the-stack-signal-2026-10-19">'));
+  const related = res.body.slice(res.body.indexOf('class="related"'));
+  assert.ok(!related.includes('Same page'));
+  assert.ok(related.includes('Asked slug'));
+  assert.ok(related.includes('Evening'));
+});

@@ -456,6 +456,7 @@ test('a source with no URL lists as plain text, a headline with none shows its n
   await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-01-05' } }, res);
   assert.equal(res.statusCode, 200);
   assert.ok(res.body.includes('<li>Mint report</li>'));
+  assert.ok(!res.body.includes('US Mint'));
   assert.ok(res.body.includes('<li><a href="https://kitco.com/a" target="_blank" rel="noopener nofollow">Kitco piece</a>'));
   const block = res.body.slice(res.body.indexOf('id="gold-rises-2026-01-05"'));
   assert.ok(block.includes('<span class="src-name">Reuters</span>'));
@@ -470,7 +471,7 @@ test('a headline with no one-liner has no line under its title', async (t) => {
   const block = res.body.slice(res.body.indexOf('id="silver-dips-2026-01-05"'));
   const inner = block.slice(0, block.indexOf('</div>'));
   assert.ok(inner.includes('<h3>Silver dips</h3>'));
-  assert.ok(!inner.includes('<p>'));
+  assert.ok(!/<p[\s>]/.test(inner));
   assert.ok(inner.includes('href="https://kitco.com/b"'));
 });
 
@@ -506,6 +507,13 @@ test('yesterday stays fresh across the new year in New York', () => {
   assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-30', now), false);
   assert.equal(isFreshNewsItem(item('a', '2026-12-31'), now), true);
   assert.equal(isFreshNewsItem(item('a', '2026-12-30'), now), false);
+  // 11:30 PM EST on 12/31/2026, when UTC has already turned the year.
+  const eve = Date.parse('2027-01-01T04:30:00Z');
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-31', eve), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2026-12-30', eve), true);
+  assert.equal(isFreshMorningRecap('the-stack-signal-2027-01-01', eve), false);
+  assert.equal(isFreshNewsItem(item('a', '2026-12-30'), eve), true);
+  assert.equal(isFreshNewsItem(item('a', '2026-12-29'), eve), false);
 });
 
 test('an empty first slug sends the reader to the index, never to the second', async (t) => {

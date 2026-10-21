@@ -482,6 +482,7 @@ test('a folded item answers its 301 with no body', async (t) => {
   res.end = function (b) { ended++; this.body = b; return this; };
   await require('../api/signal-article')({ query: { slug: 'gold-rises-2026-10-19' } }, res);
   assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.Location, '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
   assert.equal(ended, 1);
   assert.equal(res.body, undefined);
   assert.equal(res.headers['Content-Type'], undefined);

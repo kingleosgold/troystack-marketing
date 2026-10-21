@@ -147,6 +147,11 @@ test('every link to troystack.ai/gold says which page sent it', () => {
       assert.match(href, /^https:\/\/troystack\.ai\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `${f} links to ${href}`);
     }
   }
+  const llmsGold = [...read('llms.txt').matchAll(/https:\/\/troystack\.ai\/gold\b\S*/g)];
+  assert.ok(llmsGold.length > 0, 'llms.txt no longer links to troystack.ai/gold');
+  for (const [href] of llmsGold) {
+    assert.match(href, /^https:\/\/troystack\.ai\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `llms.txt links to ${href}`);
+  }
 });
 
 // The terms say Troy isn't a financial advisor and Troy's rules ban trade

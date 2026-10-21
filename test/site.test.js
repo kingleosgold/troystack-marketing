@@ -143,3 +143,18 @@ test('every link to troystack.ai/gold says which page sent it', () => {
     }
   }
 });
+
+// The terms say Troy isn't a financial advisor and Troy's rules ban trade
+// calls, so no page sells him as one.
+test('no page calls Troy an advisor or says he tells you when to buy', () => {
+  const files = [
+    ...htmlPages.filter((f) => f !== 'terms.html'),
+    'llms.txt',
+    ...fs.readdirSync(path.join(ROOT, 'api')).filter((f) => f.endsWith('.js')).map((f) => `api/${f}`),
+  ];
+  for (const f of files) {
+    const text = read(f);
+    assert.doesNotMatch(text, /\badvisor\b/i, `${f} calls Troy an advisor`);
+    assert.doesNotMatch(text, /tells you when to (add|buy|sell)/i, `${f} says Troy makes trade calls`);
+  }
+});

@@ -182,7 +182,7 @@ module.exports = async (req, res) => {
     <section class="signal-hero">
       <div class="container">
         <h1>Stack Signal<br><span class="accent">AI-Powered Precious Metals Intelligence</span></h1>
-        <p>Daily market analysis written by Troy, your AI stack analyst. Updated every 2 hours.</p>
+        <p>Daily market analysis written by Troy, your AI stack analyst. New pieces through the day.</p>
       </div>
     </section>
 

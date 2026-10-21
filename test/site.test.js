@@ -123,11 +123,16 @@ test('the hero glow never runs wider than the screen', () => {
 
 // The house style bans em dashes in anything a visitor reads, including titles,
 // alt text and the strings scripts put on screen.
+// Every script under api/, api/_shared included.
+const apiScripts = fs.readdirSync(path.join(ROOT, 'api'), { recursive: true })
+  .filter((f) => f.endsWith('.js'))
+  .map((f) => `api/${f}`);
+
 test('no page, script or llms.txt carries an em dash', () => {
   const files = [
     ...htmlPages,
     'llms.txt',
-    ...fs.readdirSync(path.join(ROOT, 'api')).filter((f) => f.endsWith('.js')).map((f) => `api/${f}`),
+    ...apiScripts,
   ];
   for (const f of files) {
     assert.doesNotMatch(read(f), /—|&mdash;|&#8212;|&#x2014;/i, `${f} has an em dash`);
@@ -150,11 +155,11 @@ test('no page calls Troy an advisor or says he tells you when to buy', () => {
   const files = [
     ...htmlPages.filter((f) => f !== 'terms.html'),
     'llms.txt',
-    ...fs.readdirSync(path.join(ROOT, 'api')).filter((f) => f.endsWith('.js')).map((f) => `api/${f}`),
+    ...apiScripts,
   ];
   for (const f of files) {
     const text = read(f);
-    assert.doesNotMatch(text, /\badvisor\b/i, `${f} calls Troy an advisor`);
+    assert.doesNotMatch(text, /\badvis[eo]rs?\b/i, `${f} calls Troy an advisor`);
     assert.doesNotMatch(text, /tells you when to (add|buy|sell)/i, `${f} says Troy makes trade calls`);
   }
 });

@@ -1,6 +1,14 @@
 {
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.troystack.com" }],
+      "destination": "https://troystack.com/:path*",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     { "source": "/signal", "destination": "/api/signal-index" },
     { "source": "/signal/:slug", "destination": "/api/signal-article?slug=:slug" },

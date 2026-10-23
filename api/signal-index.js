@@ -252,7 +252,7 @@ module.exports = async (req, res) => {
         var href = (typeof a.slug !== 'string' || !a.slug) ? '/signal'
           : (a.is_stack_signal !== true && typeof home === 'string' && /${SLUG_RE.source}/${SLUG_RE.flags}.test(home) && home !== a.slug)
             ? '/signal/' + home + '#' + encodeURIComponent(a.slug)
-            : '/signal/' + a.slug;
+            : '/signal/' + encodeURIComponent(a.slug);
         var title = esc(a.title||'');
         var excerpt = esc(firstSent(a.troy_commentary, 220));
         var date = esc(fmtDate(a.published_at || a.created_at));

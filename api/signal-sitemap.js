@@ -49,7 +49,7 @@ module.exports = async (req, res) => {
     const urls = articles.filter((a) => a.slug && !seen.has(a.slug) && seen.add(a.slug)).map(a => {
       const lastmod = (a.published_at || a.created_at || '').slice(0, 10);
       return `  <url>
-    <loc>${SITE_URL}/signal/${escapeXml(a.slug)}</loc>
+    <loc>${SITE_URL}/signal/${escapeXml(encodeURIComponent(a.slug))}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

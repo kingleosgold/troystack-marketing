@@ -171,16 +171,34 @@ test('no page calls Troy an advisor or says he tells you when to buy', () => {
 
 // Search Console flagged troystack.com pages as duplicates without a chosen
 // canonical, since www.troystack.com and query strings serve the same page.
+// A commented-out tag isn't a canonical, and pages that are never indexed
+// (an error page, a Search Console verification file) carry none.
+const notIndexed = (f) => f === '404.html' || /^google[0-9a-f]+\.html$/.test(f);
+const uncommented = (text) => text.replace(/<!--[\s\S]*?-->/g, '');
+const tagAttr = (tag, name) => (tag.match(new RegExp(`\\b${name}=["']([^"']+)["']`, 'i')) || [])[1];
+
 test('every page names its own clean URL as canonical, and the sitemap lists it', () => {
   const sitemap = read('sitemap.xml');
-  for (const page of htmlPages) {
-    const tags = [...read(page).matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi)];
+  for (const page of htmlPages.filter((f) => !notIndexed(f))) {
+    const html = uncommented(read(page));
+    const tags = [...html.matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi)];
     assert.equal(tags.length, 1, `${page} needs exactly one canonical link`);
-    const href = tags[0][0].match(/\bhref=["']([^"']+)["']/)[1];
+    const href = tagAttr(tags[0][0], 'href');
     const want = page === 'index.html' ? 'https://troystack.com/' : `https://troystack.com/${page.replace(/\.html$/, '')}`;
     assert.equal(href, want, `${page} canonical`);
     assert.ok(sitemap.includes(`<loc>${want}</loc>`), `${want} missing from sitemap.xml`);
+    // A share card that names a different URL splits the page in two again.
+    for (const [og] of html.matchAll(/<meta\b[^>]*\bproperty=["']og:url["'][^>]*>/gi)) {
+      assert.equal(tagAttr(og, 'content'), want, `${page} og:url`);
+    }
   }
+});
+
+test('the canonical check skips comments and pages that are never indexed', () => {
+  assert.equal(uncommented('<!-- <link rel="canonical" href="x"> -->a').trim(), 'a');
+  assert.ok(notIndexed('404.html'));
+  assert.ok(notIndexed('google1a2b3c.html'));
+  assert.ok(!notIndexed('calculator.html'));
 });
 
 // Search Console counted www.troystack.com as a duplicate, so www has to

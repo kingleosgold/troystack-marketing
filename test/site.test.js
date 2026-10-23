@@ -188,10 +188,14 @@ test('every page names its own clean URL as canonical, and the sitemap lists it'
 test('www.troystack.com redirects to the apex on every path', () => {
   const { redirects = [] } = JSON.parse(read('vercel.json'));
   const www = redirects.filter((r) => (r.has || []).some((h) => h.type === 'host' && h.value === 'www.troystack.com'));
-  assert.equal(www.length, 1);
-  assert.equal(www[0].source, '/:path*');
-  assert.equal(www[0].destination, 'https://troystack.com/:path*');
-  assert.equal(www[0].permanent, true);
+  // Live, /:path* didn't catch the bare root, so / has a rule of its own.
+  assert.deepEqual(
+    www.map((r) => [r.source, r.destination, r.permanent]),
+    [
+      ['/', 'https://troystack.com/', true],
+      ['/:path*', 'https://troystack.com/:path*', true],
+    ],
+  );
 });
 
 test('the home page names one URL for itself in canonical, og:url and JSON-LD', () => {

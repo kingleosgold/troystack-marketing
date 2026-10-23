@@ -168,3 +168,35 @@ test('no page calls Troy an advisor or says he tells you when to buy', () => {
     assert.doesNotMatch(text, /tells you when to (add|buy|sell)/i, `${f} says Troy makes trade calls`);
   }
 });
+
+// Search Console flagged troystack.com pages as duplicates without a chosen
+// canonical, since www.troystack.com and query strings serve the same page.
+test('every page names its own clean URL as canonical, and the sitemap lists it', () => {
+  const sitemap = read('sitemap.xml');
+  for (const page of htmlPages) {
+    const tags = [...read(page).matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi)];
+    assert.equal(tags.length, 1, `${page} needs exactly one canonical link`);
+    const href = tags[0][0].match(/\bhref=["']([^"']+)["']/)[1];
+    const want = page === 'index.html' ? 'https://troystack.com/' : `https://troystack.com/${page.replace(/\.html$/, '')}`;
+    assert.equal(href, want, `${page} canonical`);
+    assert.ok(sitemap.includes(`<loc>${want}</loc>`), `${want} missing from sitemap.xml`);
+  }
+});
+
+// Search Console counted www.troystack.com as a duplicate, so www has to
+// leave for the apex on every path with a permanent redirect.
+test('www.troystack.com redirects to the apex on every path', () => {
+  const { redirects = [] } = JSON.parse(read('vercel.json'));
+  const www = redirects.filter((r) => (r.has || []).some((h) => h.type === 'host' && h.value === 'www.troystack.com'));
+  assert.equal(www.length, 1);
+  assert.equal(www[0].source, '/:path*');
+  assert.equal(www[0].destination, 'https://troystack.com/:path*');
+  assert.equal(www[0].permanent, true);
+});
+
+test('the home page names one URL for itself in canonical, og:url and JSON-LD', () => {
+  const html = read('index.html');
+  assert.ok(html.includes('<link rel="canonical" href="https://troystack.com/">'));
+  assert.ok(html.includes('<meta property="og:url" content="https://troystack.com/">'));
+  assert.ok(html.includes('"url": "https://troystack.com/"'));
+});

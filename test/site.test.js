@@ -173,12 +173,12 @@ test('no page calls Troy an advisor or says he tells you when to buy', () => {
 // canonical, since www.troystack.com and query strings serve the same page.
 // A commented-out tag isn't a canonical, and pages that are never indexed
 // (an error page, a Search Console verification file) carry none.
-const notIndexed = (f) => f === '404.html' || /^google[0-9a-f]+\.html$/.test(f);
-const uncommented = (text) => text.replace(/<!--[\s\S]*?-->/g, '');
-const tagAttr = (tag, name) => (tag.match(new RegExp(`\\b${name}=["']([^"']+)["']`, 'i')) || [])[1];
+const notIndexed = (f) => f === '404.html' || /^google[0-9a-f]{16}\.html$/.test(f);
+const uncommented = (text) => text.replace(/<!--[\s\S]*?-->/g, '').replace(/<!--[\s\S]*$/, '');
+const tagAttr = (tag, name) => (tag.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*["']([^"']+)["']`, 'i')) || [])[1];
 
 test('every page names its own clean URL as canonical, and the sitemap lists it', () => {
-  const sitemap = read('sitemap.xml');
+  const sitemap = uncommented(read('sitemap.xml'));
   for (const page of htmlPages.filter((f) => !notIndexed(f))) {
     const html = uncommented(read(page));
     const tags = [...html.matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi)];
@@ -197,8 +197,11 @@ test('every page names its own clean URL as canonical, and the sitemap lists it'
 test('the canonical check skips comments and pages that are never indexed', () => {
   assert.equal(uncommented('<!-- <link rel="canonical" href="x"> -->a').trim(), 'a');
   assert.ok(notIndexed('404.html'));
-  assert.ok(notIndexed('google1a2b3c.html'));
+  assert.equal(uncommented('a<!-- <link rel="canonical" href="x">').trim(), 'a');
+  assert.ok(notIndexed('google0123456789abcdef.html'));
+  assert.ok(!notIndexed('googlecafe.html'));
   assert.ok(!notIndexed('calculator.html'));
+  assert.equal(tagAttr('<meta property="og:url" data-content="a" content="b">', 'content'), 'b');
 });
 
 // Search Console counted www.troystack.com as a duplicate, so www has to

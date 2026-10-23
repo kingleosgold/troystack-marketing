@@ -381,6 +381,7 @@ test('Load more cards link the same way as signalHref', async (t) => {
     { slug: '', is_stack_signal: false },
     { slug: 42, is_stack_signal: false },
     { ...item('gold rises #2', '2026-10-19'), home_slug: 'The-Stack-Signal-2026-10-19' },
+    { ...item('gold rises #2', '2026-10-19'), home_slug: null },
   ];
   for (const a of cases) {
     const href = renderCard(a).match(/^<a href="([^"]*)"/)[1].replace(/&amp;/g, '&');

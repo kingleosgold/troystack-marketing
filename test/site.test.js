@@ -173,17 +173,21 @@ test('no page calls Troy an advisor or says he tells you when to buy', () => {
 // canonical, since www.troystack.com and query strings serve the same page.
 // A commented-out tag isn't a canonical, and pages that are never indexed
 // (an error page, a Search Console verification file) carry none.
-// <!--> and <!---> close at once, as browsers read them.
+// <!--> and <!---> close at once, and --!> closes too, as browsers read them.
 const notIndexed = (f) => f === '404.html' || /^google[0-9a-f]{16}\.html$/.test(f);
-const uncommented = (text) => text.replace(/<!--(?:>|->|[\s\S]*?-->)/g, '').replace(/<!--[\s\S]*$/, '');
+const uncommented = (text) => text.replace(/<!--(?:>|->|[\s\S]*?--!?>)/g, '').replace(/<!--[\s\S]*$/, '');
 // An attribute's value, double quoted, single quoted or bare, read by its
 // whole name so data-rel or data-content can't stand in.
 const tagAttr = (tag, name) => {
   const m = tag.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i'));
   return m ? (m[1] ?? m[2] ?? m[3]) : undefined;
 };
+// rel is a list of words, so rel="canonical alternate" still names a
+// canonical. A > inside a quoted value doesn't end the tag.
 const tagsWhere = (html, el, name, value) =>
-  [...html.matchAll(new RegExp(`<${el}\\b[^>]*>`, 'gi'))].map(([t]) => t).filter((t) => (tagAttr(t, name) || '').toLowerCase() === value);
+  [...html.matchAll(new RegExp(`<${el}\\b(?:[^>"']|"[^"]*"|'[^']*')*>`, 'gi'))]
+    .map(([t]) => t)
+    .filter((t) => (tagAttr(t, name) || '').toLowerCase().trim().split(/\s+/).includes(value));
 const ogUrlTags = (html) => [...tagsWhere(html, 'meta', 'property', 'og:url'), ...tagsWhere(html, 'meta', 'name', 'og:url')];
 
 test('every page names its own clean URL as canonical, and the sitemap lists it', () => {
@@ -223,6 +227,9 @@ test('the canonical check reads bare and mixed quotes and whole attribute names'
   assert.equal(tagAttr('<meta property=og:url content=https://x/>', 'content'), 'https://x/');
   assert.equal(tagAttr(`<meta content="it's" property="og:url">`, 'content'), "it's");
   assert.equal(tagsWhere('<link data-rel="canonical" href="a"><link rel=canonical href="b">', 'link', 'rel', 'canonical').length, 1);
+  assert.equal(tagsWhere('<link rel="canonical alternate" href="a">', 'link', 'rel', 'canonical').length, 1);
+  assert.equal(ogUrlTags('<meta content="a>b" property="og:url">').length, 1);
+  assert.equal(uncommented('a<!-- x --!>b').trim(), 'ab');
   assert.equal(ogUrlTags('<meta data-property="og:url" content="a"><meta name="og:url" content="b"><meta property=og:url content="c">').length, 2);
 });
 

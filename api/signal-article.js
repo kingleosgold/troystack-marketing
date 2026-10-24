@@ -93,8 +93,8 @@ const handler = async (req, res) => {
   try {
     const [article, related] = await Promise.all([
       fetchArticle(slug),
-      // Recaps only. The newest news items are often folded into the very
-      // recap being read, which would leave the row empty.
+      // Recaps only. The newest news items are often folded into the recap
+      // being read, so their cards would only jump down this page.
       fetchList({ limit: 4, type: 'signal' }).catch(() => []),
     ]);
 
@@ -162,12 +162,7 @@ const handler = async (req, res) => {
         </ul>
       </div>` : '';
 
-    // A news item folded into this recap is already on the page, so its card
-    // would only jump down to its own block.
-    const ownBlock = `/signal/${encodeURIComponent(pageSlug)}#`;
-    const relatedArticles = related
-      .filter(a => a.slug !== pageSlug && !signalHref(a).startsWith(ownBlock))
-      .slice(0, 3);
+    const relatedArticles = related.filter(a => a.slug !== pageSlug).slice(0, 3);
     const relatedHtml = relatedArticles.length > 0 ? `
       <section class="related">
         <div class="container">

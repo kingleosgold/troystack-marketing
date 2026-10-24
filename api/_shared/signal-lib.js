@@ -47,11 +47,24 @@ function signalHref(article) {
 
 const NOINDEX = 'noindex, follow';
 
+// The Signal's pipeline sometimes writes long dashes. They become commas, the
+// same way troystack.ai's plainDashes does, so a page never shows one and a
+// spaced dash never counts as a word. A dash between numbers is a range.
+function plainDashes(text) {
+  return String(text || '')
+    .replace(/(\d)\s*\u2013\s*(\d)/g, '$1-$2')
+    .replace(/^[ \t]*[\u2014\u2013][ \t]*/gm, '')
+    .replace(/[ \t]*[\u2014\u2013]+[ \t]*(?=[.,;:!?)\]]|$)/gm, '')
+    .replace(/[ \t]*[\u2014\u2013]+[ \t]*/g, ', ')
+    .replace(/,\s*,/g, ',');
+}
+
 // News items stored before 10/9 carry a one-liner cut to a word or two, like
 // "Fed" or "Gold shines as". troystack.ai and Troy's chat context skip any line
-// under five words or 25 characters, and the article page does the same.
+// under five words or 25 characters once its dashes are commas, and the
+// article page does the same.
 function usableOneLiner(text) {
-  const s = String(text || '').replace(/\s+/g, ' ').trim();
+  const s = plainDashes(text).replace(/\s+/g, ' ').trim();
   return s.split(' ').length >= 5 && s.length >= 25 ? s : '';
 }
 
@@ -402,6 +415,7 @@ module.exports = {
   signalHref,
   SLUG_RE,
   NOINDEX,
+  plainDashes,
   usableOneLiner,
   escapeHtml,
   formatDate,

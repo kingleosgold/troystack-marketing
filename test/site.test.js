@@ -173,24 +173,37 @@ test('no page calls Troy an advisor or says he tells you when to buy', () => {
 // canonical, since www.troystack.com and query strings serve the same page.
 // A commented-out tag isn't a canonical, and pages that are never indexed
 // (an error page, a Search Console verification file) carry none.
+// <!--> and <!---> close at once, as browsers read them.
 const notIndexed = (f) => f === '404.html' || /^google[0-9a-f]{16}\.html$/.test(f);
-const uncommented = (text) => text.replace(/<!--[\s\S]*?-->/g, '').replace(/<!--[\s\S]*$/, '');
-const tagAttr = (tag, name) => (tag.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*["']([^"']+)["']`, 'i')) || [])[1];
+const uncommented = (text) => text.replace(/<!--(?:>|->|[\s\S]*?-->)/g, '').replace(/<!--[\s\S]*$/, '');
+// An attribute's value, double quoted, single quoted or bare, read by its
+// whole name so data-rel or data-content can't stand in.
+const tagAttr = (tag, name) => {
+  const m = tag.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s"'>]+))`, 'i'));
+  return m ? (m[1] ?? m[2] ?? m[3]) : undefined;
+};
+const tagsWhere = (html, el, name, value) =>
+  [...html.matchAll(new RegExp(`<${el}\\b[^>]*>`, 'gi'))].map(([t]) => t).filter((t) => (tagAttr(t, name) || '').toLowerCase() === value);
+const ogUrlTags = (html) => [...tagsWhere(html, 'meta', 'property', 'og:url'), ...tagsWhere(html, 'meta', 'name', 'og:url')];
 
 test('every page names its own clean URL as canonical, and the sitemap lists it', () => {
   const sitemap = uncommented(read('sitemap.xml'));
   for (const page of htmlPages.filter((f) => !notIndexed(f))) {
     const html = uncommented(read(page));
-    const tags = [...html.matchAll(/<link\b[^>]*\brel=["']canonical["'][^>]*>/gi)];
+    const tags = tagsWhere(html, 'link', 'rel', 'canonical');
     assert.equal(tags.length, 1, `${page} needs exactly one canonical link`);
-    const href = tagAttr(tags[0][0], 'href');
+    const href = tagAttr(tags[0], 'href');
     const want = page === 'index.html' ? 'https://troystack.com/' : `https://troystack.com/${page.replace(/\.html$/, '')}`;
     assert.equal(href, want, `${page} canonical`);
     assert.ok(sitemap.includes(`<loc>${want}</loc>`), `${want} missing from sitemap.xml`);
     // A share card that names a different URL splits the page in two again.
-    for (const [og] of html.matchAll(/<meta\b[^>]*\bproperty=["']og:url["'][^>]*>/gi)) {
+    for (const og of ogUrlTags(html)) {
       assert.equal(tagAttr(og, 'content'), want, `${page} og:url`);
     }
+  }
+  // A page that's never indexed has no business in the sitemap either.
+  for (const [, loc] of sitemap.matchAll(/<loc>https:\/\/troystack\.com\/([^<]*)<\/loc>/g)) {
+    assert.ok(!notIndexed(`${loc}.html`) && !notIndexed(loc), `sitemap.xml lists ${loc}, which is never indexed`);
   }
 });
 
@@ -202,6 +215,15 @@ test('the canonical check skips comments and pages that are never indexed', () =
   assert.ok(!notIndexed('googlecafe.html'));
   assert.ok(!notIndexed('calculator.html'));
   assert.equal(tagAttr('<meta property="og:url" data-content="a" content="b">', 'content'), 'b');
+  assert.equal(uncommented('a<!-->b<!--->c').trim(), 'abc');
+  assert.equal(uncommented('a<!---->b').trim(), 'ab');
+});
+
+test('the canonical check reads bare and mixed quotes and whole attribute names', () => {
+  assert.equal(tagAttr('<meta property=og:url content=https://x/>', 'content'), 'https://x/');
+  assert.equal(tagAttr(`<meta content="it's" property="og:url">`, 'content'), "it's");
+  assert.equal(tagsWhere('<link data-rel="canonical" href="a"><link rel=canonical href="b">', 'link', 'rel', 'canonical').length, 1);
+  assert.equal(ogUrlTags('<meta data-property="og:url" content="a"><meta name="og:url" content="b"><meta property=og:url content="c">').length, 2);
 });
 
 // Search Console counted www.troystack.com as a duplicate, so www has to

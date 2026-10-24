@@ -582,7 +582,9 @@ test('related cards ask for recaps only, so folded news never empties the row', 
   const res = fakeRes();
   await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
   assert.equal(res.statusCode, 200);
-  assert.equal(urls.filter((u) => u.includes('?limit=')).length, 1);
+  const list = urls.filter((u) => u.includes('?limit='));
+  assert.equal(list.length, 1);
+  assert.match(list[0], /[?&]type=signal(&|$)/);
   const cards = res.body.match(/<a href="[^"]*" class="related-card">/g) || [];
   assert.deepEqual(cards, [
     '<a href="/signal/weekly-recap-2026-10-17" class="related-card">',

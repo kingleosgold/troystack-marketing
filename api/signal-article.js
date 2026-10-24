@@ -93,7 +93,9 @@ const handler = async (req, res) => {
   try {
     const [article, related] = await Promise.all([
       fetchArticle(slug),
-      fetchList({ limit: 4 }).catch(() => []),
+      // More than the three cards shown, since news folded into this page
+      // drops out below.
+      fetchList({ limit: 8 }).catch(() => []),
     ]);
 
     if (!article) {
@@ -160,7 +162,12 @@ const handler = async (req, res) => {
         </ul>
       </div>` : '';
 
-    const relatedArticles = related.filter(a => a.slug !== pageSlug).slice(0, 3);
+    // A news item folded into this recap is already on the page, so its card
+    // would only jump down to its own block.
+    const ownBlock = `/signal/${encodeURIComponent(pageSlug)}#`;
+    const relatedArticles = related
+      .filter(a => a.slug !== pageSlug && !signalHref(a).startsWith(ownBlock))
+      .slice(0, 3);
     const relatedHtml = relatedArticles.length > 0 ? `
       <section class="related">
         <div class="container">

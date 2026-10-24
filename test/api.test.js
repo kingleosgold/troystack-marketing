@@ -563,3 +563,29 @@ test('related cards drop the upstream slug when it differs from the one asked fo
   assert.ok(related.includes('Asked slug'));
   assert.ok(related.includes('Evening'));
 });
+
+test('related cards skip news folded into the page being read', async (t) => {
+  t.mock.method(globalThis, 'fetch', articleResponse(
+    { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' },
+    [
+      { ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Folded here', home_slug: 'the-stack-signal-2026-10-19' },
+      { ...item('silver-dips-2026-10-19', '2026-10-19'), title: 'Also folded here', home_slug: 'the-stack-signal-2026-10-19' },
+      { ...item('gold-rises-2026-10-18', '2026-10-18'), title: 'Folded elsewhere', home_slug: 'the-stack-signal-2026-10-18' },
+      { ...recap('evening-signal-2026-10-18', '2026-10-18'), title: 'Evening' },
+      { ...item('copper-2026-10-18', '2026-10-18'), title: 'Copper' },
+      { ...recap('weekly-recap-2026-10-17', '2026-10-17'), title: 'Weekly' },
+    ],
+  ));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  const related = res.body.slice(res.body.indexOf('class="related"'));
+  assert.ok(!related.includes('Folded here'));
+  assert.ok(!related.includes('Also folded here'));
+  assert.ok(!related.includes('href="/signal/the-stack-signal-2026-10-19#'));
+  assert.equal((related.match(/class="related-card"/g) || []).length, 3);
+  assert.ok(related.includes('Folded elsewhere'));
+  assert.ok(related.includes('Evening'));
+  assert.ok(related.includes('Copper'));
+  assert.ok(!related.includes('Weekly'));
+});

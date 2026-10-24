@@ -563,3 +563,15 @@ test('related cards drop the upstream slug when it differs from the one asked fo
   assert.ok(related.includes('Asked slug'));
   assert.ok(related.includes('Evening'));
 });
+
+test('related cards ask for recaps only, so folded news never empties the row', async (t) => {
+  const urls = [];
+  const respond = articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' });
+  t.mock.method(globalThis, 'fetch', async (url) => { urls.push(url); return respond(url); });
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  const list = urls.filter((u) => u.includes('?limit='));
+  assert.equal(list.length, 1);
+  assert.match(list[0], /[?&]type=signal(&|$)/);
+});

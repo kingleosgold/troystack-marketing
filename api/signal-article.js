@@ -93,7 +93,9 @@ const handler = async (req, res) => {
   try {
     const [article, related] = await Promise.all([
       fetchArticle(slug),
-      fetchList({ limit: 4 }).catch(() => []),
+      // Recaps only. The newest news items are often folded into the recap
+      // being read, so their cards would only jump down this page.
+      fetchList({ limit: 4, type: 'signal' }).catch(() => []),
     ]);
 
     if (!article) {

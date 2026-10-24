@@ -93,9 +93,9 @@ const handler = async (req, res) => {
   try {
     const [article, related] = await Promise.all([
       fetchArticle(slug),
-      // More than the three cards shown, since news folded into this page
-      // drops out below.
-      fetchList({ limit: 8 }).catch(() => []),
+      // Recaps only. The newest news items are often folded into the very
+      // recap being read, which would leave the row empty.
+      fetchList({ limit: 4, type: 'signal' }).catch(() => []),
     ]);
 
     if (!article) {

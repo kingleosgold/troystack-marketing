@@ -91,12 +91,11 @@ const handler = async (req, res) => {
   }
 
   try {
-    const [article, related] = await Promise.all([
-      fetchArticle(slug),
-      // Recaps only. The newest news items are often folded into the recap
-      // being read, so their cards would only jump down this page.
-      fetchList({ limit: 4, type: 'signal' }).catch(() => []),
-    ]);
+    // Recaps only. The newest news items are often folded into the recap
+    // being read, so their cards would only jump down this page. The list
+    // loads beside the article, but a 404 or a 301 doesn't wait on it.
+    const relatedList = fetchList({ limit: 4, type: 'signal' }).catch(() => []);
+    const article = await fetchArticle(slug);
 
     if (!article) {
       const body = `
@@ -129,6 +128,7 @@ const handler = async (req, res) => {
       return res.end();
     }
 
+    const related = await relatedList;
     const title = article.title || 'Stack Signal';
     const commentary = article.troy_commentary || '';
     const oneLiner = usableOneLiner(article.troy_one_liner);

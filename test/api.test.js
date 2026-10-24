@@ -575,3 +575,23 @@ test('related cards ask for recaps only, so folded news never empties the row', 
   assert.equal(list.length, 1);
   assert.match(list[0], /[?&]type=signal(&|$)/);
 });
+
+test("a folded item's 301 and a missing page's 404 don't wait on the related list", async (t) => {
+  const stalled = new Promise(() => {});
+  const handle = (req, res) => Promise.race([
+    require('../api/signal-article')(req, res),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('waited on the related list')), 1000).unref()),
+  ]);
+  const folded = { ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-19' };
+  t.mock.method(globalThis, 'fetch', async (url) => (url.includes('?limit=') ? stalled : { ok: true, status: 200, json: async () => ({ article: folded }) }));
+  const res = fakeRes();
+  await handle({ query: { slug: 'gold-rises-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 301);
+  assert.equal(res.headers.Location, '/signal/the-stack-signal-2026-10-19#gold-rises-2026-10-19');
+
+  t.mock.restoreAll();
+  t.mock.method(globalThis, 'fetch', async (url) => (url.includes('?limit=') ? stalled : { ok: false, status: 404 }));
+  const missing = fakeRes();
+  await handle({ query: { slug: 'no-such-item-2026-10-19' } }, missing);
+  assert.equal(missing.statusCode, 404);
+});

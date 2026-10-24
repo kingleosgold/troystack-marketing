@@ -102,6 +102,17 @@ test('the Signal sitemap drops news items an older API still returns', async (t)
   assert.ok(!res.body.includes('silver-dips'));
 });
 
+// The sitemap names each recap at the same URL as its page's canonical.
+test('the Signal sitemap encodes a slug like the canonical', async (t) => {
+  t.mock.method(globalThis, 'fetch', async (url) => {
+    const offset = Number(new URL(url).searchParams.get('offset'));
+    return listResponse(offset === 0 ? [recap('week ahead & more', '2026-10-18')] : []);
+  });
+  const res = fakeRes();
+  await require('../api/signal-sitemap')({ method: 'GET' }, res);
+  assert.ok(res.body.includes('<loc>https://troystack.com/signal/week%20ahead%20%26%20more</loc>'), res.body);
+});
+
 test('the Signal sitemap stops at 20 calls', async (t) => {
   let calls = 0;
   t.mock.method(globalThis, 'fetch', async (url) => {
@@ -331,6 +342,8 @@ test('signalHref links a folded news item to its recap anchor', () => {
     assert.equal(signalHref({ ...item('gold-rises-2026-10-19', '2026-10-19'), home_slug }), '/signal/gold-rises-2026-10-19', String(home_slug));
   }
   assert.equal(signalHref({ ...recap('evening-signal-2026-10-19', '2026-10-19'), home_slug: 'the-stack-signal-2026-10-19' }), '/signal/evening-signal-2026-10-19');
+  // A slug that isn't plain is encoded like the article page's canonical.
+  assert.equal(signalHref({ ...item('gold rises #2', '2026-10-19'), home_slug: null }), '/signal/gold%20rises%20%232');
 });
 
 test('the Signal index links folded news to the recap anchor', async (t) => {
@@ -368,6 +381,7 @@ test('Load more cards link the same way as signalHref', async (t) => {
     { slug: '', is_stack_signal: false },
     { slug: 42, is_stack_signal: false },
     { ...item('gold rises #2', '2026-10-19'), home_slug: 'The-Stack-Signal-2026-10-19' },
+    { ...item('gold rises #2', '2026-10-19'), home_slug: null },
   ];
   for (const a of cases) {
     const href = renderCard(a).match(/^<a href="([^"]*)"/)[1].replace(/&amp;/g, '&');

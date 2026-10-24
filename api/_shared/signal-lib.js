@@ -38,10 +38,11 @@ function homeLocation(article, slug) {
 
 // Where a card links. A folded news item links straight to its block on the
 // recap, so the reader skips the 301. An item with no slug links to the index.
+// The slug is encoded the same way as the article page's canonical.
 function signalHref(article) {
   const slug = article.slug;
   if (typeof slug !== 'string' || !slug) return '/signal';
-  return homeLocation(article, slug) || `/signal/${slug}`;
+  return homeLocation(article, slug) || `/signal/${encodeURIComponent(slug)}`;
 }
 
 const NOINDEX = 'noindex, follow';

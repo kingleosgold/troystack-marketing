@@ -629,3 +629,64 @@ test("a folded item's 301 and a missing page's 404 don't wait on the related lis
   await handle({ query: { slug: 'no-such-item-2026-10-19' } }, missing);
   assert.equal(missing.statusCode, 404);
 });
+
+const DASH = '—';
+const anyLongDash = /[—–]|&mdash;|&ndash;|&#8212;|&#8211;/i;
+
+test('a Signal page shows no long dash in its title, meta, body, one-liner or headlines', async (t) => {
+  const news = [{ title: `Gold rises ${DASH} again`, slug: 'gold-rises-2026-10-19', one_liner: `Central banks buy ${DASH} smart money follows them`, source: 'Reuters', source_url: 'https://reuters.com/a' }];
+  t.mock.method(globalThis, 'fetch', articleResponse({
+    ...recap('the-stack-signal-2026-10-19', '2026-10-19'),
+    title: `The Stack Signal ${DASH} October 19, 2026`,
+    troy_commentary: `Gold held${DASH}the Fed blinked. Silver ran 3–5% overnight.\n\n- Miners lag ${DASH} for now`,
+    troy_one_liner: `Fed blinks ${DASH} silver runs on the supply gap`,
+    news,
+  }));
+  const res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.doesNotMatch(res.body, anyLongDash);
+  assert.ok(res.body.includes('<title>The Stack Signal, October 19, 2026 | Stack Signal by TroyStack</title>'));
+  assert.match(res.body, /<meta name="description" content="Gold held, the Fed blinked\.\s+Silver ran 3-5% overnight\.">/);
+  assert.ok(res.body.includes('<h1 class="article-title">The Stack Signal, October 19, 2026</h1>'));
+  assert.ok(res.body.includes('<li>Miners lag, for now</li>'));
+  assert.ok(res.body.includes('&ldquo;Fed blinks, silver runs on the supply gap&rdquo;'));
+  assert.ok(res.body.includes('<h3>Gold rises, again</h3>'));
+  assert.ok(res.body.includes('Central banks buy, smart money follows them'));
+  assert.ok(res.body.includes('id="gold-rises-2026-10-19"'));
+});
+
+test('Signal index cards and their ItemList show no long dash', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([
+    { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: `The Stack Signal ${DASH} Oct 19`, troy_commentary: `Gold held ${DASH} for now.` },
+  ]));
+  const res = fakeRes();
+  await require('../api/signal-index')({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  const served = res.body.replace(/<script>[\s\S]*?<\/script>/g, '');
+  assert.doesNotMatch(served, anyLongDash);
+  assert.ok(served.includes('The Stack Signal, Oct 19'));
+  assert.ok(served.includes('Gold held, for now.'));
+  assert.ok(res.body.includes('"name":"The Stack Signal, Oct 19"'));
+});
+
+test('Load more gets its cards from /api/signal with no long dash', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([
+    { ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: `The Stack Signal ${DASH} Oct 19`, troy_commentary: `Gold held ${DASH} for now.`, slug: 'the-stack-signal-2026-10-19' },
+  ]));
+  const res = fakeRes();
+  await require('../api/signal')({ method: 'GET', query: {} }, res);
+  const body = JSON.parse(res.body);
+  assert.equal(body.articles[0].title, 'The Stack Signal, Oct 19');
+  assert.equal(body.articles[0].troy_commentary, 'Gold held, for now.');
+  assert.equal(body.articles[0].slug, 'the-stack-signal-2026-10-19');
+});
+
+test('plainArticle leaves slugs, sources and odd shapes alone', () => {
+  const { plainArticle } = lib;
+  assert.equal(plainArticle(null), null);
+  const a = { slug: 'a–b', title: 7, sources: [{ title: `x ${DASH} y` }], news: [null, { slug: 's', source: `R ${DASH} T` }] };
+  const out = plainArticle(a);
+  assert.deepEqual(out, a);
+  assert.notEqual(out, a);
+});

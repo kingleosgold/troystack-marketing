@@ -5,7 +5,7 @@ async function fetchList({ limit = 10, offset = 0, type } = {}) {
   const res = await fetch(url, { headers: { Accept: 'application/json' } });
   if (!res.ok) throw new Error(`upstream ${res.status}`);
   const data = await res.json();
-  return Array.isArray(data?.articles) ? data.articles : [];
+  return Array.isArray(data?.articles) ? data.articles.map(plainArticle) : [];
 }
 
 async function fetchArticle(slug) {
@@ -14,7 +14,7 @@ async function fetchArticle(slug) {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`upstream ${res.status}`);
   const data = await res.json();
-  return data?.article || null;
+  return plainArticle(data?.article) || null;
 }
 
 // Troy's recaps (the daily Stack Signal, the evening signal, the weekly recap
@@ -57,6 +57,27 @@ function plainDashes(text) {
     .replace(/[ \t]*[\u2014\u2013]+[ \t]*(?=[.,;:!?)\]]|$)/gm, '')
     .replace(/[ \t]*[\u2014\u2013]+[ \t]*/g, ', ')
     .replace(/,\s*,/g, ',');
+}
+
+// Every text a Signal page shows, its title, meta description, body, one-liner
+// and headlines, loses its long dashes where the article is fetched, the way
+// troystack.ai's signalApi does. Slugs, links and source titles stay as stored.
+function plainArticle(article) {
+  if (!article || typeof article !== 'object') return article;
+  const out = { ...article };
+  for (const key of ['title', 'troy_commentary', 'troy_one_liner']) {
+    if (typeof out[key] === 'string') out[key] = plainDashes(out[key]);
+  }
+  if (Array.isArray(out.news)) {
+    out.news = out.news.map(n => {
+      if (!n || typeof n !== 'object') return n;
+      const item = { ...n };
+      if (typeof item.title === 'string') item.title = plainDashes(item.title);
+      if (typeof item.one_liner === 'string') item.one_liner = plainDashes(item.one_liner);
+      return item;
+    });
+  }
+  return out;
 }
 
 // News items stored before 10/9 carry a one-liner cut to a word or two, like
@@ -416,6 +437,7 @@ module.exports = {
   SLUG_RE,
   NOINDEX,
   plainDashes,
+  plainArticle,
   usableOneLiner,
   escapeHtml,
   formatDate,

@@ -690,3 +690,45 @@ test('plainArticle leaves slugs, sources and odd shapes alone', () => {
   assert.deepEqual(out, a);
   assert.notEqual(out, a);
 });
+
+test('plainDashes keeps link targets and code spans as written', () => {
+  const { plainDashes } = lib;
+  assert.equal(plainDashes(`see [the chart${DASH}](https://x.com/a${DASH}b) now`), 'see [the chart](https://x.com/a—b) now');
+  assert.equal(plainDashes(`run \`a${DASH}b\` here ${DASH} then stop`), 'run `a—b` here, then stop');
+});
+
+test('plainDashes puts the comma outside bold and drops a dash before closing punctuation', () => {
+  const { plainDashes } = lib;
+  assert.equal(plainDashes(`**Gold${DASH}** rises`), '**Gold**, rises');
+  assert.equal(plainDashes(`*held${DASH}* for now`), '*held*, for now');
+  assert.equal(plainDashes(`Gold rose${DASH}**.`), 'Gold rose**.');
+});
+
+test('plainDashes reads an unspaced em dash between numbers as a range and never joins paragraphs', () => {
+  const { plainDashes } = lib;
+  assert.equal(plainDashes(`from 2008${DASH}2012`), 'from 2008-2012');
+  assert.equal(plainDashes(`in 2008 ${DASH} prices fell`), 'in 2008, prices fell');
+  assert.equal(plainDashes('one,\n\n, two'), 'one,\n\n, two');
+  assert.equal(plainDashes(`a ${DASH}, b`), 'a, b');
+});
+
+test('plainArticle leaves a news field that is not an array alone', () => {
+  const out = lib.plainArticle({ title: `A ${DASH} B`, news: { title: `x ${DASH} y` } });
+  assert.equal(out.title, 'A, B');
+  assert.deepEqual(out.news, { title: `x ${DASH} y` });
+});
+
+test('/api/signal/:slug sends the article with no long dash', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => ({
+    ok: true, status: 200,
+    json: async () => ({ success: true, article: { slug: 'a–b', title: `Gold ${DASH} held`, troy_commentary: `Calm ${DASH} for now.` } }),
+  }));
+  const res = fakeRes();
+  await require('../api/signal-slug')({ method: 'GET', query: { slug: 'a-b' } }, res);
+  const body = JSON.parse(res.body);
+  assert.equal(res.statusCode, 200);
+  assert.equal(body.success, true);
+  assert.equal(body.article.title, 'Gold, held');
+  assert.equal(body.article.troy_commentary, 'Calm, for now.');
+  assert.equal(body.article.slug, 'a–b');
+});

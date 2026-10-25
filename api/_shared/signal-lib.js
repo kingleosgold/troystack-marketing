@@ -49,14 +49,23 @@ const NOINDEX = 'noindex, follow';
 
 // The Signal's pipeline sometimes writes long dashes. They become commas, the
 // same way troystack.ai's plainDashes does, so a page never shows one and a
-// spaced dash never counts as a word. A dash between numbers is a range.
+// spaced dash never counts as a word. A dash between numbers is a range. Code
+// spans and link targets keep their dashes, so a link never breaks.
 function plainDashes(text) {
-  return String(text || '')
+  const kept = [];
+  const masked = String(text || '').replace(/`[^`\n]*`|(?<=\])\([^)\s]*\)/g, m => {
+    kept.push(m);
+    return `\u0000${kept.length - 1}\u0000`;
+  });
+  return masked
     .replace(/(\d)\s*\u2013\s*(\d)/g, '$1-$2')
+    .replace(/(\d)\u2014(\d)/g, '$1-$2')
     .replace(/^[ \t]*[\u2014\u2013][ \t]*/gm, '')
-    .replace(/[ \t]*[\u2014\u2013]+[ \t]*(?=[.,;:!?)\]]|$)/gm, '')
+    .replace(/[ \t]*[\u2014\u2013]+[ \t]*(\*{1,2})(?=[ \t])/g, '$1,')
+    .replace(/[ \t]*[\u2014\u2013]+[ \t]*(?=\*{0,2}(?:[.,;:!?)\]]|$))/gm, '')
     .replace(/[ \t]*[\u2014\u2013]+[ \t]*/g, ', ')
-    .replace(/,\s*,/g, ',');
+    .replace(/,[ \t]*,/g, ',')
+    .replace(/\u0000(\d+)\u0000/g, (_, i) => kept[Number(i)]);
 }
 
 // Every text a Signal page shows, its title, meta description, body, one-liner

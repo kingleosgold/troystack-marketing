@@ -1,4 +1,4 @@
-const { querySlug } = require('./_shared/signal-lib');
+const { querySlug, plainArticle } = require('./_shared/signal-lib');
 
 const UPSTREAM = 'https://api.troystack.ai/v1/stack-signal';
 
@@ -27,6 +27,8 @@ module.exports = async (req, res) => {
     }
     if (!r.ok) throw new Error(`upstream ${r.status}`);
     const data = await r.json();
+    // Same plain text the Signal pages show.
+    if (data && typeof data === 'object' && data.article) data.article = plainArticle(data.article);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=86400');
     return res.status(200).send(JSON.stringify(data));
   } catch (err) {

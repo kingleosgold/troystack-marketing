@@ -215,6 +215,16 @@ test('usableOneLiner keeps five words and 25 characters', () => {
   assert.equal(usableOneLiner('  Smart money backs miners,\n physical gold next '), 'Smart money backs miners, physical gold next');
 });
 
+test('usableOneLiner counts words after long dashes become commas', () => {
+  const { usableOneLiner } = require('../api/_shared/signal-lib');
+  // Five tokens and 26 characters only while the dashes count as words.
+  assert.equal(usableOneLiner('Gold \u2014 silver \u2014 platinum.'), '');
+  assert.equal(usableOneLiner('Silver rallies \u2014 miners lag behind'), 'Silver rallies, miners lag behind');
+  assert.equal(usableOneLiner('\u2014 Gold holds its ground into the close \u2014'), 'Gold holds its ground into the close');
+  assert.equal(usableOneLiner('Silver ran 3\u20135% as the dollar slid'), 'Silver ran 3-5% as the dollar slid');
+  assert.equal(usableOneLiner('Gold firms\u2014the Fed blinks today'), 'Gold firms, the Fed blinks today');
+});
+
 test('a news item with a morning recap answers 301 to its block there', async (t) => {
   t.mock.method(globalThis, 'fetch', articleResponse({ ...item('gold-rises-2026-10-19', '2026-10-19'), title: 'Gold rises', home_slug: 'the-stack-signal-2026-10-19' }));
   const res = fakeRes();

@@ -1,3 +1,5 @@
+const { plainArticle } = require('./_shared/signal-lib');
+
 const UPSTREAM = 'https://api.troystack.ai/v1/stack-signal';
 
 module.exports = async (req, res) => {
@@ -18,6 +20,9 @@ module.exports = async (req, res) => {
     });
     if (!r.ok) throw new Error(`upstream ${r.status}`);
     const data = await r.json();
+    // Load more renders these cards in the browser, so they lose their long
+    // dashes here, the same as the cards the page rendered first.
+    if (data && Array.isArray(data.articles)) data.articles = data.articles.map(plainArticle);
     res.setHeader('Cache-Control', 's-maxage=300, stale-while-revalidate=3600');
     return res.status(200).send(JSON.stringify(data));
   } catch (err) {

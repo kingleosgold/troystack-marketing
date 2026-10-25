@@ -215,6 +215,19 @@ test('usableOneLiner keeps five words and 25 characters', () => {
   assert.equal(usableOneLiner('  Smart money backs miners,\n physical gold next '), 'Smart money backs miners, physical gold next');
 });
 
+test('usableOneLiner keeps a line at exactly five words and 25 characters', () => {
+  const { usableOneLiner } = require('../api/_shared/signal-lib');
+  // Five words, 25 characters.
+  assert.equal(usableOneLiner('Gold eases as dollar firm'), 'Gold eases as dollar firm');
+  // Six words, 24 characters.
+  assert.equal(usableOneLiner('Gold up as the Fed waits'), '');
+  // Four words, 32 characters.
+  assert.equal(usableOneLiner('Precious metals rallied strongly'), '');
+  // Length counts after runs of spaces collapse, so 26 raw characters read as 25.
+  assert.equal(usableOneLiner('Gold eases  as dollar firm'), 'Gold eases as dollar firm');
+  assert.equal(usableOneLiner('Gold up as the  Fed waits'), '');
+});
+
 test('usableOneLiner counts words after long dashes become commas', () => {
   const { usableOneLiner } = require('../api/_shared/signal-lib');
   // Five tokens and 26 characters only while the dashes count as words.

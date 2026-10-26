@@ -1,16 +1,17 @@
 const assert = require('node:assert/strict');
 
 // The rules every troystack.com page keeps for its Gold and App Store buttons.
-// A main button (cta-btn, header-cta or btn-primary, wherever it sits in the
-// class list) never sends everyone to the App Store, since Android and desktop
-// visitors can't install the iPhone app. An iPhone link is swapped in by the
+// A main button never sends everyone to the App Store, since Android and
+// desktop visitors can't install the iPhone app. A main button is any link
+// with an iPhone swap, or one whose class list holds cta-btn, header-cta,
+// nav-cta or btn-primary. An iPhone link is swapped in by the
 // shared /ios-swap.js, and its ct= token matches the web link's campaign=.
 function checkCtas(name, html) {
   const tags = [...html.matchAll(/<a\b[^>]*>/g)].map(([tag]) => tag);
   for (const tag of tags) {
     const cls = (tag.match(/\bclass="([^"]*)"/) || [])[1] || '';
     const href = (tag.match(/\bhref="([^"]*)"/) || [])[1] || '';
-    const main = /(^|\s)(cta-btn|header-cta|btn-primary)(\s|$)/.test(cls);
+    const main = /(^|\s)(cta-btn|header-cta|nav-cta|btn-primary)(\s|$)/.test(cls) || /\bdata-ios-href=/.test(tag);
     if (main && !/\bdata-ios-hide\b/.test(tag)) {
       assert.doesNotMatch(href, /apps\.apple\.com/, `${name} has a main button that sends everyone to the App Store: ${tag}`);
     }

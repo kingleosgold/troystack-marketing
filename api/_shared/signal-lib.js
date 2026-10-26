@@ -217,12 +217,14 @@ function categoryLabel(cat) {
 }
 
 const SITE_URL = 'https://troystack.com';
-const APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=signal&mt=8';
+// Every App Store link from Signal carries site-signal, the token its Gold
+// links carry too, so App Store Connect counts Signal's installs in one place.
+const APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
 // Android and desktop visitors can't install the iPhone app, so their Gold
 // links open troystack.ai/gold and only an iPhone swaps in the App Store under
 // the same site-signal token.
 const GOLD_URL = 'https://troystack.ai/gold?campaign=site-signal';
-const GOLD_APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
+const GOLD_APP_STORE_URL = APP_STORE_URL;
 
 const SHARED_STYLES = `
     :root {

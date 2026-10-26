@@ -50,6 +50,7 @@ function assertBannerCounts(name, html, want) {
   assert.equal(parts['app-id'], '6757343766', `${name} banner isn't TroyStack's`);
   const data = new URLSearchParams((parts['affiliate-data'] || '').replace(/&amp;/g, '&'));
   assert.deepEqual(data.getAll('pt'), ['96487801'], `${name} banner has no provider token`);
+  assert.deepEqual(data.getAll('mt'), ['8'], `${name} banner has no mt=8`);
   assert.deepEqual(data.getAll('ct'), [want], `${name} banner counts under ${data.getAll('ct').join(',') || 'nothing'}`);
 }
 

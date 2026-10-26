@@ -298,10 +298,11 @@ test("each page's Smart App Banner counts under the page's own token", () => {
 test('the banner check catches a missing, doubled or wrong token', () => {
   const { assertBannerCounts } = require('./_cta');
   const tag = (content) => `<meta name="apple-itunes-app" content="${content}">`;
-  assertBannerCounts('ok', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home'), 'site-home');
+  assertBannerCounts('ok', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home&amp;mt=8'), 'site-home');
+  assert.throws(() => assertBannerCounts('no mt', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home'), 'site-home'), /no mt=8/);
   assert.throws(() => assertBannerCounts('bare', tag('app-id=6757343766'), 'site-home'), /no provider token/);
-  assert.throws(() => assertBannerCounts('other', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-pricing'), 'site-home'), /counts under site-pricing/);
-  assert.throws(() => assertBannerCounts('two', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home&amp;ct=x'), 'site-home'), /counts under site-home,x/);
+  assert.throws(() => assertBannerCounts('other', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-pricing&amp;mt=8'), 'site-home'), /counts under site-pricing/);
+  assert.throws(() => assertBannerCounts('two', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home&amp;ct=x&amp;mt=8'), 'site-home'), /counts under site-home,x/);
   assert.throws(() => assertBannerCounts('app', tag('app-id=675734376, affiliate-data=pt=96487801&amp;ct=site-home'), 'site-home'), /isn't TroyStack's/);
   assert.throws(() => assertBannerCounts('none', '<title>x</title>', 'site-home'), /exactly one/);
 });

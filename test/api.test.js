@@ -754,7 +754,8 @@ test('the Signal index and an article give visitors without an iPhone a web path
   await require('../api/signal-index')({ method: 'GET', query: {} }, res);
   assert.equal(res.statusCode, 200);
   checkCtas('/signal', res.body);
-  assert.ok(!/[?&](?:amp;)?ct=signal\b/.test(res.body), 'a Signal index App Store link still uses ct=signal');
+  assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal index App Store link still uses ct=signal');
+  assert.match(res.body, /[?&](?:amp;)?ct=site-signal(?![a-z0-9-])/);
   assert.ok(res.body.includes('href="https://troystack.ai/gold?campaign=site-signal"'));
   t.mock.restoreAll();
   t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' }));
@@ -763,7 +764,7 @@ test('the Signal index and an article give visitors without an iPhone a web path
   assert.equal(res.statusCode, 200);
   checkCtas('/signal/the-stack-signal-2026-10-19', res.body);
   // Every App Store link on Signal counts under site-signal, footer included.
-  assert.ok(!/[?&](?:amp;)?ct=signal\b/.test(res.body), 'a Signal App Store link still uses ct=signal');
-  assert.ok(res.body.includes('ct=site-signal'));
+  assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal App Store link still uses ct=signal');
+  assert.match(res.body, /[?&](?:amp;)?ct=site-signal(?![a-z0-9-])/);
   for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
 });

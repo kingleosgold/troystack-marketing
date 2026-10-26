@@ -6,6 +6,9 @@ const assert = require('node:assert/strict');
 // with an iPhone swap, or one whose class list holds cta-btn, header-cta,
 // nav-cta or btn-primary. An iPhone link is swapped in by the
 // shared /ios-swap.js, and its ct= token matches the web link's campaign=.
+// A main button marked data-ios-hide may go to the App Store, since an iPhone
+// never sees it. A Signal article's Get the iPhone app shows to Android and
+// desktop only that way, by design.
 function checkCtas(name, html) {
   const tags = [...html.matchAll(/<a\b[^>]*>/g)].map(([tag]) => tag);
   for (const tag of tags) {

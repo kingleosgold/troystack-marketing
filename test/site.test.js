@@ -287,9 +287,11 @@ test("each page's Smart App Banner counts under the page's own token", () => {
   const want = { 'index.html': 'site-home', 'calculator.html': 'site-calculator', 'speculation.html': 'site-what-if', 'junk-silver.html': 'site-junk-silver' };
   for (const f of htmlPages.filter((f) => read(f).includes('apple-itunes-app'))) {
     assert.ok(want[f], `${f} shows a Smart App Banner with no token assigned here`);
-    assertBannerCounts(f, read(f), want[f]);
+  }
+  for (const [f, ct] of Object.entries(want)) {
+    assertBannerCounts(f, read(f), ct);
     // The banner's token has to be one the page's own install buttons use.
-    assert.ok(read(f).includes(`ct=${want[f]}&`), `${f} has no App Store button under ${want[f]}`);
+    assert.match(read(f), new RegExp(`href="https://apps\\.apple\\.com/[^"]*[?&](?:amp;)?ct=${ct}(?=[&"])`), `${f} has no App Store button under ${ct}`);
   }
 });
 

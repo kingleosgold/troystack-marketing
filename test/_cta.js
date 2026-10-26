@@ -45,8 +45,12 @@ function checkCtas(name, html) {
 function assertBannerCounts(name, html, want) {
   const tags = html.match(/<meta\b[^>]*\bname="apple-itunes-app"[^>]*>/gi) || [];
   assert.equal(tags.length, 1, `${name} needs exactly one Smart App Banner tag`);
-  const content = (tags[0].match(/\bcontent="([^"]*)"/) || [])[1] || '';
-  const parts = Object.fromEntries(content.split(/,\s*/).map((p) => [p.slice(0, p.indexOf('=')), p.slice(p.indexOf('=') + 1)]));
+  const content = (tags[0].match(/\bcontent=(?:"([^"]*)"|'([^']*)')/) || []).slice(1).find((c) => c !== undefined);
+  assert.ok(content !== undefined, `${name} banner has no content Safari can read: ${tags[0]}`);
+  const parts = Object.fromEntries(content.split(/,\s*/).map((p) => {
+    assert.ok(p.includes('='), `${name} banner has a segment with no value: ${p}`);
+    return [p.slice(0, p.indexOf('=')), p.slice(p.indexOf('=') + 1)];
+  }));
   assert.equal(parts['app-id'], '6757343766', `${name} banner isn't TroyStack's`);
   const data = new URLSearchParams((parts['affiliate-data'] || '').replace(/&amp;/g, '&'));
   assert.deepEqual(data.getAll('pt'), ['96487801'], `${name} banner has no provider token`);

@@ -787,6 +787,7 @@ test('the Signal index and an article give visitors without an iPhone a web path
   checkCtas('/signal', res.body);
   assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal index App Store link still uses ct=signal');
   assertEveryAppStoreLinkSiteSignal(res.body, '/signal');
+  require('./_cta').assertBannerCounts('/signal', res.body, 'site-signal');
   assert.ok(res.body.includes('href="https://troystack.ai/gold?campaign=site-signal"'));
   t.mock.restoreAll();
   // An editorial source that links another app's App Store page isn't an install button.
@@ -799,5 +800,6 @@ test('the Signal index and an article give visitors without an iPhone a web path
   // Every App Store link on Signal counts under site-signal, footer included.
   assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal App Store link still uses ct=signal');
   assertEveryAppStoreLinkSiteSignal(res.body, '/signal/the-stack-signal-2026-10-19');
+  require('./_cta').assertBannerCounts('/signal/the-stack-signal-2026-10-19', res.body, 'site-signal');
   for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
 });

@@ -39,4 +39,18 @@ function checkCtas(name, html) {
   assert.ok(!html.includes("querySelectorAll('a[data-ios-href]')"), `${name} carries its own copy of the iPhone swap`);
 }
 
-module.exports = { checkCtas };
+// The Smart App Banner Safari shows on an iPhone. Its installs count in App
+// Store Connect only when affiliate-data carries the provider token and one
+// campaign token, so a page's banner has to name both.
+function assertBannerCounts(name, html, want) {
+  const tags = html.match(/<meta\b[^>]*\bname="apple-itunes-app"[^>]*>/gi) || [];
+  assert.equal(tags.length, 1, `${name} needs exactly one Smart App Banner tag`);
+  const content = (tags[0].match(/\bcontent="([^"]*)"/) || [])[1] || '';
+  const parts = Object.fromEntries(content.split(/,\s*/).map((p) => [p.slice(0, p.indexOf('=')), p.slice(p.indexOf('=') + 1)]));
+  assert.equal(parts['app-id'], '6757343766', `${name} banner isn't TroyStack's`);
+  const data = new URLSearchParams((parts['affiliate-data'] || '').replace(/&amp;/g, '&'));
+  assert.deepEqual(data.getAll('pt'), ['96487801'], `${name} banner has no provider token`);
+  assert.deepEqual(data.getAll('ct'), [want], `${name} banner counts under ${data.getAll('ct').join(',') || 'nothing'}`);
+}
+
+module.exports = { checkCtas, assertBannerCounts };

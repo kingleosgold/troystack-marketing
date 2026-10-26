@@ -274,7 +274,10 @@ test('the home header and hero are tagged apart and an iPhone hero has one path'
   assert.ok(nav.includes('campaign=site-home-nav"') && nav.includes('ct=site-home-nav&'), 'the header has no token of its own');
   const hero = html.match(/<div class="hero-buttons">[\s\S]*?<\/div>/)[0];
   assert.ok(!hero.includes('site-home-nav'), 'the hero uses the header token');
-  for (const [tag] of hero.matchAll(/<a\b[^>]*>/g)) {
+  const links = [...hero.matchAll(/<a\b[^>]*>/g)].map(([tag]) => tag);
+  assert.equal(links.filter((tag) => /data-ios-href=/.test(tag)).length, 1, 'the hero needs exactly one App Store swap');
+  assert.ok(links.length > 1, 'the hero lost its web plans link');
+  for (const tag of links) {
     if (!/data-ios-href=/.test(tag)) assert.match(tag, /\bdata-ios-hide\b/, `the hero keeps a web link on an iPhone: ${tag}`);
   }
 });

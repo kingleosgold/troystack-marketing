@@ -272,7 +272,7 @@ test('the iPhone swap moves links only on an iPhone or iPad', () => {
     const link = { attrs: { 'data-ios-href': 'https://apps.apple.com/x', 'data-ios-label': 'Get the App' }, href: 'https://troystack.ai/gold', textContent: 'Try Gold',
       getAttribute(k) { return this.attrs[k]; }, hasAttribute(k) { return k in this.attrs; } };
     const hidden = { style: {} };
-    const document = { querySelectorAll: (q) => (q === '[data-ios-hide]' ? [hidden] : [link]) };
+    const document = { querySelectorAll: (q) => ({ '[data-ios-hide]': [hidden], 'a[data-ios-href]': [link] })[q] || [] };
     new Function('navigator', 'document', src)({ userAgent, maxTouchPoints }, document);
     return { link, hidden };
   };

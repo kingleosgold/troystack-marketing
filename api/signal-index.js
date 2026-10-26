@@ -8,7 +8,6 @@ const {
   categoryLabel,
   renderShell,
   SITE_URL,
-  APP_STORE_URL,
   GOLD_URL,
   GOLD_APP_STORE_URL,
   scriptJson,

@@ -21,9 +21,16 @@ function checkCtas(name, html) {
       const campaign = (href.match(/[?&](?:amp;)?campaign=([^&"]*)/) || [])[1];
       if (campaign) assert.equal(ct, campaign, `${name} tags one button two ways: ${tag}`);
     }
+    // troystack.ai drops a site token it can't read, so a typo loses the count.
+    for (const [, token] of tag.matchAll(/[?&](?:amp;)?(?:campaign|ct)=([^&"]*)/g)) {
+      if (token.startsWith('site-')) assert.match(token, /^site-[a-z0-9-]{1,32}$/, `${name} has a site token troystack.ai won't read: ${tag}`);
+    }
   }
-  if (tags.some((t) => /\bdata-ios-(href|hide)\b/.test(t))) {
-    assert.ok(html.includes('<script src="/ios-swap.js"></script>'), `${name} has an iPhone link but doesn't load /ios-swap.js`);
+  const lastMarked = Math.max(html.lastIndexOf('data-ios-href='), html.lastIndexOf('data-ios-hide'));
+  if (lastMarked >= 0) {
+    // The swap runs as soon as it loads, so it has to come after every link it moves.
+    const script = html.lastIndexOf('<script src="/ios-swap.js"></script>');
+    assert.ok(script > lastMarked, `${name} doesn't load /ios-swap.js after its iPhone links`);
   }
   assert.ok(!html.includes("querySelectorAll('a[data-ios-href]')"), `${name} carries its own copy of the iPhone swap`);
 }

@@ -379,7 +379,7 @@ function renderShell({ title, head = '', body = '', activeNav = '' }) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>${escapeHtml(title)}</title>
-<meta name="apple-itunes-app" content="app-id=6757343766">
+<meta name="apple-itunes-app" content="app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-signal&amp;mt=8">
 ${head}
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">

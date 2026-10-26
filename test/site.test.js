@@ -282,6 +282,31 @@ test('the home header and hero are tagged apart and an iPhone hero has one path'
   }
 });
 
+test("each page's Smart App Banner counts under the page's own token", () => {
+  const { assertBannerCounts } = require('./_cta');
+  const want = { 'index.html': 'site-home', 'calculator.html': 'site-calculator', 'speculation.html': 'site-what-if', 'junk-silver.html': 'site-junk-silver' };
+  for (const f of htmlPages.filter((f) => read(f).includes('apple-itunes-app'))) {
+    assert.ok(want[f], `${f} shows a Smart App Banner with no token assigned here`);
+  }
+  for (const [f, ct] of Object.entries(want)) {
+    assertBannerCounts(f, read(f), ct);
+    // The banner's token has to be one the page's own install buttons use.
+    assert.match(read(f), new RegExp(`href="https://apps\\.apple\\.com/[^"]*[?&](?:amp;)?ct=${ct}(?=[&"])`), `${f} has no App Store button under ${ct}`);
+  }
+});
+
+test('the banner check catches a missing, doubled or wrong token', () => {
+  const { assertBannerCounts } = require('./_cta');
+  const tag = (content) => `<meta name="apple-itunes-app" content="${content}">`;
+  assertBannerCounts('ok', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home&amp;mt=8'), 'site-home');
+  assert.throws(() => assertBannerCounts('no mt', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home'), 'site-home'), /no mt=8/);
+  assert.throws(() => assertBannerCounts('bare', tag('app-id=6757343766'), 'site-home'), /no provider token/);
+  assert.throws(() => assertBannerCounts('other', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-pricing&amp;mt=8'), 'site-home'), /counts under site-pricing/);
+  assert.throws(() => assertBannerCounts('two', tag('app-id=6757343766, affiliate-data=pt=96487801&amp;ct=site-home&amp;ct=x&amp;mt=8'), 'site-home'), /counts under site-home,x/);
+  assert.throws(() => assertBannerCounts('app', tag('app-id=675734376, affiliate-data=pt=96487801&amp;ct=site-home'), 'site-home'), /isn't TroyStack's/);
+  assert.throws(() => assertBannerCounts('none', '<title>x</title>', 'site-home'), /exactly one/);
+});
+
 test('each tool page has a main button that opens troystack.ai/gold', () => {
   for (const f of ['calculator.html', 'speculation.html', 'junk-silver.html']) {
     assert.match(read(f), /<a href="https:\/\/troystack\.ai\/gold\?campaign=site-[a-z-]+"[^>]*class="[^"]*\bcta-btn\b/, `${f} has no main button into Gold`);

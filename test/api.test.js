@@ -745,3 +745,21 @@ test('/api/signal/:slug sends the article with no long dash', async (t) => {
   assert.equal(body.article.troy_commentary, 'Calm, for now.');
   assert.equal(body.article.slug, 'a–b');
 });
+
+// The Signal pages keep troystack.com's button rules, header included.
+test('the Signal index and an article give visitors without an iPhone a web path', async (t) => {
+  const { checkCtas } = require('./_cta');
+  t.mock.method(globalThis, 'fetch', async () => listResponse([{ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal' }]));
+  let res = fakeRes();
+  await require('../api/signal-index')({ method: 'GET', query: {} }, res);
+  assert.equal(res.statusCode, 200);
+  checkCtas('/signal', res.body);
+  assert.ok(res.body.includes('href="https://troystack.ai/gold?campaign=site-signal"'));
+  t.mock.restoreAll();
+  t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' }));
+  res = fakeRes();
+  await require('../api/signal-article')({ query: { slug: 'the-stack-signal-2026-10-19' } }, res);
+  assert.equal(res.statusCode, 200);
+  checkCtas('/signal/the-stack-signal-2026-10-19', res.body);
+  for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
+});

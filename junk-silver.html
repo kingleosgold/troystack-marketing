@@ -479,7 +479,7 @@
                 <a href="/calculator">Calculator</a>
                 <a href="/speculation">What If?</a>
                 <a href="/junk-silver" class="active">Junk Silver</a>
-                <a href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-junk-silver&mt=8" target="_blank" rel="noopener" class="header-cta">Get the App</a>
+                <a href="https://troystack.ai/gold?campaign=site-junk-silver" data-ios-href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-junk-silver&mt=8" data-ios-label="Get the App" class="header-cta">Try Gold</a>
             </nav>
         </div>
     </header>
@@ -927,21 +927,6 @@
             })();
         })();
     </script>
-    <script>
-        // On an iPhone or iPad the main button goes to the App Store, where the
-        // app's own free week lives. Everywhere else it opens troystack.ai/gold,
-        // since Android and desktop visitors can't install the iPhone app.
-        (function() {
-            var ua = navigator.userAgent || '';
-            var iOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-            if (!iOS) return;
-            document.querySelectorAll('a[data-ios-href]').forEach(function(a) {
-                a.href = a.getAttribute('data-ios-href');
-                if (a.hasAttribute('data-ios-label')) a.textContent = a.getAttribute('data-ios-label');
-                a.target = '_blank';
-                a.rel = 'noopener';
-            });
-        })();
-    </script>
+    <script src="/ios-swap.js"></script>
 </body>
 </html>

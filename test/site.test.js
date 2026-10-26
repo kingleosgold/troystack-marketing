@@ -251,18 +251,40 @@ test('the home page names one URL for itself in canonical, og:url and JSON-LD', 
   assert.ok(html.includes('"url": "https://troystack.com/"'));
 });
 
-// Android and desktop visitors can't install the iPhone app, so a page's main
-// button opens troystack.ai/gold for them and only an iPhone swaps in the App
-// Store, through the same data-ios-href swap the home page runs.
-test('every main App Store button has a web path for visitors without an iPhone', () => {
-  for (const f of htmlPages) {
-    const text = read(f);
-    for (const [tag] of text.matchAll(/<a\b[^>]*class="cta-btn"[^>]*>/g)) {
-      const href = tag.match(/\bhref="([^"]*)"/)[1];
-      assert.doesNotMatch(href, /apps\.apple\.com/, `${f}'s main button sends everyone to the App Store`);
-      if (/data-ios-href=/.test(tag)) {
-        assert.match(text, /querySelectorAll\('a\[data-ios-href\]'\)/, `${f} has an iPhone link but no swap script`);
-      }
-    }
+// Android and desktop visitors can't install the iPhone app, so every main
+// button and header link opens troystack.ai for them and only an iPhone swaps
+// in the App Store, through the shared /ios-swap.js.
+const { checkCtas } = require('./_cta');
+
+test('every main button has a web path for visitors without an iPhone', () => {
+  for (const f of htmlPages) checkCtas(f, read(f));
+});
+
+test('each tool page has a main button that opens troystack.ai/gold', () => {
+  for (const f of ['calculator.html', 'speculation.html', 'junk-silver.html']) {
+    assert.match(read(f), /<a href="https:\/\/troystack\.ai\/gold\?campaign=site-[a-z-]+"[^>]*class="[^"]*\bcta-btn\b/, `${f} has no main button into Gold`);
   }
+});
+
+test('the iPhone swap moves links only on an iPhone or iPad', () => {
+  const src = read('ios-swap.js');
+  const run = (userAgent, maxTouchPoints = 0) => {
+    const link = { attrs: { 'data-ios-href': 'https://apps.apple.com/x', 'data-ios-label': 'Get the App' }, href: 'https://troystack.ai/gold', textContent: 'Try Gold',
+      getAttribute(k) { return this.attrs[k]; }, hasAttribute(k) { return k in this.attrs; } };
+    const hidden = { style: {} };
+    const document = { querySelectorAll: (q) => ({ '[data-ios-hide]': [hidden], 'a[data-ios-href]': [link] })[q] || [] };
+    new Function('navigator', 'document', src)({ userAgent, maxTouchPoints }, document);
+    return { link, hidden };
+  };
+  const iphone = run('Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X)');
+  assert.equal(iphone.link.href, 'https://apps.apple.com/x');
+  assert.equal(iphone.link.textContent, 'Get the App');
+  assert.equal(iphone.link.target, '_blank');
+  assert.equal(iphone.hidden.style.display, 'none');
+  assert.equal(run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 5).link.href, 'https://apps.apple.com/x');
+  const android = run('Mozilla/5.0 (Linux; Android 15; Pixel 9)');
+  assert.equal(android.link.href, 'https://troystack.ai/gold');
+  assert.equal(android.link.textContent, 'Try Gold');
+  assert.equal(android.hidden.style.display, undefined);
+  assert.equal(run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)').link.href, 'https://troystack.ai/gold');
 });

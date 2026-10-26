@@ -751,6 +751,8 @@ test('/api/signal/:slug sends the article with no long dash', async (t) => {
 function assertEveryAppStoreLinkSiteSignal(body, page) {
   const links = [...body.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
   assert.ok(links.length > 0, `${page} has no App Store link`);
+  // A link in any other form, single quotes or another attribute, would slip past the match above.
+  assert.equal((body.match(/apps\.apple\.com/gi) || []).length, links.length, `${page} has an App Store link the check can't read`);
   for (const link of links) {
     const ct = new URL(link.replace(/&amp;/g, '&')).searchParams.getAll('ct');
     assert.deepEqual(ct, ['site-signal'], `${page} App Store link ${link} counts under ${ct.join(',') || 'nothing'}`);

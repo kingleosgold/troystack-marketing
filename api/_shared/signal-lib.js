@@ -218,6 +218,11 @@ function categoryLabel(cat) {
 
 const SITE_URL = 'https://troystack.com';
 const APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=signal&mt=8';
+// Android and desktop visitors can't install the iPhone app, so their Gold
+// links open troystack.ai/gold and only an iPhone swaps in the App Store under
+// the same site-signal token.
+const GOLD_URL = 'https://troystack.ai/gold?campaign=site-signal';
+const GOLD_APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
 
 const SHARED_STYLES = `
     :root {
@@ -396,7 +401,7 @@ ${head}
       ${navItem('/calculator', 'Calculator', 'calculator')}
       ${navItem('/speculation', 'What If?', 'speculation')}
       ${navItem('/junk-silver', 'Junk Silver', 'junk-silver')}
-      <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="header-cta">Get the App</a>
+      <a href="${GOLD_URL}" data-ios-href="${GOLD_APP_STORE_URL}" data-ios-label="Get the App" class="header-cta">Try Gold</a>
     </nav>
   </div>
 </header>
@@ -414,6 +419,7 @@ ${head}
     <p style="margin-top: 10px;">Content by Troy AI. Not financial advice.</p>
   </div>
 </footer>
+<script src="/ios-swap.js"></script>
 </body>
 </html>`;
 }
@@ -458,4 +464,6 @@ module.exports = {
   renderShell,
   SITE_URL,
   APP_STORE_URL,
+  GOLD_URL,
+  GOLD_APP_STORE_URL,
 };

@@ -16,6 +16,7 @@ const {
   renderShell,
   SITE_URL,
   APP_STORE_URL,
+  GOLD_APP_STORE_URL,
   scriptJson,
   querySlug,
 } = require('./_shared/signal-lib');
@@ -25,7 +26,6 @@ const {
 // campaign so installs and checkouts from the Signal can be told apart.
 const WEB_APP_URL = 'https://troystack.ai';
 const WEB_TRIAL_URL = `${WEB_APP_URL}/auth?mode=signup&redirect=checkout&plan=monthly&campaign=site-signal`;
-const APP_STORE_TRIAL_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
 
 function sourceLink(url) {
   return typeof url === 'string' && /^https?:\/\//i.test(url) ? url : '';
@@ -490,28 +490,13 @@ const handler = async (req, res) => {
         <p>Track your coins and bars at live spot, ask Troy anything, and with Gold get a morning brief written around what you hold. New to Gold? The first week is free.</p>
         <div class="cta-row">
           <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="cta-btn" data-ios-hide>Get the iPhone app</a>
-          <a href="${escapeHtml(WEB_TRIAL_URL)}" data-ios-href="${escapeHtml(APP_STORE_TRIAL_URL)}" data-ios-label="Start the free week in the app" class="cta-btn cta-btn-quiet">Start the free week on the web</a>
+          <a href="${escapeHtml(WEB_TRIAL_URL)}" data-ios-href="${escapeHtml(GOLD_APP_STORE_URL)}" data-ios-label="Start the free week in the app" class="cta-btn cta-btn-quiet">Start the free week on the web</a>
         </div>
       </div>
     </div>
 
     <script>
     (function(){
-      // On an iPhone or iPad the free week starts in the App Store, where the
-      // app's own trial lives, the same as on troystack.com's pricing. The
-      // plain App Store button goes, so the box has one App Store link.
-      var ua = navigator.userAgent || '';
-      var iOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
-      if (iOS) {
-        document.querySelectorAll('[data-ios-hide]').forEach(function(el) { el.style.display = 'none'; });
-        document.querySelectorAll('a[data-ios-href]').forEach(function(a) {
-          a.href = a.getAttribute('data-ios-href');
-          a.target = '_blank';
-          a.rel = 'noopener';
-          if (a.hasAttribute('data-ios-label')) a.textContent = a.getAttribute('data-ios-label');
-        });
-      }
-
       var xBtn = document.getElementById('share-x');
       var copyBtn = document.getElementById('share-copy');
       var title = ${scriptJson(title)};

@@ -9,6 +9,8 @@ const {
   renderShell,
   SITE_URL,
   APP_STORE_URL,
+  GOLD_URL,
+  GOLD_APP_STORE_URL,
   scriptJson,
 } = require('./_shared/signal-lib');
 
@@ -204,7 +206,7 @@ module.exports = async (req, res) => {
         <div class="cta">
           <h2>Want Troy's analysis on <span class="accent">YOUR</span> stack?</h2>
           <p>TroyStack gives you personalized daily briefings, Troy Chat, portfolio tracking, price alerts, and full COMEX vault data.</p>
-          <a href="${APP_STORE_URL}" target="_blank" rel="noopener" class="cta-btn">Download TroyStack</a>
+          <a href="${GOLD_URL}" data-ios-href="${GOLD_APP_STORE_URL}" data-ios-label="Download TroyStack" class="cta-btn">Try Gold free for 7 days</a>
         </div>
       </div>
     </section>

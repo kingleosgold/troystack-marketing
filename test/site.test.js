@@ -260,6 +260,25 @@ test('every main button has a web path for visitors without an iPhone', () => {
   for (const f of htmlPages) checkCtas(f, read(f));
 });
 
+test('the checker holds any link with an iPhone swap as a main button', () => {
+  const bare = '<a href="https://apps.apple.com/app/x?ct=site-x" data-ios-href="https://apps.apple.com/app/x?ct=site-x">Get it</a><script src="/ios-swap.js"></script>';
+  assert.throws(() => checkCtas('bare', bare), /sends everyone to the App Store/);
+});
+
+// The home header and hero carry their own tokens, so a tap on each one is
+// counted on its own in troystack.ai's funnel and in App Store Connect. An
+// iPhone gets one path in the hero, the App Store, and loses the web plans link.
+test('the home header and hero are tagged apart and an iPhone hero has one path', () => {
+  const html = read('index.html');
+  const nav = html.match(/<nav class="nav-links">[\s\S]*?<\/nav>/)[0];
+  assert.ok(nav.includes('campaign=site-home-nav"') && nav.includes('ct=site-home-nav&'), 'the header has no token of its own');
+  const hero = html.match(/<div class="hero-buttons">[\s\S]*?<\/div>/)[0];
+  assert.ok(!hero.includes('site-home-nav'), 'the hero uses the header token');
+  for (const [tag] of hero.matchAll(/<a\b[^>]*>/g)) {
+    if (!/data-ios-href=/.test(tag)) assert.match(tag, /\bdata-ios-hide\b/, `the hero keeps a web link on an iPhone: ${tag}`);
+  }
+});
+
 test('each tool page has a main button that opens troystack.ai/gold', () => {
   for (const f of ['calculator.html', 'speculation.html', 'junk-silver.html']) {
     assert.match(read(f), /<a href="https:\/\/troystack\.ai\/gold\?campaign=site-[a-z-]+"[^>]*class="[^"]*\bcta-btn\b/, `${f} has no main button into Gold`);

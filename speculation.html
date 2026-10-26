@@ -580,7 +580,7 @@
         <section class="cta">
             <h2>Track your stack with <span class="accent">Troy</span></h2>
             <p>Live spot prices, portfolio tracking, daily briefings, price alerts, and Troy Chat with your AI precious metals analyst.</p>
-            <a href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-what-if&mt=8" target="_blank" rel="noopener" class="cta-btn">Download TroyStack</a>
+            <a href="https://troystack.ai/gold?campaign=site-what-if" data-ios-href="https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-what-if&mt=8" data-ios-label="Download TroyStack" class="cta-btn">Try Gold free for 7 days</a>
         </section>
 
         <p class="cross-link">Also try: <a href="/calculator">Purchasing Power</a> &nbsp;·&nbsp; <a href="/junk-silver">Junk Silver Melt</a></p>
@@ -956,6 +956,22 @@
                 const hasTargets = (isFinite(gt) && gt > 0) || (isFinite(st) && st > 0);
                 if (hasHoldings && hasTargets) calculate();
             })();
+        })();
+    </script>
+    <script>
+        // On an iPhone or iPad the main button goes to the App Store, where the
+        // app's own free week lives. Everywhere else it opens troystack.ai/gold,
+        // since Android and desktop visitors can't install the iPhone app.
+        (function() {
+            var ua = navigator.userAgent || '';
+            var iOS = /iPhone|iPad|iPod/.test(ua) || (/Macintosh/.test(ua) && navigator.maxTouchPoints > 1);
+            if (!iOS) return;
+            document.querySelectorAll('a[data-ios-href]').forEach(function(a) {
+                a.href = a.getAttribute('data-ios-href');
+                if (a.hasAttribute('data-ios-label')) a.textContent = a.getAttribute('data-ios-label');
+                a.target = '_blank';
+                a.rel = 'noopener';
+            });
         })();
     </script>
 </body>

@@ -250,3 +250,19 @@ test('the home page names one URL for itself in canonical, og:url and JSON-LD', 
   assert.ok(html.includes('<meta property="og:url" content="https://troystack.com/">'));
   assert.ok(html.includes('"url": "https://troystack.com/"'));
 });
+
+// Android and desktop visitors can't install the iPhone app, so a page's main
+// button opens troystack.ai/gold for them and only an iPhone swaps in the App
+// Store, through the same data-ios-href swap the home page runs.
+test('every main App Store button has a web path for visitors without an iPhone', () => {
+  for (const f of htmlPages) {
+    const text = read(f);
+    for (const [tag] of text.matchAll(/<a\b[^>]*class="cta-btn"[^>]*>/g)) {
+      const href = tag.match(/\bhref="([^"]*)"/)[1];
+      assert.doesNotMatch(href, /apps\.apple\.com/, `${f}'s main button sends everyone to the App Store`);
+      if (/data-ios-href=/.test(tag)) {
+        assert.match(text, /querySelectorAll\('a\[data-ios-href\]'\)/, `${f} has an iPhone link but no swap script`);
+      }
+    }
+  }
+});

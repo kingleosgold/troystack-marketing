@@ -757,18 +757,23 @@ function assertEveryAppStoreLinkSiteSignal(body, page) {
   const scripted = [];
   const html = body
     .replace(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi, (all, attrs, js) => {
-      if (!/\btype=["']?application\/ld\+json/i.test(attrs)) scripted.push(...(js.match(APP_STORE_URL) || []));
+      if (/(?:^|\s)type=["']?application\/ld\+json/i.test(attrs)) return '';
+      const found = js.match(APP_STORE_URL) || [];
+      // A script that names the App Store any other way, escaped or split, would slip past the match.
+      assert.equal((js.match(/apps\.apple\.com/gi) || []).length, found.length, `${page} has a script App Store link the check can't read`);
+      scripted.push(...found);
       return '';
     })
     // A nofollow link to TroyStack's own page is still an install button.
-    .replace(/<a\b[^>]*\srel="[^"]*\bnofollow\b[^"]*"[^>]*>[\s\S]*?<\/a>/gi, (el) => (/id6757343766(?![0-9])/.test(el.slice(0, el.indexOf('>') + 1)) ? el : ''));
+    .replace(/<a\b[^>]*\srel="[^"]*\bnofollow\b[^"]*"[^>]*>(?:(?!<a\b)[\s\S])*?<\/a>/gi, (el) => (/id6757343766(?![0-9])/.test(el.slice(0, el.indexOf('>') + 1)) ? el : ''));
   const tagged = [...html.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
-  const links = [...tagged, ...scripted];
+  // A script string keeps &amp; as it is, so only an attribute's is decoded.
+  const links = [...tagged.map((l) => l.replace(/&amp;/g, '&')), ...scripted];
   assert.ok(links.length > 0, `${page} has no App Store link`);
   // A link in any other form, single quotes or another attribute, would slip past the match above.
   assert.equal((html.match(/apps\.apple\.com/gi) || []).length, tagged.length, `${page} has an App Store link the check can't read`);
   for (const link of links) {
-    const url = new URL(link.replace(/&amp;/g, '&'));
+    const url = new URL(link);
     assert.ok(/\/id6757343766$/.test(url.pathname), `${page} App Store link ${link} isn't TroyStack's`);
     const ct = url.searchParams.getAll('ct');
     assert.deepEqual(ct, ['site-signal'], `${page} App Store link ${link} counts under ${ct.join(',') || 'nothing'}`);
@@ -791,8 +796,11 @@ test('the Signal link check skips editorial and script mentions and still catche
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="https://apps.apple.com/us/app/other/id123?r=/id6757343766&amp;ct=site-signal">Footer</a>`), 'id in query'), /isn't TroyStack's/);
   // A link an inline script sets is an install button too.
   assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '${ours.replace(/&amp;/g, '&')}';</script>`), 'scripted');
-  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '${ours.replace('site-signal', 'site-home')}';</script>`), 'scripted moved'), /counts under site-home/);
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '${ours.replace(/&amp;/g, '&').replace('site-signal', 'site-home')}';</script>`), 'scripted moved'), /counts under site-home/);
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = "https://apps.apple.com/us/app/other/id123";</script>`), 'scripted other'), /isn't TroyStack's/);
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '//apps.apple.com/app/id6757343766?ct=site-home';</script>`), 'scripted relative'), /script App Store link the check can't read/);
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '${ours}';</script>`), 'scripted amp'), /counts under nothing/);
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="https://x.com" rel="nofollow">x <a href="${ours.replace('site-signal', 'site-home')}">Get</a>`), 'unclosed nofollow'), /counts under site-home/);
 });
 
 test('the Signal index and an article give visitors without an iPhone a web path', async (t) => {

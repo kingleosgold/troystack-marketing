@@ -45,7 +45,7 @@ function checkCtas(name, html) {
 function assertBannerCounts(name, html, want) {
   const tags = html.match(/<meta\b[^>]*\bname="apple-itunes-app"[^>]*>/gi) || [];
   assert.equal(tags.length, 1, `${name} needs exactly one Smart App Banner tag`);
-  const content = (tags[0].match(/\bcontent=(?:"([^"]*)"|'([^']*)')/) || []).slice(1).find((c) => c !== undefined);
+  const content = (tags[0].match(/(?:^|\s)content=(?:"([^"]*)"|'([^']*)')/) || []).slice(1).find((c) => c !== undefined);
   assert.ok(content !== undefined, `${name} banner has no content Safari can read: ${tags[0]}`);
   const parts = Object.fromEntries(content.split(/,\s*/).map((p) => {
     assert.ok(p.includes('='), `${name} banner has a segment with no value: ${p}`);

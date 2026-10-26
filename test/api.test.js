@@ -747,6 +747,16 @@ test('/api/signal/:slug sends the article with no long dash', async (t) => {
 });
 
 // The Signal pages keep troystack.com's button rules, header included.
+// Every App Store link on a Signal page, href or data-ios-href, counts under site-signal.
+function assertEveryAppStoreLinkSiteSignal(body, page) {
+  const links = [...body.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
+  assert.ok(links.length > 0, `${page} has no App Store link`);
+  for (const link of links) {
+    const ct = new URL(link.replace(/&amp;/g, '&')).searchParams.getAll('ct');
+    assert.deepEqual(ct, ['site-signal'], `${page} App Store link ${link} counts under ${ct.join(',') || 'nothing'}`);
+  }
+}
+
 test('the Signal index and an article give visitors without an iPhone a web path', async (t) => {
   const { checkCtas } = require('./_cta');
   t.mock.method(globalThis, 'fetch', async () => listResponse([{ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal' }]));
@@ -755,7 +765,7 @@ test('the Signal index and an article give visitors without an iPhone a web path
   assert.equal(res.statusCode, 200);
   checkCtas('/signal', res.body);
   assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal index App Store link still uses ct=signal');
-  assert.match(res.body, /[?&](?:amp;)?ct=site-signal(?![a-z0-9-])/);
+  assertEveryAppStoreLinkSiteSignal(res.body, '/signal');
   assert.ok(res.body.includes('href="https://troystack.ai/gold?campaign=site-signal"'));
   t.mock.restoreAll();
   t.mock.method(globalThis, 'fetch', articleResponse({ ...recap('the-stack-signal-2026-10-19', '2026-10-19'), title: 'The Stack Signal', troy_commentary: 'Gold held.' }));
@@ -765,6 +775,6 @@ test('the Signal index and an article give visitors without an iPhone a web path
   checkCtas('/signal/the-stack-signal-2026-10-19', res.body);
   // Every App Store link on Signal counts under site-signal, footer included.
   assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal App Store link still uses ct=signal');
-  assert.match(res.body, /[?&](?:amp;)?ct=site-signal(?![a-z0-9-])/);
+  assertEveryAppStoreLinkSiteSignal(res.body, '/signal/the-stack-signal-2026-10-19');
   for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
 });

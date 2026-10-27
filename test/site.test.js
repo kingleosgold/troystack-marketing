@@ -314,6 +314,8 @@ test('the banner check catches a missing, doubled or wrong token', () => {
   assertBannerCounts('spaced', `<meta name="apple-itunes-app" content = "${good}">`, 'site-home');
   assertBannerCounts('trailing comma', tag(`${good},`), 'site-home');
   assertBannerCounts('spaced comma', tag('app-id=6757343766 , affiliate-data=pt=96487801&amp;ct=site-home&amp;mt=8'), 'site-home');
+  assert.throws(() => assertBannerCounts('data-name', `<meta data-name="apple-itunes-app" content="${good}">`, 'site-home'), /exactly one/);
+  assert.throws(() => assertBannerCounts('spaced second', `${tag(good)}<meta name = "apple-itunes-app" content="app-id=1">`, 'site-home'), /exactly one/);
   assert.throws(() => assertBannerCounts('mixed quotes', `<meta name="apple-itunes-app' content="${good}">`, 'site-home'), /exactly one/);
 });
 

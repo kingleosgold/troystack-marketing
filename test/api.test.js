@@ -768,11 +768,12 @@ function assertEveryAppStoreLinkSiteSignal(body, page) {
     .replace(/<a\b[^>]*\srel="[^"]*\bnofollow\b[^"]*"[^>]*>(?:(?!<a\b)[\s\S])*?<\/a\s*>/gi, (el) => (/id6757343766(?![0-9])/.test(el.slice(0, el.indexOf('>') + 1)) ? el : ''));
   const tagged = [...html.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
   // A script string keeps &amp; as it is, so only an attribute's is decoded, in any of its entity forms.
-  const links = [...tagged.map((l) => l.replace(/&(?:amp|#0*38|#x0*26);/gi, '&')), ...scripted];
+  const links = [...tagged.map((l) => l.replace(/&(?:amp|AMP|#0*38|#[xX]0*26);/g, '&')), ...scripted];
   assert.ok(links.length > 0, `${page} has no App Store link`);
   // A link in any other form, single quotes or another attribute, would slip past the match above.
   // Only a mention inside a tag can be a link, so a source's name printed as text isn't counted.
-  const inTags = (html.match(/<[^>]*>/g) || []).join(' ');
+  // A > inside a quoted value doesn't end the tag.
+  const inTags = (html.match(/<[a-z!\/][^"'>]*(?:(?:"[^"]*"|'[^']*')[^"'>]*)*>/gi) || []).join(' ');
   assert.equal((inTags.match(/apps\.apple\.com/gi) || []).length, tagged.length, `${page} has an App Store link the check can't read`);
   for (const link of links) {
     const url = new URL(link);
@@ -812,6 +813,10 @@ test('the Signal link check skips editorial and script mentions and still catche
   assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&#38;')}">Footer</a>`), 'decimal entity');
   assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&#x26;')}">Footer</a>`), 'hex entity');
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&#38;').replace('site-signal', 'site-home')}">Footer</a>`), 'entity moved'), /counts under site-home/);
+  // &Amp; isn't an entity, so the browser sends Amp;ct and the install counts under nothing.
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&Amp;')}">Footer</a>`), 'bad entity'), /counts under nothing/);
+  // A > inside a quoted value doesn't hide a single-quoted link after it.
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a title="a>b" href='https://apps.apple.com/app/id6757343766?ct=site-home'>Get</a>`), 'quoted gt'), /can't read/);
   // A nofollow link closed as </a > is still dropped whole.
   assertEveryAppStoreLinkSiteSignal(page(`<a href="https://x.com" rel="nofollow">https://apps.apple.com/us/app/mint/id123</a >`), 'spaced close');
 });

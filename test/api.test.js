@@ -756,6 +756,8 @@ const APP_STORE_URL = /https:\/\/apps\.apple\.com\/[^"'`\s<>\\]*/g;
 function assertEveryAppStoreLinkSiteSignal(body, page) {
   const scripted = [];
   const html = body
+    // A comment is never a link, and an apostrophe in one would throw off the quote-aware tag match below.
+    .replace(/<!--[\s\S]*?-->/g, '')
     .replace(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi, (all, attrs, js) => {
       if (/(?:^|\s)type=["']?application\/ld\+json/i.test(attrs)) return '';
       const found = js.match(APP_STORE_URL) || [];
@@ -766,14 +768,14 @@ function assertEveryAppStoreLinkSiteSignal(body, page) {
     })
     // A nofollow link to TroyStack's own page is still an install button.
     .replace(/<a\b[^>]*\srel="[^"]*\bnofollow\b[^"]*"[^>]*>(?:(?!<a\b)[\s\S])*?<\/a\s*>/gi, (el) => (/id6757343766(?![0-9])/.test(el.slice(0, el.indexOf('>') + 1)) ? el : ''));
-  const tagged = [...html.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
+  // Only a mention inside a tag can be a link, so a source's name printed as text isn't counted.
+  // A > inside a quoted value doesn't end the tag.
+  const inTags = (html.match(/<[a-z\/][^"'>]*(?:(?:"[^"]*"|'[^']*')[^"'>]*)*>/gi) || []).join(' ');
+  const tagged = [...inTags.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
   // A script string keeps &amp; as it is, so only an attribute's is decoded, in any of its entity forms.
   const links = [...tagged.map((l) => l.replace(/&(?:amp|AMP|#0*38|#[xX]0*26);/g, '&')), ...scripted];
   assert.ok(links.length > 0, `${page} has no App Store link`);
   // A link in any other form, single quotes or another attribute, would slip past the match above.
-  // Only a mention inside a tag can be a link, so a source's name printed as text isn't counted.
-  // A > inside a quoted value doesn't end the tag.
-  const inTags = (html.match(/<[a-z!\/][^"'>]*(?:(?:"[^"]*"|'[^']*')[^"'>]*)*>/gi) || []).join(' ');
   assert.equal((inTags.match(/apps\.apple\.com/gi) || []).length, tagged.length, `${page} has an App Store link the check can't read`);
   for (const link of links) {
     const url = new URL(link);
@@ -817,6 +819,11 @@ test('the Signal link check skips editorial and script mentions and still catche
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&Amp;')}">Footer</a>`), 'bad entity'), /counts under nothing/);
   // A > inside a quoted value doesn't hide a single-quoted link after it.
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a title="a>b" href='https://apps.apple.com/app/id6757343766?ct=site-home'>Get</a>`), 'quoted gt'), /can't read/);
+  // An apostrophe in a comment doesn't hide a link after it.
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<!-- don't touch --><a title='x>y' href='https://apps.apple.com/app/id6757343766?ct=site-home'>Get</a>`), 'comment'), /can't read/);
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<!-- <p title=' --><a title='x>y' href='https://apps.apple.com/app/id6757343766?ct=site-home'>Get</a>`), 'tag in comment'), /can't read/);
+  // Text that reads like an attribute isn't a link and can't stand in for one.
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(`<p>href="${ours}"</p><a href='https://apps.apple.com/app/id6757343766?ct=site-home'>Get</a>`, 'text attr'), /has no App Store link/);
   // A nofollow link closed as </a > is still dropped whole.
   assertEveryAppStoreLinkSiteSignal(page(`<a href="https://x.com" rel="nofollow">https://apps.apple.com/us/app/mint/id123</a >`), 'spaced close');
 });

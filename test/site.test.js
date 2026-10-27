@@ -317,6 +317,8 @@ test('the banner check catches a missing, doubled or wrong token', () => {
   assert.throws(() => assertBannerCounts('data-name', `<meta data-name="apple-itunes-app" content="${good}">`, 'site-home'), /exactly one/);
   assert.throws(() => assertBannerCounts('spaced second', `${tag(good)}<meta name = "apple-itunes-app" content="app-id=1">`, 'site-home'), /exactly one/);
   assert.throws(() => assertBannerCounts('unquoted second', `${tag(good)}<meta name=apple-itunes-app content="app-id=1">`, 'site-home'), /exactly one/);
+  assert.throws(() => assertBannerCounts('glued content', `${tag(good)}<meta name="apple-itunes-app"content="app-id=1">`, 'site-home'), /exactly one/);
+  assert.throws(() => assertBannerCounts('slash name', `${tag(good)}<meta/name="apple-itunes-app" content="app-id=1">`, 'site-home'), /exactly one/);
   assert.throws(() => assertBannerCounts('mixed quotes', `<meta name="apple-itunes-app' content="${good}">`, 'site-home'), /exactly one/);
 });
 

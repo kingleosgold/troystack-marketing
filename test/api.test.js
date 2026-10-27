@@ -765,16 +765,18 @@ function assertEveryAppStoreLinkSiteSignal(body, page) {
       return '';
     })
     // A nofollow link to TroyStack's own page is still an install button.
-    .replace(/<a\b[^>]*\srel="[^"]*\bnofollow\b[^"]*"[^>]*>(?:(?!<a\b)[\s\S])*?<\/a>/gi, (el) => (/id6757343766(?![0-9])/.test(el.slice(0, el.indexOf('>') + 1)) ? el : ''));
+    .replace(/<a\b[^>]*\srel="[^"]*\bnofollow\b[^"]*"[^>]*>(?:(?!<a\b)[\s\S])*?<\/a\s*>/gi, (el) => (/id6757343766(?![0-9])/.test(el.slice(0, el.indexOf('>') + 1)) ? el : ''));
   const tagged = [...html.matchAll(/(?:href|data-ios-href)="(https:\/\/apps\.apple\.com\/[^"]*)"/g)].map((m) => m[1]);
-  // A script string keeps &amp; as it is, so only an attribute's is decoded.
-  const links = [...tagged.map((l) => l.replace(/&amp;/g, '&')), ...scripted];
+  // A script string keeps &amp; as it is, so only an attribute's is decoded, in any of its entity forms.
+  const links = [...tagged.map((l) => l.replace(/&(?:amp|#0*38|#x0*26);/gi, '&')), ...scripted];
   assert.ok(links.length > 0, `${page} has no App Store link`);
   // A link in any other form, single quotes or another attribute, would slip past the match above.
-  assert.equal((html.match(/apps\.apple\.com/gi) || []).length, tagged.length, `${page} has an App Store link the check can't read`);
+  // Only a mention inside a tag can be a link, so a source's name printed as text isn't counted.
+  const inTags = (html.match(/<[^>]*>/g) || []).join(' ');
+  assert.equal((inTags.match(/apps\.apple\.com/gi) || []).length, tagged.length, `${page} has an App Store link the check can't read`);
   for (const link of links) {
     const url = new URL(link);
-    assert.ok(/\/id6757343766$/.test(url.pathname), `${page} App Store link ${link} isn't TroyStack's`);
+    assert.ok(/\/id6757343766\/?$/.test(url.pathname), `${page} App Store link ${link} isn't TroyStack's`);
     const ct = url.searchParams.getAll('ct');
     assert.deepEqual(ct, ['site-signal'], `${page} App Store link ${link} counts under ${ct.join(',') || 'nothing'}`);
   }
@@ -801,6 +803,17 @@ test('the Signal link check skips editorial and script mentions and still catche
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '//apps.apple.com/app/id6757343766?ct=site-home';</script>`), 'scripted relative'), /script App Store link the check can't read/);
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<script>btn.href = '${ours}';</script>`), 'scripted amp'), /counts under nothing/);
   assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="https://x.com" rel="nofollow">x <a href="${ours.replace('site-signal', 'site-home')}">Get</a>`), 'unclosed nofollow'), /counts under site-home/);
+  // A source named after the App Store and printed as text isn't a link.
+  assertEveryAppStoreLinkSiteSignal(page('<span class="source">apps.apple.com</span>'), 'source text');
+  // A trailing slash after the id is still TroyStack's page, and other ids still aren't.
+  assertEveryAppStoreLinkSiteSignal(`<a href="${ours.replace('id6757343766', 'id6757343766/')}">App Store</a>`, 'trailing slash');
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace('id6757343766', 'id6757343766/x')}">Footer</a>`), 'after slash'), /isn't TroyStack's/);
+  // &#38; and &#x26; are the same & as &amp; in an attribute.
+  assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&#38;')}">Footer</a>`), 'decimal entity');
+  assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&#x26;')}">Footer</a>`), 'hex entity');
+  assert.throws(() => assertEveryAppStoreLinkSiteSignal(page(`<a href="${ours.replace(/&amp;/g, '&#38;').replace('site-signal', 'site-home')}">Footer</a>`), 'entity moved'), /counts under site-home/);
+  // A nofollow link closed as </a > is still dropped whole.
+  assertEveryAppStoreLinkSiteSignal(page(`<a href="https://x.com" rel="nofollow">https://apps.apple.com/us/app/mint/id123</a >`), 'spaced close');
 });
 
 test('the Signal index and an article give visitors without an iPhone a web path', async (t) => {

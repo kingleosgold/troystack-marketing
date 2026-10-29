@@ -358,6 +358,7 @@ test('no page sells Troy as an AI or links the app on troystack.ai', () => {
   for (const f of files) {
     const text = read(f);
     assert.doesNotMatch(text, /AI[- ](stack |precious metals )?analyst|AI-powered/i, `${f} still sells Troy as an AI`);
+    assert.doesNotMatch(text, /\bAI (receipt|analysis|extracts)|AI-curated/i, `${f} still sells a feature as AI`);
     assert.doesNotMatch(text, /(?<!api\.)troystack\.ai/, `${f} still names troystack.ai`);
   }
 });

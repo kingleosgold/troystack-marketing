@@ -7,8 +7,8 @@ TroyStack is a precious metals portfolio tracker for gold, silver, platinum, and
 Troy is the app's built-in analyst, named for the troy ounce. Troy is an AI, and his answers are analysis, not financial advice. Troy provides:
 - Personalized daily market briefings (Troy's Take)
 - Chat-based Q&A about your stack, the metals market, and COMEX data
-- Stack intelligence: AI analysis of your holdings, cost basis, allocation, and timing
-- Market intelligence: AI-curated articles and COMEX vault alerts
+- Stack intelligence: analysis of your holdings, cost basis, allocation, and timing
+- Market intelligence: curated articles and COMEX vault alerts
 
 ## The Stack Signal
 The Stack Signal is Troy's daily precious metals intelligence feed. Troy reads dozens of news feeds every day, scoring and analyzing the stories that matter to precious metals stackers. About 10 pieces a day, each with a hero image.
@@ -18,7 +18,7 @@ The Stack Signal is Troy's daily precious metals intelligence feed. Troy reads d
 
 ## Key Features
 - Live spot prices for gold, silver, platinum, palladium (updated every minute)
-- AI receipt scanner (snap a dealer receipt, AI extracts line items)
+- Receipt scanner (snap a dealer receipt and its line items are read for you)
 - iOS widgets (small, medium, large, lock screen)
 - Price alerts including all-time high notifications
 - COMEX Vault Watch (registered and eligible inventory tracking)

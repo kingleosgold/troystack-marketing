@@ -192,7 +192,7 @@ const handler = async (req, res) => {
       articleBody: plainBody,
       author: {
         '@type': 'Organization',
-        name: 'Troy, the TroyStack stack analyst',
+        name: 'Troy',
         url: SITE_URL,
       },
       publisher: {

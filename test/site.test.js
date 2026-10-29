@@ -361,3 +361,10 @@ test('no page sells Troy as an AI or links the app on troystack.ai', () => {
     assert.doesNotMatch(text, /(?<!api\.)troystack\.ai/, `${f} still names troystack.ai`);
   }
 });
+
+// A page that offers Troy says he's an AI, since its copy calls him an analyst.
+test('the tool pages say Troy is an AI', () => {
+  for (const f of ['calculator.html', 'speculation.html']) {
+    assert.match(read(f), /Troy is an AI\./, `${f} has no line saying Troy is an AI`);
+  }
+});

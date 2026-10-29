@@ -826,7 +826,7 @@ test('the Signal index and an article give visitors without an iPhone a web path
   assert.ok(!/[?&](?:amp;)?ct=signal(?![a-z0-9-])/i.test(res.body), 'a Signal index App Store link still uses ct=signal');
   assertEveryAppStoreLinkSiteSignal(res.body, '/signal');
   require('./_cta').assertBannerCounts('/signal', res.body, 'site-signal');
-  assert.ok(res.body.includes('href="https://troystack.ai/gold?campaign=site-signal"'));
+  assert.ok(res.body.includes('href="https://troystack.com/gold?campaign=site-signal"'));
   t.mock.restoreAll();
   // An editorial source that links another app's App Store page isn't an install button.
   const sources = [{ title: 'A mint app', name: 'App Store', url: 'https://apps.apple.com/us/app/mint/id123' }];

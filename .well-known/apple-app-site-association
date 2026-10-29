@@ -1,0 +1,16 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "3BKELS5FG9.com.stacktrackerpro.app",
+        "appIDs": ["3BKELS5FG9.com.stacktrackerpro.app"],
+        "paths": ["/auth/reset-password", "/auth/reset-password/*"],
+        "components": [
+          { "/": "/auth/reset-password" },
+          { "/": "/auth/reset-password/*" }
+        ]
+      }
+    ]
+  }
+}

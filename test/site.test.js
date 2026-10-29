@@ -350,3 +350,22 @@ test('the iPhone swap moves links only on an iPhone or iPad', () => {
   assert.equal(android.hidden.style.display, undefined);
   assert.equal(run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)').link.href, 'https://troystack.ai/gold');
 });
+
+// The app opens troystack.com links only for a password reset. Privacy and
+// terms, which the paywall links, must stay in Safari, so the file names that
+// one path and nothing broader, and it's served as JSON with no redirect.
+test('apple-app-site-association sends only the password reset into the app', () => {
+  const aasa = JSON.parse(read('.well-known/apple-app-site-association'));
+  const [detail, ...rest] = aasa.applinks.details;
+  assert.equal(rest.length, 0);
+  assert.equal(detail.appID, '3BKELS5FG9.com.stacktrackerpro.app');
+  assert.deepEqual(detail.appIDs, [detail.appID]);
+  const paths = [...detail.paths, ...detail.components.map((c) => c['/'])];
+  for (const p of paths) assert.match(p, /^\/auth\/reset-password(\/\*)?$/);
+  const { headers = [] } = JSON.parse(read('vercel.json'));
+  const rule = headers.find((h) => h.source === '/.well-known/apple-app-site-association');
+  assert.ok(rule, 'no header rule for the association file');
+  assert.ok(rule.headers.some((h) => h.key === 'Content-Type' && h.value === 'application/json'));
+  const { redirects = [] } = JSON.parse(read('vercel.json'));
+  assert.ok(redirects.every((r) => (r.has || []).some((h) => h.type === 'host')), 'a redirect without a host rule would catch the apex file');
+});

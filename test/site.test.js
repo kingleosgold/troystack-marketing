@@ -131,6 +131,7 @@ const apiScripts = fs.readdirSync(path.join(ROOT, 'api'), { recursive: true })
 test('no page, script or llms.txt carries an em dash', () => {
   const files = [
     ...htmlPages,
+    'auth/reset-password.html',
     'llms.txt',
     ...apiScripts,
   ];
@@ -362,10 +363,27 @@ test('apple-app-site-association sends only the password reset into the app', ()
   assert.deepEqual(detail.appIDs, [detail.appID]);
   const paths = [...detail.paths, ...detail.components.map((c) => c['/'])];
   for (const p of paths) assert.match(p, /^\/auth\/reset-password(\/\*)?$/);
+  assert.ok(detail.paths.includes('/auth/reset-password'), 'the reset path itself is missing');
+  assert.ok(detail.components.some((c) => c['/'] === '/auth/reset-password'), 'the reset component is missing');
   const { headers = [] } = JSON.parse(read('vercel.json'));
   const rule = headers.find((h) => h.source === '/.well-known/apple-app-site-association');
   assert.ok(rule, 'no header rule for the association file');
   assert.ok(rule.headers.some((h) => h.key === 'Content-Type' && h.value === 'application/json'));
   const { redirects = [] } = JSON.parse(read('vercel.json'));
   assert.ok(redirects.every((r) => (r.has || []).some((h) => h.type === 'host')), 'a redirect without a host rule would catch the apex file');
+});
+
+// Without the app on the device, the reset link opens in the browser. The page
+// at that path hands the link's fragment and query to troystack.ai's reset
+// page, which sets the new password, and leaks nothing on the way.
+test('a reset link opened without the app goes on to troystack.ai with its session', () => {
+  const page = read('auth/reset-password.html');
+  const target = "'https://troystack.ai/reset-password' + location.search + location.hash";
+  assert.ok(page.includes(`location.replace(${target})`), 'the page must forward with the fragment');
+  assert.ok(page.includes(`.href = ${target}`), 'the button must carry the fragment too');
+  assert.match(page, /<meta name="robots" content="noindex">/);
+  assert.match(page, /<meta name="referrer" content="no-referrer">/);
+  assert.doesNotMatch(page, /<script[^>]*\bsrc=/i, 'no outside script may see the reset session');
+  assert.doesNotMatch(page, /fonts\.googleapis|insights/i);
+  assert.ok(!fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').includes('/auth/'), 'the reset page stays out of the sitemap');
 });

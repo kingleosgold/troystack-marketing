@@ -386,4 +386,6 @@ test('a reset link opened without the app goes on to troystack.ai with its sessi
   assert.doesNotMatch(page, /<script[^>]*\bsrc=/i, 'no outside script may see the reset session');
   assert.doesNotMatch(page, /fonts\.googleapis|insights/i);
   assert.ok(!fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8').includes('/auth/'), 'the reset page stays out of the sitemap');
+  // With JavaScript off the button can't carry the session, so the page says how to finish.
+  assert.match(page, /<noscript><p>[^<]*JavaScript[^<]*<\/p><\/noscript>/, 'a visitor with JavaScript off needs to be told');
 });

@@ -140,18 +140,18 @@ test('no page, script or llms.txt carries an em dash', () => {
   }
 });
 
-test('every link to troystack.ai/gold says which page sent it', () => {
-  // troystack.ai counts a Gold page visit under a site-* token, so its funnel
+test('every link to troystack.com/gold says which page sent it', () => {
+  // troystack.com counts a Gold page visit under a site-* token, so its funnel
   // shows which page here sent the visitor.
   for (const f of htmlPages) {
-    for (const [, href] of read(f).matchAll(/href="(https:\/\/troystack\.ai\/gold\b[^"]*)"/g)) {
-      assert.match(href, /^https:\/\/troystack\.ai\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `${f} links to ${href}`);
+    for (const [, href] of read(f).matchAll(/href="(https:\/\/troystack\.com\/gold\b[^"]*)"/g)) {
+      assert.match(href, /^https:\/\/troystack\.com\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `${f} links to ${href}`);
     }
   }
-  const llmsGold = [...read('llms.txt').matchAll(/https:\/\/troystack\.ai\/gold\b\S*/g)];
-  assert.ok(llmsGold.length > 0, 'llms.txt no longer links to troystack.ai/gold');
+  const llmsGold = [...read('llms.txt').matchAll(/https:\/\/troystack\.com\/gold\b\S*/g)];
+  assert.ok(llmsGold.length > 0, 'llms.txt no longer links to troystack.com/gold');
   for (const [href] of llmsGold) {
-    assert.match(href, /^https:\/\/troystack\.ai\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `llms.txt links to ${href}`);
+    assert.match(href, /^https:\/\/troystack\.com\/gold\?campaign=site-[a-z0-9-]{1,32}$/, `llms.txt links to ${href}`);
   }
 });
 
@@ -253,7 +253,7 @@ test('the home page names one URL for itself in canonical, og:url and JSON-LD', 
 });
 
 // Android and desktop visitors can't install the iPhone app, so every main
-// button and header link opens troystack.ai for them and only an iPhone swaps
+// button and header link opens troystack.com for them and only an iPhone swaps
 // in the App Store, through the shared /ios-swap.js.
 const { checkCtas } = require('./_cta');
 
@@ -267,7 +267,7 @@ test('the checker holds any link with an iPhone swap as a main button', () => {
 });
 
 // The home header and hero carry their own tokens, so a tap on each one is
-// counted on its own in troystack.ai's funnel and in App Store Connect. An
+// counted on its own in troystack.com's funnel and in App Store Connect. An
 // iPhone gets one path in the hero, the App Store, and loses the web plans link.
 test('the home header and hero are tagged apart and an iPhone hero has one path', () => {
   const html = read('index.html');
@@ -323,16 +323,16 @@ test('the banner check catches a missing, doubled or wrong token', () => {
   assert.throws(() => assertBannerCounts('mixed quotes', `<meta name="apple-itunes-app' content="${good}">`, 'site-home'), /exactly one/);
 });
 
-test('each tool page has a main button that opens troystack.ai/gold', () => {
+test('each tool page has a main button that opens troystack.com/gold', () => {
   for (const f of ['calculator.html', 'speculation.html', 'junk-silver.html']) {
-    assert.match(read(f), /<a href="https:\/\/troystack\.ai\/gold\?campaign=site-[a-z-]+"[^>]*class="[^"]*\bcta-btn\b/, `${f} has no main button into Gold`);
+    assert.match(read(f), /<a href="https:\/\/troystack\.com\/gold\?campaign=site-[a-z-]+"[^>]*class="[^"]*\bcta-btn\b/, `${f} has no main button into Gold`);
   }
 });
 
 test('the iPhone swap moves links only on an iPhone or iPad', () => {
   const src = read('ios-swap.js');
   const run = (userAgent, maxTouchPoints = 0) => {
-    const link = { attrs: { 'data-ios-href': 'https://apps.apple.com/x', 'data-ios-label': 'Get the App' }, href: 'https://troystack.ai/gold', textContent: 'Try Gold',
+    const link = { attrs: { 'data-ios-href': 'https://apps.apple.com/x', 'data-ios-label': 'Get the App' }, href: 'https://troystack.com/gold', textContent: 'Try Gold',
       getAttribute(k) { return this.attrs[k]; }, hasAttribute(k) { return k in this.attrs; } };
     const hidden = { style: {} };
     const document = { querySelectorAll: (q) => ({ '[data-ios-hide]': [hidden], 'a[data-ios-href]': [link] })[q] || [] };
@@ -346,10 +346,29 @@ test('the iPhone swap moves links only on an iPhone or iPad', () => {
   assert.equal(iphone.hidden.style.display, 'none');
   assert.equal(run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)', 5).link.href, 'https://apps.apple.com/x');
   const android = run('Mozilla/5.0 (Linux; Android 15; Pixel 9)');
-  assert.equal(android.link.href, 'https://troystack.ai/gold');
+  assert.equal(android.link.href, 'https://troystack.com/gold');
   assert.equal(android.link.textContent, 'Try Gold');
   assert.equal(android.hidden.style.display, undefined);
-  assert.equal(run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)').link.href, 'https://troystack.ai/gold');
+  assert.equal(run('Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)').link.href, 'https://troystack.com/gold');
+});
+
+// Jon's call of 10/28: marketing copy says Troy, not an AI analyst, and the
+// site's address is troystack.com. The lines that say Troy is an AI stay.
+test('no page sells Troy as an AI or links the app on troystack.ai', () => {
+  const files = [...htmlPages, 'llms.txt', 'api/signal-index.js', 'api/signal-article.js', 'api/_shared/signal-lib.js'];
+  for (const f of files) {
+    const text = read(f);
+    assert.doesNotMatch(text, /AI[- ](stack |precious metals )?analyst|AI-powered/i, `${f} still sells Troy as an AI`);
+    assert.doesNotMatch(text, /\bAI (receipt|analysis|extracts)|AI-curated/i, `${f} still sells a feature as AI`);
+    assert.doesNotMatch(text, /(?<!api\.)troystack\.ai/, `${f} still names troystack.ai`);
+  }
+});
+
+// A page that offers Troy says he's an AI, since its copy calls him an analyst.
+test('the home and tool pages say Troy is an AI', () => {
+  for (const f of ['index.html', 'calculator.html', 'junk-silver.html', 'speculation.html']) {
+    assert.match(read(f), /Troy is an AI\./, `${f} has no line saying Troy is an AI`);
+  }
 });
 
 // The app opens troystack.com links only for a password reset. Privacy and

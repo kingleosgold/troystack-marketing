@@ -1,7 +1,7 @@
 // On an iPhone or iPad a link marked data-ios-href goes to the App Store,
 // where the app's own free week lives, and takes its data-ios-label if it has
 // one. Anything marked data-ios-hide goes, so a box keeps one App Store link.
-// Everywhere else the links stay on troystack.ai, since Android and desktop
+// Everywhere else the links stay on troystack.com, since Android and desktop
 // visitors can't install the iPhone app.
 (function() {
     var ua = navigator.userAgent || '';

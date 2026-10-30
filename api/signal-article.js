@@ -24,7 +24,7 @@ const {
 // Readers who want more than the article go to the web app, where Troy and
 // the free week live, or to the App Store on an iPhone. Each link carries a
 // campaign so installs and checkouts from the Signal can be told apart.
-const WEB_APP_URL = 'https://troystack.ai';
+const WEB_APP_URL = 'https://troystack.com';
 const WEB_TRIAL_URL = `${WEB_APP_URL}/auth?mode=signup&redirect=checkout&plan=monthly&campaign=site-signal`;
 
 function sourceLink(url) {
@@ -140,7 +140,7 @@ const handler = async (req, res) => {
     const category = categoryLabel(article.category);
     const heroImg = article.image_url;
     const articleUrl = `${SITE_URL}/signal/${encodeURIComponent(pageSlug)}`;
-    // troystack.ai asks Troy the question in ?q= once the page opens. Visitors
+    // troystack.com asks Troy the question in ?q= once the page opens. Visitors
     // get three answers a day without an account, and Troy doesn't know a
     // visitor's stack, so the question is one he can answer for anyone.
     const askTroyUrl = `${WEB_APP_URL}/troy?q=${encodeURIComponent(`What does "${title}" mean for people who stack gold and silver?`)}`;
@@ -192,7 +192,7 @@ const handler = async (req, res) => {
       articleBody: plainBody,
       author: {
         '@type': 'Organization',
-        name: 'Troy, the TroyStack AI stack analyst',
+        name: 'Troy',
         url: SITE_URL,
       },
       publisher: {
@@ -477,7 +477,7 @@ const handler = async (req, res) => {
       </div>
 
       <div class="ask-troy">
-        <p><strong>What does this mean for stackers?</strong> Ask Troy. He answers on troystack.ai, three questions a day free, no account needed.</p>
+        <p><strong>What does this mean for stackers?</strong> Ask Troy. He answers on troystack.com, three questions a day free, no account needed.</p>
         <a href="${escapeHtml(askTroyUrl)}" class="cta-btn">Ask Troy about this</a>
       </div>
     </div>

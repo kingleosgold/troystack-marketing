@@ -48,7 +48,7 @@ function signalHref(article) {
 const NOINDEX = 'noindex, follow';
 
 // The Signal's pipeline sometimes writes long dashes. They become commas, the
-// same way troystack.ai's plainDashes does, so a page never shows one and a
+// same way troystack.com's plainDashes does, so a page never shows one and a
 // spaced dash never counts as a word. A dash between numbers is a range. Code
 // spans and link targets keep their dashes, so a link never breaks.
 function plainDashes(text) {
@@ -70,7 +70,7 @@ function plainDashes(text) {
 
 // Every text a Signal page shows, its title, meta description, body, one-liner
 // and headlines, loses its long dashes where the article is fetched, the way
-// troystack.ai's signalApi does. Slugs, links and source titles stay as stored.
+// troystack.com's signalApi does. Slugs, links and source titles stay as stored.
 function plainArticle(article) {
   if (!article || typeof article !== 'object') return article;
   const out = { ...article };
@@ -90,7 +90,7 @@ function plainArticle(article) {
 }
 
 // News items stored before 10/9 carry a one-liner cut to a word or two, like
-// "Fed" or "Gold shines as". troystack.ai and Troy's chat context skip any line
+// "Fed" or "Gold shines as". troystack.com and Troy's chat context skip any line
 // under five words or 25 characters once its dashes are commas, and the
 // article page does the same.
 function usableOneLiner(text) {
@@ -221,9 +221,9 @@ const SITE_URL = 'https://troystack.com';
 // links carry too, so App Store Connect counts Signal's installs in one place.
 const APP_STORE_URL = 'https://apps.apple.com/app/apple-store/id6757343766?pt=96487801&ct=site-signal&mt=8';
 // Android and desktop visitors can't install the iPhone app, so their Gold
-// links open troystack.ai/gold and only an iPhone swaps in the App Store under
+// links open troystack.com/gold and only an iPhone swaps in the App Store under
 // the same site-signal token.
-const GOLD_URL = 'https://troystack.ai/gold?campaign=site-signal';
+const GOLD_URL = 'https://troystack.com/gold?campaign=site-signal';
 const GOLD_APP_STORE_URL = APP_STORE_URL;
 
 const SHARED_STYLES = `

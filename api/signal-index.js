@@ -229,7 +229,7 @@ module.exports = async (req, res) => {
       function firstSent(txt, max){
         var c = stripMd(txt);
         if (!c) return '';
-        var m = c.match(/[^.!?]+[.!?]+/g);
+        var m = c.match(/\\S[\\s\\S]*?[.!?]+(?=\\s|$)/g);
         var out = (m && m.length ? m.slice(0,2).join(' ') : c).trim();
         if (out.length > max) {
           var slice = out.slice(0, max);

@@ -841,3 +841,24 @@ test('the Signal index and an article give visitors without an iPhone a web path
   require('./_cta').assertBannerCounts('/signal/the-stack-signal-2026-10-19', res.body, 'site-signal');
   for (const [, js] of res.body.matchAll(/<script>([\s\S]*?)<\/script>/g)) new Function(js);
 });
+
+test('a Signal excerpt keeps a price whole and never cuts at its decimal point', () => {
+  const text = 'Gold closed the day at $4,075.20 and silver at $52.10. The ratio held at 78.3! A third line.';
+  assert.equal(lib.firstSentences(text), 'Gold closed the day at $4,075.20 and silver at $52.10. The ratio held at 78.3!');
+  assert.equal(lib.firstSentences('Banks buy.  With gold at 4072.50, stackers wait. More.'), 'Banks buy. With gold at 4072.50, stackers wait.');
+  assert.equal(lib.firstSentences('No stop at all'), 'No stop at all');
+});
+
+test('the Signal list page script keeps a price whole when it loads more cards', async (t) => {
+  t.mock.method(globalThis, 'fetch', async () => listResponse([]));
+  const res = fakeRes();
+  await require('../api/signal-index')({ method: 'GET', query: {}, url: '/signal' }, res);
+  const html = String(res.body);
+  const start = html.indexOf('function stripMd(');
+  const end = html.indexOf('function fmtDate(');
+  assert.ok(start > 0 && end > start, 'the page script defines stripMd and firstSent');
+  // eslint-disable-next-line no-new-func
+  const firstSent = new Function(`${html.slice(start, end)}; return firstSent;`)();
+  assert.equal(firstSent('Gold closed the day at $4,075.20 and silver at $52.10. Next.', 220), 'Gold closed the day at $4,075.20 and silver at $52.10. Next.');
+  assert.equal(firstSent('A. B. C.', 220), 'A. B.');
+});

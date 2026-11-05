@@ -139,7 +139,9 @@ function stripMarkdown(md) {
 function firstSentences(text, count = 2, maxLen = 220) {
   const clean = stripMarkdown(text);
   if (!clean) return '';
-  const matches = clean.match(/[^.!?]+[.!?]+/g);
+  // A sentence ends at a stop followed by a space or the end, so a price
+  // like $4,075.20 stays whole instead of cutting at its decimal point.
+  const matches = clean.match(/\S[\s\S]*?[.!?]+(?=\s|$)/g);
   let out;
   if (matches && matches.length) {
     out = matches.slice(0, count).join(' ').trim();

@@ -25,9 +25,9 @@ function checkCtas(name, html) {
       const campaign = (href.match(/[?&](?:amp;)?campaign=([^&"]*)/) || [])[1];
       if (campaign) assert.equal(ct, campaign, `${name} tags one button two ways: ${tag}`);
     }
-    // troystack.ai drops a site token it can't read, so a typo loses the count.
+    // troystack.com drops a site token it can't read, so a typo loses the count.
     for (const [, token] of tag.matchAll(/[?&](?:amp;)?(?:campaign|ct)=([^&"]*)/g)) {
-      if (token.startsWith('site-')) assert.match(token, /^site-[a-z0-9-]{1,32}$/, `${name} has a site token troystack.ai won't read: ${tag}`);
+      if (token.startsWith('site-')) assert.match(token, /^site-[a-z0-9-]{1,32}$/, `${name} has a site token troystack.com won't read: ${tag}`);
     }
   }
   const lastMarked = Math.max(html.lastIndexOf('data-ios-href='), html.lastIndexOf('data-ios-hide'));

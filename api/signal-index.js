@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
       '@context': 'https://schema.org',
       '@type': 'ItemList',
       name: 'Stack Signal',
-      description: 'AI-powered precious metals market intelligence by Troy',
+      description: 'Precious metals market intelligence by Troy',
       url: `${SITE_URL}/signal`,
       numberOfItems: listed.length,
       itemListElement: listed.map((a, i) => ({
@@ -64,17 +64,17 @@ module.exports = async (req, res) => {
     const ogImage = (articles[0] && articles[0].image_url) || `${SITE_URL}/icon.png`;
 
     const head = `
-    <meta name="description" content="AI-powered precious metals market analysis. Daily coverage of gold, silver, COMEX, and the macro environment. By Troy, your AI stack analyst.">
+    <meta name="description" content="Precious metals market analysis. Daily coverage of gold, silver, COMEX, and the macro environment. By Troy, your stack analyst.">
     <link rel="canonical" href="${SITE_URL}/signal">
     <meta property="og:title" content="Stack Signal: Daily Gold &amp; Silver Market Intelligence">
-    <meta property="og:description" content="AI-powered precious metals market analysis by Troy, your AI stack analyst.">
+    <meta property="og:description" content="Precious metals market analysis by Troy, your stack analyst.">
     <meta property="og:image" content="${escapeHtml(ogImage)}">
     <meta property="og:url" content="${SITE_URL}/signal">
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="TroyStack">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Stack Signal: Daily Gold &amp; Silver Market Intelligence">
-    <meta name="twitter:description" content="AI-powered precious metals market analysis by Troy.">
+    <meta name="twitter:description" content="Precious metals market analysis by Troy.">
     <meta name="twitter:image" content="${escapeHtml(ogImage)}">
     <meta name="twitter:site" content="@troystack_">
     <script type="application/ld+json">${scriptJson(itemListJson)}</script>`;
@@ -182,8 +182,8 @@ module.exports = async (req, res) => {
 
     <section class="signal-hero">
       <div class="container">
-        <h1>Stack Signal<br><span class="accent">AI-Powered Precious Metals Intelligence</span></h1>
-        <p>Daily market analysis written by Troy, your AI stack analyst. New pieces through the day.</p>
+        <h1>Stack Signal<br><span class="accent">Precious Metals Intelligence</span></h1>
+        <p>Daily market analysis written by Troy, your stack analyst. New pieces through the day.</p>
       </div>
     </section>
 
